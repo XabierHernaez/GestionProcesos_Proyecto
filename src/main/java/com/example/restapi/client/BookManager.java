@@ -13,7 +13,7 @@ public class BookManager {
     private String BOOK_CONTROLLER_URL_TEMPLATE = "http://%s:%s/api/books";
     private final String BOOK_CONTROLLER_URL;
     private final RestTemplate restTemplate;
-    private int a = 0;
+    
 
     public BookManager(String hostname, String port) {
         BOOK_CONTROLLER_URL = String.format(BOOK_CONTROLLER_URL_TEMPLATE, hostname, port);
