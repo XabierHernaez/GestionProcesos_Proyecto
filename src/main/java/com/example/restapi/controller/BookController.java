@@ -19,6 +19,7 @@ public class BookController {
 
     @Autowired
     private BookService bookService;
+    private int s =0;
 
     @GetMapping
     public List<Book> getAllBooks() {
