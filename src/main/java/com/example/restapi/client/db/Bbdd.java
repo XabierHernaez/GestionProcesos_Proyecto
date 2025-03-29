@@ -9,6 +9,7 @@ import java.util.Date;
 import com.example.restapi.model.Concierto;
 import com.example.restapi.model.Usuario;
 
+
 public class Bbdd {
     private static Connection conn;
     private static final String DRIVER = "org.sqlite.JDBC";
@@ -90,7 +91,7 @@ public class Bbdd {
     }
 
     // Insertar un usuario
-    public static int insertUsuario(String nombre, String apellido, String email, String password, int telefono, String dni, Usuario.TipoUsuario tipoUsuario) throws SQLException {
+    public static int insertUsuario(String nombre, String apellido, String email, String password, int telefono, String dni, Entada.TipoUsuario tipoUsuario) throws SQLException {
         getConnection();
         String sql = "INSERT INTO Usuarios (nombre, apellido, email, password_hash, telefono, dni, tipo_usuario) VALUES (?, ?, ?, ?, ?, ?, ?)";
         try (PreparedStatement stmt = conn.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS)) {
@@ -136,5 +137,5 @@ public class Bbdd {
             }
             return -1;
         }
-        }
+    }
 }
