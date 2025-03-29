@@ -92,6 +92,7 @@ public class Bbdd {
 
     // Insertar un usuario
     public static int insertUsuario(String nombre, String apellido, String email, String password, int telefono, String dni, TipoUsuario tipoUsuario) throws SQLException {
+
         getConnection();
         String sql = "INSERT INTO Usuarios (nombre, apellido, email, password_hash, telefono, dni, tipo_usuario) VALUES (?, ?, ?, ?, ?, ?, ?)";
         try (PreparedStatement stmt = conn.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS)) {
@@ -182,5 +183,6 @@ public class Bbdd {
             }
             return false;
         }
+
     }
 }
