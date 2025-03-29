@@ -1,7 +1,11 @@
 package com.example.restapi.client.window;
 
 import java.awt.*;
+import java.sql.SQLException;
+
 import javax.swing.*;
+
+import com.example.restapi.model.Usuario;
 
 public class VentanaInicioSesion extends JFrame {
     private static final long serialVersionUID = 1L;
@@ -64,6 +68,7 @@ public class VentanaInicioSesion extends JFrame {
 
         setVisible(true);
     }
+
 
     private void abrirRegistro() {
         new VentanaRegistro(this);

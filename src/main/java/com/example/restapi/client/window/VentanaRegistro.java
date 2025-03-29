@@ -1,125 +1,110 @@
 package com.example.restapi.client.window;
 
 import java.awt.*;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
-import java.sql.Date;
 import javax.swing.*;
-import com.example.restapi.model.Usuario;
-import com.example.restapi.model.TipoPago;
+
+import com.example.restapi.model.TipoUsuario;
 
 public class VentanaRegistro extends JDialog {
     private static final long serialVersionUID = 1L;
-
-    // Campos del formulario
-    private JTextField txtNombre, txtApellidos, txtEmail, txtTelefono, txtDni;
+    private JTextField txtNombre, txtApellido, txtEmail, txtTelefono, txtDni, txtCodigoSecreto;
     private JPasswordField txtPassword;
-    private JComboBox<TipoPago> comboTipoPago;
-    private JSpinner spinnerFechaNacimiento;
-    private JButton btnRegistrar, btnCancelar;
+    private JComboBox<TipoUsuario> comboTipoUsuario;
+    private JButton btnRegistrar;
+    private JLabel lblCodigoSecreto;
+    @SuppressWarnings("unused")
+    private VentanaInicioSesion parent;
+    private static final String CODIGO_SECRETO_ADMIN = "Admin123"; // Código secreto fijo (puedes cambiarlo)
 
-    public VentanaRegistro(Frame parent) {
+    public VentanaRegistro(VentanaInicioSesion parent) {
         super(parent, "Registro de Usuario", true);
-        setSize(400, 450);  // Tamaño de la ventana
+        this.parent = parent;
+        setSize(300, 350); // Aumentamos tamaño para el nuevo campo
         setLocationRelativeTo(parent);
-        setLayout(new BorderLayout());
 
-        // Crear panel principal con GridLayout para el formulario
-        JPanel panelFormulario = new JPanel(new GridLayout(8, 2, 10, 10));
-        panelFormulario.setBorder(BorderFactory.createEmptyBorder(10, 20, 10, 20));
+		// Cambiar icono de la ventana
+		ImageIcon imagen1 = new ImageIcon("resources/images/bravo.png");
+		setIconImage(imagen1.getImage());
 
-        // Añadir campos del formulario
-        panelFormulario.add(new JLabel("Nombre:"));
+        JPanel panel = new JPanel(new GridLayout(9, 2, 5, 5)); // Aumentamos a 9 filas
+        panel.setBorder(BorderFactory.createEmptyBorder(10, 10, 10, 10));
+
+        panel.add(new JLabel("Nombre:"));
         txtNombre = new JTextField();
-        panelFormulario.add(txtNombre);
+        panel.add(txtNombre);
 
-        panelFormulario.add(new JLabel("Apellidos:"));
-        txtApellidos = new JTextField();
-        panelFormulario.add(txtApellidos);
+        panel.add(new JLabel("Apellido:"));
+        txtApellido = new JTextField();
+        panel.add(txtApellido);
 
-        panelFormulario.add(new JLabel("Email:"));
+        panel.add(new JLabel("Email:"));
         txtEmail = new JTextField();
-        panelFormulario.add(txtEmail);
+        panel.add(txtEmail);
 
-        panelFormulario.add(new JLabel("Contraseña:"));
+        panel.add(new JLabel("Contraseña:"));
         txtPassword = new JPasswordField();
-        panelFormulario.add(txtPassword);
+        panel.add(txtPassword);
 
-        panelFormulario.add(new JLabel("Teléfono:"));
+        panel.add(new JLabel("Teléfono:"));
         txtTelefono = new JTextField();
-        panelFormulario.add(txtTelefono);
+        panel.add(txtTelefono);
 
-        panelFormulario.add(new JLabel("DNI:"));
+        panel.add(new JLabel("DNI:"));
         txtDni = new JTextField();
-        panelFormulario.add(txtDni);
+        panel.add(txtDni);
 
-        panelFormulario.add(new JLabel("Fecha de Nacimiento:"));
-        spinnerFechaNacimiento = new JSpinner(new SpinnerDateModel());
-        spinnerFechaNacimiento.setEditor(new JSpinner.DateEditor(spinnerFechaNacimiento, "dd/MM/yyyy"));
-        panelFormulario.add(spinnerFechaNacimiento);
+        panel.add(new JLabel("Tipo de usuario:"));
+        comboTipoUsuario = new JComboBox<>(TipoUsuario.values());
+        comboTipoUsuario.setSelectedItem(TipoUsuario.CLIENTE);
+        panel.add(comboTipoUsuario);
 
-        panelFormulario.add(new JLabel("Tipo de Pago:"));
-        comboTipoPago = new JComboBox<>(TipoPago.values()); 
-        panelFormulario.add(comboTipoPago);
+        lblCodigoSecreto = new JLabel("Código Secreto (solo ADMIN):");
+        txtCodigoSecreto = new JTextField();
+        txtCodigoSecreto.setEnabled(false); // Deshabilitado por defecto
+        panel.add(lblCodigoSecreto);
+        panel.add(txtCodigoSecreto);
 
-        add(panelFormulario, BorderLayout.CENTER);
-
-        // Botones de registrar y cancelar
-        JPanel panelBotones = new JPanel();
         btnRegistrar = new JButton("Registrar");
-        btnCancelar = new JButton("Cancelar");
-        panelBotones.add(btnRegistrar);
-        panelBotones.add(btnCancelar);
-        add(panelBotones, BorderLayout.SOUTH);
+        panel.add(new JLabel(""));
+        panel.add(btnRegistrar);
 
-        // Listener del botón Registrar
-        btnRegistrar.addActionListener(new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                registrarUsuario();
+        add(panel);
+
+        // Habilitar/deshabilitar el campo de código secreto según el tipo seleccionado
+        comboTipoUsuario.addActionListener(e -> {
+            if (comboTipoUsuario.getSelectedItem().equals(TipoUsuario.ADMIN)) {
+                txtCodigoSecreto.setEnabled(true);
+            } else {
+                txtCodigoSecreto.setEnabled(false);
+                txtCodigoSecreto.setText(""); // Limpiar el campo si no es ADMIN
             }
         });
 
-        // Listener del botón Cancelar para cerrar la ventana
-        btnCancelar.addActionListener(e -> dispose());
+        btnRegistrar.addActionListener(e -> registrar());
 
-        // Mostrar la ventana
         setVisible(true);
     }
 
-    private void registrarUsuario() {
-        // Obtener valores de los campos
+    private void registrar() {
         String nombre = txtNombre.getText().trim();
-        String apellidos = txtApellidos.getText().trim();
+        String apellido = txtApellido.getText().trim();
         String email = txtEmail.getText().trim();
-        String password = new String(txtPassword.getPassword()).trim();
-        String telefono = txtTelefono.getText().trim();
-        String dniStr = txtDni.getText().trim();
-        Date fechaNacimiento = new Date(((java.util.Date) spinnerFechaNacimiento.getValue()).getTime());
-        TipoPago tipoPago = (TipoPago) comboTipoPago.getSelectedItem();
+        String password = new String(txtPassword.getPassword());
+        String telefonoStr = txtTelefono.getText().trim();
+        String dni = txtDni.getText().trim();
+        String codigoSecreto = txtCodigoSecreto.getText().trim();
+        TipoUsuario tipoUsuario = (TipoUsuario) comboTipoUsuario.getSelectedItem();
 
-        // Validación básica
-        if (nombre.isEmpty() || apellidos.isEmpty() || email.isEmpty() || password.isEmpty()
-                || telefono.isEmpty() || dniStr.isEmpty()) {
+        if (nombre.isEmpty() || apellido.isEmpty() || email.isEmpty() || password.isEmpty() || telefonoStr.isEmpty() || dni.isEmpty()) {
             JOptionPane.showMessageDialog(this, "Por favor, completa todos los campos.", "Error", JOptionPane.ERROR_MESSAGE);
             return;
         }
 
-        if (!email.contains("@")) {
-            JOptionPane.showMessageDialog(this, "Introduce un email válido.", "Error", JOptionPane.ERROR_MESSAGE);
+        if (tipoUsuario.equals(TipoUsuario.ADMIN) && !codigoSecreto.equals(CODIGO_SECRETO_ADMIN)) {
+            JOptionPane.showMessageDialog(this, "Código secreto incorrecto. No puedes registrarte como ADMIN.", "Error", JOptionPane.ERROR_MESSAGE);
             return;
         }
 
-        try {
-            Long dni = Long.parseLong(dniStr);  // Validación de DNI como número
-            Usuario nuevoUsuario = new Usuario(nombre, apellidos, email, password, telefono, dni, fechaNacimiento, tipoPago);
-
-            // Aquí se llamaría a una base de datos o lógica para guardar el usuario
-            JOptionPane.showMessageDialog(this, "Usuario registrado con éxito:\n" + nuevoUsuario.toString());
-            dispose();  // Cerrar la ventana tras registro exitoso
-        } catch (NumberFormatException e) {
-            JOptionPane.showMessageDialog(this, "El DNI debe ser un número.", "Error", JOptionPane.ERROR_MESSAGE);
-        }
     }
 }
 
