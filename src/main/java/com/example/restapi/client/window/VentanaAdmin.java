@@ -22,7 +22,7 @@ public class VentanaAdmin extends JFrame {
             dispose();
             return;
         }
-
+        
         setTitle("Gestión de Eventos");
         setSize(1100, 700);
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
