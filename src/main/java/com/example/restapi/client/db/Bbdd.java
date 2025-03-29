@@ -88,4 +88,53 @@ public class Bbdd {
             throw e;
         }
     }
+
+    // Insertar un usuario
+    public static int insertUsuario(String nombre, String apellido, String email, String password, int telefono, String dni, Usuario.TipoUsuario tipoUsuario) throws SQLException {
+        getConnection();
+        String sql = "INSERT INTO Usuarios (nombre, apellido, email, password_hash, telefono, dni, tipo_usuario) VALUES (?, ?, ?, ?, ?, ?, ?)";
+        try (PreparedStatement stmt = conn.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS)) {
+            stmt.setString(1, nombre);
+            stmt.setString(2, apellido);
+            stmt.setString(3, email);
+            stmt.setString(4, password);
+            stmt.setInt(5, telefono);
+            stmt.setString(6, dni);
+            stmt.setString(7, tipoUsuario.name());
+            stmt.executeUpdate();
+    
+            try (ResultSet rs = stmt.getGeneratedKeys()) {
+                if (rs.next()) {
+                    return rs.getInt(1);
+                }
+            }
+            return -1;
+        }
+    }
+    // Insertar un evento
+    public static int insertConcierto(String nombre, String lugar, java.util.Date fecha, int capacidadGeneral, int capacidadVIP, int capacidadPremium, 
+        double precioGeneral, double precioVIP, double precioPremium) throws SQLException {
+        getConnection();
+        String sql = "INSERT INTO Conciertos (nombre, lugar, fecha, capacidad_general, capacidad_vip, capacidad_premium, precio_general, precio_vip, precio_premium) " +
+                    "VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)";
+        try (PreparedStatement stmt = conn.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS)) {
+            stmt.setString(1, nombre);
+            stmt.setString(2, lugar);
+            stmt.setTimestamp(3, new Timestamp(fecha.getTime()));
+            stmt.setInt(4, capacidadGeneral);
+            stmt.setInt(5, capacidadVIP);
+            stmt.setInt(6, capacidadPremium);
+            stmt.setDouble(7, precioGeneral);
+            stmt.setDouble(8, precioVIP);
+            stmt.setDouble(9, precioPremium);
+            stmt.executeUpdate();
+
+            try (ResultSet rs = stmt.getGeneratedKeys()) {
+                if (rs.next()) {
+                    return rs.getInt(1);
+                }
+            }
+            return -1;
+        }
+        }
 }
