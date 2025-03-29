@@ -48,6 +48,7 @@ public class MenuPrincipal extends JFrame{
         registerButton.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
+                new VentanaRegistro(null);
                 JOptionPane.showMessageDialog(null, "Registro seleccionado");
             }
         });
