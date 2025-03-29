@@ -211,4 +211,31 @@ public class Bbdd {
             }
         }
     }
+
+    // Obtener todos los eventos
+    public static List<Concierto> getAllEventos() throws SQLException {
+    	getConnection();
+        List<Concierto> eventos = new ArrayList<>();
+        String sql = "SELECT * FROM Eventos";
+        try (PreparedStatement stmt = conn.prepareStatement(sql)) {
+            try (ResultSet rs = stmt.executeQuery()) {
+                while (rs.next()) {
+                    Concierto evento = new Concierto(
+                            rs.getInt("id"),
+                            rs.getString("nombre"),
+                            rs.getString("lugar"),
+                            rs.getTimestamp("fecha"),
+                            rs.getInt("capacidad_general"),
+                            rs.getInt("capacidad_vip"),
+                            rs.getInt("capacidad_premium"),
+                            rs.getDouble("precio_general"),
+                            rs.getDouble("precio_vip"),
+                            rs.getDouble("precio_premium")
+                    );
+                    eventos.add(evento);
+                }
+            }
+        }
+        return eventos;
+    }
 }
