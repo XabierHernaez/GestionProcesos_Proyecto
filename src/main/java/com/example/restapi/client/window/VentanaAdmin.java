@@ -8,7 +8,9 @@ import javax.swing.table.DefaultTableModel;
 import com.example.restapi.model.Usuario;
 import com.example.restapi.client.db.Bbdd;
 import java.util.Date;
+import java.util.List;
 import com.example.restapi.model.TipoUsuario;
+import com.example.restapi.model.Concierto;
 
 public class VentanaAdmin extends JFrame {
     private static final long serialVersionUID = 1L;
@@ -103,9 +105,34 @@ public class VentanaAdmin extends JFrame {
         panelEntrada.add(botones);
 
         add(panelEntrada, BorderLayout.SOUTH);
-
+        btnAgregar.addActionListener(e -> agregarConcierto());
+        btnEliminar.addActionListener(e -> eliminarConcierto());
 
         setVisible(true);
+    }
+
+    // Métodos existentes sin cambios
+    private void actualizarTabla() {
+        modeloTabla.setRowCount(0);
+        try {
+            List<Concierto> eventos = Bbdd.getAllEventos();
+            for (Concierto evento : eventos) {
+                modeloTabla.addRow(new Object[]{
+                        evento.getId(),
+                        evento.getNombre(),
+                        evento.getLugar(),
+                        evento.getFecha(),
+                        evento.getCapacidadGeneral(),
+                        evento.getCapacidadVIP(),
+                        evento.getCapacidadPremium(),
+                        evento.getPrecioGeneral(),
+                        evento.getPrecioVIP(),
+                        evento.getPrecioPremium()
+                });
+            }
+        } catch (SQLException e) {
+            JOptionPane.showMessageDialog(this, "Error al cargar eventos: " + e.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
+        }
     }
     private void limpiarCampos() {
         txtNombre.setText("");
@@ -148,6 +175,27 @@ public class VentanaAdmin extends JFrame {
             JOptionPane.showMessageDialog(this, "Evento agregado correctamente.");
         } catch (SQLException e) {
             JOptionPane.showMessageDialog(this, "Error al agregar evento: " + e.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
+        }
+    }
+
+    private void eliminarConcierto() {
+        int fila = tablaEventos.getSelectedRow();
+        if (fila == -1) {
+            JOptionPane.showMessageDialog(this, "Selecciona un evento para eliminar.", "Error", JOptionPane.ERROR_MESSAGE);
+            return;
+        }
+
+        int id = (int) modeloTabla.getValueAt(fila, 0);
+        int confirm = JOptionPane.showConfirmDialog(this, "¿Estás seguro de eliminar este evento?", "Confirmar", JOptionPane.YES_NO_OPTION);
+        if (confirm == JOptionPane.YES_OPTION) {
+            try {
+            	Bbdd.deleteEvento(id);
+                actualizarTabla();
+                limpiarCampos();
+                JOptionPane.showMessageDialog(this, "Evento eliminado correctamente.");
+            } catch (SQLException e) {
+                JOptionPane.showMessageDialog(this, "Error al eliminar evento: " + e.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
+            }
         }
     }
 
