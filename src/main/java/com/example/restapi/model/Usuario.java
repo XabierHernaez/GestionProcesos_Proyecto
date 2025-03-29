@@ -108,6 +108,8 @@ public class Usuario {
         this.tipoPago = tipoPago;
     }
 
+    
+
     // Método toString
     @Override
     public String toString() {
