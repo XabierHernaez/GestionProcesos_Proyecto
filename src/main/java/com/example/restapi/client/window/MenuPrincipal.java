@@ -1,6 +1,8 @@
 package com.example.restapi.client.window;
 
 import javax.swing.JFrame;
+
+
 import javax.swing.*;
 import java.awt.*;
 import java.awt.event.ActionEvent;
@@ -48,6 +50,7 @@ public class MenuPrincipal extends JFrame{
         registerButton.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
+                new VentanaRegistro(null);
                 JOptionPane.showMessageDialog(null, "Registro seleccionado");
             }
         });
@@ -56,6 +59,7 @@ public class MenuPrincipal extends JFrame{
             @Override
             public void actionPerformed(ActionEvent e) {
                 JOptionPane.showMessageDialog(null, "Inicio de Sesión seleccionado");
+                new VentanaInicioSesion();
             }
         });
 

@@ -11,12 +11,19 @@ public class Usuario {
     private Long dni;
     private Date fechaNacimiento;
     private TipoPago tipoPago;
+    private TipoUsuario tipoUsuario;
 
     // Constructor vacío
     public Usuario() {}
+    
+    public Usuario(String email, TipoUsuario tipoUsuario) {
+        this.email = email;
+        this.tipoUsuario = tipoUsuario;
+    }
+    
 
     // Constructor con parámetros
-    public Usuario(String nombre, String apellidos, String email, String password, String telefono, Long dni, Date fechaNacimiento, TipoPago tipoPago) {
+    public Usuario(String nombre, String apellidos, String email, String password, String telefono, Long dni, Date fechaNacimiento, TipoPago tipoPago, TipoUsuario tipoUsuario) {
         this.nombre = nombre;
         this.apellidos = apellidos;
         this.email = email;
@@ -25,9 +32,18 @@ public class Usuario {
         this.dni = dni;
         this.fechaNacimiento = fechaNacimiento;
         this.tipoPago = tipoPago;
+        this.tipoUsuario = tipoUsuario;
     }
 
     // Getters y Setters
+
+    public TipoUsuario getTipoUsuario(){
+        return tipoUsuario;
+    }
+
+    public void setTipoUsuario(TipoUsuario tipoUsuario){
+        this.tipoUsuario = tipoUsuario;
+    }
     public String getNombre() {
         return nombre;
     }
