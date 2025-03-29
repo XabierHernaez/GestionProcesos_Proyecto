@@ -4,6 +4,7 @@ import java.sql.*;
 import java.util.ArrayList;
 import java.util.List;
 import java.sql.Date;
+
 import com.example.restapi.model.TipoUsuario;
 
 import com.example.restapi.model.Concierto;
@@ -145,7 +146,7 @@ public class Bbdd {
     public static void updateEvento(int id, String nombre, String lugar, java.util.Date fecha, int capacidadGeneral, int capacidadVIP, int capacidadPremium, 
     double precioGeneral, double precioVIP, double precioPremium) throws SQLException {
         getConnection();
-        String sql = "UPDATE Eventos SET nombre = ?, lugar = ?, fecha = ?, capacidad_general = ?, capacidad_vip = ?, capacidad_premium = ?, " +
+        String sql = "UPDATE Conciertos SET nombre = ?, lugar = ?, fecha = ?, capacidad_general = ?, capacidad_vip = ?, capacidad_premium = ?, " +
         "precio_general = ?, precio_vip = ?, precio_premium = ? WHERE id = ?";
         try (PreparedStatement stmt = conn.prepareStatement(sql)) {
             stmt.setString(1, nombre);
@@ -165,7 +166,7 @@ public class Bbdd {
     // Eliminar un evento
     public static void deleteEvento(int id) throws SQLException {
     	getConnection();
-        String sql = "DELETE FROM Eventos WHERE id = ?";
+        String sql = "DELETE FROM Conciertos WHERE id = ?";
         try (PreparedStatement stmt = conn.prepareStatement(sql)) {
             stmt.setInt(1, id);
             stmt.executeUpdate();
@@ -187,14 +188,14 @@ public class Bbdd {
 
     }
 
-   public static Usuario login(String email, String password) throws SQLException {
+    public static Usuario login(String email, String password) throws SQLException {
     getConnection(); // Asegúrate de que esta función esté correctamente implementada para obtener la conexión.
     String sql = "SELECT * FROM Usuarios WHERE email = ?";
     Usuario usuario = null;
-    
+
     try (PreparedStatement stmt = conn.prepareStatement(sql)) {
         stmt.setString(1, email);
-        
+
         try (ResultSet rs = stmt.executeQuery()) {
             if (rs.next()) {
                 // Obtener los valores de la base de datos
@@ -204,27 +205,25 @@ public class Bbdd {
                 String telefono = rs.getString("telefono");
                 Long dni = rs.getLong("dni");
                 Date fechaNacimiento = rs.getDate("fecha_nacimiento");
-                String tipoPagoString = rs.getString("tipo_pago");
                 String tipoUsuarioString = rs.getString("tipo_usuario");
 
                 // Conversión de tipoPago y tipoUsuario
-                TipoPago tipoPago = TipoPago.valueOf(tipoPagoString); // Asumimos que tienes una enumeración TipoPago
                 TipoUsuario tipoUsuario = TipoUsuario.valueOf(tipoUsuarioString);
 
                 // Crear el objeto Usuario usando el constructor
-                usuario = new Usuario(nombre, apellido, email, storedHash, telefono, dni, fechaNacimiento, tipoPago, tipoUsuario);
-                
+                usuario = new Usuario(nombre, apellido, email, storedHash, telefono, dni, fechaNacimiento, tipoUsuario);
+
             }
             return usuario;
         }
     }
-}
+    }
 
     // Obtener todos los eventos
     public static List<Concierto> getAllEventos() throws SQLException {
     	getConnection();
         List<Concierto> eventos = new ArrayList<>();
-        String sql = "SELECT * FROM Eventos";
+        String sql = "SELECT * FROM Conciertos";
         try (PreparedStatement stmt = conn.prepareStatement(sql)) {
             try (ResultSet rs = stmt.executeQuery()) {
                 while (rs.next()) {
