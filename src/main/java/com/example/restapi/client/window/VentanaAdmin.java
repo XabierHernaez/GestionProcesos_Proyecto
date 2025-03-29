@@ -1,8 +1,13 @@
 package com.example.restapi.client.window;
 import java.awt.*;
+import java.sql.SQLException;
+
+import com.example.restapi.client.db.Bbdd;
 import javax.swing.*;
 import javax.swing.table.DefaultTableModel;
 import com.example.restapi.model.Usuario;
+import com.example.restapi.client.db.Bbdd;
+import java.util.Date;
 import com.example.restapi.model.TipoUsuario;
 
 public class VentanaAdmin extends JFrame {
@@ -101,6 +106,49 @@ public class VentanaAdmin extends JFrame {
 
 
         setVisible(true);
+    }
+    private void limpiarCampos() {
+        txtNombre.setText("");
+        txtLugar.setText("");
+        spinnerFecha.setValue(new Date());
+        spinnerCapacidadGeneral.setValue(100);
+        spinnerCapacidadVIP.setValue(50);
+        spinnerCapacidadPremium.setValue(20);
+        txtPrecioGeneral.setText("0.0");
+        txtPrecioVIP.setText("0.0");
+        txtPrecioPremium.setText("0.0");
+    }
+
+    private void agregarConcierto() {
+        String nombre = txtNombre.getText().trim();
+        String lugar = txtLugar.getText().trim();
+        Date fecha = (Date) spinnerFecha.getValue();
+        int capacidadGeneral = (int) spinnerCapacidadGeneral.getValue();
+        int capacidadVIP = (int) spinnerCapacidadVIP.getValue();
+        int capacidadPremium = (int) spinnerCapacidadPremium.getValue();
+        double precioGeneral, precioVIP, precioPremium;
+        try {
+            precioGeneral = Double.parseDouble(txtPrecioGeneral.getText().trim());
+            precioVIP = Double.parseDouble(txtPrecioVIP.getText().trim());
+            precioPremium = Double.parseDouble(txtPrecioPremium.getText().trim());
+        } catch (NumberFormatException e) {
+            JOptionPane.showMessageDialog(this, "Los precios deben ser números válidos.", "Error", JOptionPane.ERROR_MESSAGE);
+            return;
+        }
+
+        if (nombre.isEmpty() || lugar.isEmpty()) {
+            JOptionPane.showMessageDialog(this, "Por favor, completa todos los campos.", "Error", JOptionPane.ERROR_MESSAGE);
+            return;
+        }
+
+        try {
+        	Bbdd.insertConcierto(nombre, lugar, fecha, capacidadGeneral, capacidadVIP, capacidadPremium, precioGeneral, precioVIP, precioPremium);
+            actualizarTabla();
+            limpiarCampos();
+            JOptionPane.showMessageDialog(this, "Evento agregado correctamente.");
+        } catch (SQLException e) {
+            JOptionPane.showMessageDialog(this, "Error al agregar evento: " + e.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
+        }
     }
 
     public class Main {
