@@ -57,4 +57,8 @@ public class Book {
     public String getIsbn() {
         return isbn;
     }
+
+    public String setIsbn(String isbn) {
+        this.isbn = isbn;
+    }
 }
