@@ -15,6 +15,12 @@ public class Usuario {
 
     // Constructor vacío
     public Usuario() {}
+    
+    public Usuario(String email, TipoUsuario tipoUsuario) {
+        this.email = email;
+        this.tipoUsuario = tipoUsuario;
+    }
+    
 
     // Constructor con parámetros
     public Usuario(String nombre, String apellidos, String email, String password, String telefono, Long dni, Date fechaNacimiento, TipoPago tipoPago, TipoUsuario tipoUsuario) {
