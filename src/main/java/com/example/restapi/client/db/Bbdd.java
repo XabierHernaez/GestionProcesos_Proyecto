@@ -3,10 +3,11 @@ package com.example.restapi.client.db;
 import java.sql.*;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Date;
+import java.sql.Date;
 import com.example.restapi.model.TipoUsuario;
 
 import com.example.restapi.model.Concierto;
+import com.example.restapi.model.TipoPago;
 import com.example.restapi.model.Usuario;
 
 
@@ -186,31 +187,38 @@ public class Bbdd {
 
     }
 
-    public static Usuario login(String email, String password) throws SQLException {
-    	getConnection();
-        String sql = "SELECT * FROM Usuarios WHERE email = ?";
-        try (PreparedStatement stmt = conn.prepareStatement(sql)) {
-            stmt.setString(1, email);
-            try (ResultSet rs = stmt.executeQuery()) {
-                if (rs.next()) {
-                    String storedHash = rs.getString("password_hash");
-                    Usuario usuario = new Usuario(
-                            rs.getInt("id"),
-                            rs.getString("nombre"),
-                            rs.getString("apellido"),
-                            email,
-                            "",
-                            rs.getInt("telefono"),
-                            rs.getString("dni"),
-                            Usuario.TipoUsuario.valueOf(rs.getString("tipo_usuario"))
-                    );
-                    usuario.setPassword(storedHash);
-                    return usuario;                   
-                }
-                return null;
+   public static Usuario login(String email, String password) throws SQLException {
+    getConnection(); // Asegúrate de que esta función esté correctamente implementada para obtener la conexión.
+    String sql = "SELECT * FROM Usuarios WHERE email = ?";
+    Usuario usuario = null;
+    
+    try (PreparedStatement stmt = conn.prepareStatement(sql)) {
+        stmt.setString(1, email);
+        
+        try (ResultSet rs = stmt.executeQuery()) {
+            if (rs.next()) {
+                // Obtener los valores de la base de datos
+                String storedHash = rs.getString("password_hash");
+                String nombre = rs.getString("nombre");
+                String apellido = rs.getString("apellido");
+                String telefono = rs.getString("telefono");
+                Long dni = rs.getLong("dni");
+                Date fechaNacimiento = rs.getDate("fecha_nacimiento");
+                String tipoPagoString = rs.getString("tipo_pago");
+                String tipoUsuarioString = rs.getString("tipo_usuario");
+
+                // Conversión de tipoPago y tipoUsuario
+                TipoPago tipoPago = TipoPago.valueOf(tipoPagoString); // Asumimos que tienes una enumeración TipoPago
+                TipoUsuario tipoUsuario = TipoUsuario.valueOf(tipoUsuarioString);
+
+                // Crear el objeto Usuario usando el constructor
+                usuario = new Usuario(nombre, apellido, email, storedHash, telefono, dni, fechaNacimiento, tipoPago, tipoUsuario);
+                
             }
+            return usuario;
         }
     }
+}
 
     // Obtener todos los eventos
     public static List<Concierto> getAllEventos() throws SQLException {
