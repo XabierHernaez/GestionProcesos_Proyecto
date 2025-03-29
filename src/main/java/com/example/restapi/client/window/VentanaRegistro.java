@@ -17,10 +17,10 @@ public class VentanaRegistro extends JDialog {
     private JButton btnRegistrar;
     private JLabel lblCodigoSecreto;
     @SuppressWarnings("unused")
-    private VentanaInicioSesion parent;
+    private VentanaInicio parent;
     private static final String CODIGO_SECRETO_ADMIN = "Admin123"; // Código secreto fijo (puedes cambiarlo)
 
-    public VentanaRegistro(VentanaInicioSesion parent) {
+    public VentanaRegistro(VentanaInicio parent) {
         super(parent, "Registro de Usuario", true);
         this.parent = parent;
         setSize(300, 350); // Aumentamos tamaño para el nuevo campo

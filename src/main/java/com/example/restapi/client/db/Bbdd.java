@@ -183,4 +183,30 @@ public class Bbdd {
             return false;
         }
     }
+
+    public static Usuario login(String email, String password) throws SQLException {
+    	getConnection();
+        String sql = "SELECT * FROM Usuarios WHERE email = ?";
+        try (PreparedStatement stmt = conn.prepareStatement(sql)) {
+            stmt.setString(1, email);
+            try (ResultSet rs = stmt.executeQuery()) {
+                if (rs.next()) {
+                    String storedHash = rs.getString("password_hash");
+                    Usuario usuario = new Usuario(
+                            rs.getInt("id"),
+                            rs.getString("nombre"),
+                            rs.getString("apellido"),
+                            email,
+                            "",
+                            rs.getInt("telefono"),
+                            rs.getString("dni"),
+                            Usuario.TipoUsuario.valueOf(rs.getString("tipo_usuario"))
+                    );
+                    usuario.setPassword(storedHash);
+                    return usuario;                   
+                }
+                return null;
+            }
+        }
+    }
 }
