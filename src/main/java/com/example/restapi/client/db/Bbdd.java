@@ -4,7 +4,7 @@ import java.sql.*;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Date;
-
+import com.example.restapi.model.TipoUsuario;
 
 import com.example.restapi.model.Concierto;
 import com.example.restapi.model.Usuario;
@@ -91,7 +91,8 @@ public class Bbdd {
     }
 
     // Insertar un usuario
-    public static int insertUsuario(String nombre, String apellido, String email, String password, int telefono, String dni, Entada.TipoUsuario tipoUsuario) throws SQLException {
+    public static int insertUsuario(String nombre, String apellido, String email, String password, int telefono, String dni, TipoUsuario tipoUsuario) throws SQLException {
+
         getConnection();
         String sql = "INSERT INTO Usuarios (nombre, apellido, email, password_hash, telefono, dni, tipo_usuario) VALUES (?, ?, ?, ?, ?, ?, ?)";
         try (PreparedStatement stmt = conn.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS)) {
@@ -137,5 +138,51 @@ public class Bbdd {
             }
             return -1;
         }
+        }
+
+        // Actualizar un evento
+    public static void updateEvento(int id, String nombre, String lugar, java.util.Date fecha, int capacidadGeneral, int capacidadVIP, int capacidadPremium, 
+    double precioGeneral, double precioVIP, double precioPremium) throws SQLException {
+        getConnection();
+        String sql = "UPDATE Eventos SET nombre = ?, lugar = ?, fecha = ?, capacidad_general = ?, capacidad_vip = ?, capacidad_premium = ?, " +
+        "precio_general = ?, precio_vip = ?, precio_premium = ? WHERE id = ?";
+        try (PreparedStatement stmt = conn.prepareStatement(sql)) {
+            stmt.setString(1, nombre);
+            stmt.setString(2, lugar);
+            stmt.setTimestamp(3, new Timestamp(fecha.getTime()));
+            stmt.setInt(4, capacidadGeneral);
+            stmt.setInt(5, capacidadVIP);
+            stmt.setInt(6, capacidadPremium);
+            stmt.setDouble(7, precioGeneral);
+            stmt.setDouble(8, precioVIP);
+            stmt.setDouble(9, precioPremium);
+            stmt.setInt(10, id);
+        stmt.executeUpdate();
+        }
+    }
+    
+    // Eliminar un evento
+    public static void deleteEvento(int id) throws SQLException {
+    	getConnection();
+        String sql = "DELETE FROM Eventos WHERE id = ?";
+        try (PreparedStatement stmt = conn.prepareStatement(sql)) {
+            stmt.setInt(1, id);
+            stmt.executeUpdate();
+        }
+    }
+
+    public static boolean emailExists(String email) throws SQLException {
+    	getConnection();
+        String sql = "SELECT COUNT(*) FROM Usuarios WHERE email = ?";
+        try (PreparedStatement stmt = conn.prepareStatement(sql)) {
+            stmt.setString(1, email);
+            try (ResultSet rs = stmt.executeQuery()) {
+                if (rs.next()) {
+                    return rs.getInt(1) > 0;
+                }
+            }
+            return false;
+        }
+
     }
 }
