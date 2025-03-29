@@ -1,11 +1,11 @@
 package com.example.restapi.client.window;
 
 import java.awt.*;
-import java.sql.SQLException;
-
 import javax.swing.*;
-
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
 import com.example.restapi.model.Usuario;
+import com.example.restapi.model.TipoUsuario;
 
 public class VentanaInicioSesion extends JFrame {
     private static final long serialVersionUID = 1L;
@@ -31,7 +31,7 @@ public class VentanaInicioSesion extends JFrame {
         panel.add(new JLabel("Email:"), gbc);
 
         txtEmail = new JTextField();
-        txtEmail.setPreferredSize(new Dimension(200, 25)); // Reducir altura
+        txtEmail.setPreferredSize(new Dimension(200, 25));
         gbc.gridx = 1;
         panel.add(txtEmail, gbc);
 
@@ -41,17 +41,17 @@ public class VentanaInicioSesion extends JFrame {
         panel.add(new JLabel("Contraseña:"), gbc);
 
         txtPassword = new JPasswordField();
-        txtPassword.setPreferredSize(new Dimension(200, 25)); // Reducir altura
+        txtPassword.setPreferredSize(new Dimension(200, 25));
         gbc.gridx = 1;
         panel.add(txtPassword, gbc);
 
         // Panel para los botones
         JPanel panelBotones = new JPanel(new FlowLayout(FlowLayout.CENTER, 10, 5));
         btnLogin = new JButton("Iniciar Sesión");
-        btnLogin.setPreferredSize(new Dimension(140, 40)); // Botón más grande
+        btnLogin.setPreferredSize(new Dimension(140, 40));
 
         btnRegistro = new JButton("Registrarse");
-        btnRegistro.setPreferredSize(new Dimension(140, 40)); // Botón más grande
+        btnRegistro.setPreferredSize(new Dimension(140, 40));
 
         panelBotones.add(btnLogin);
         panelBotones.add(btnRegistro);
@@ -64,13 +64,45 @@ public class VentanaInicioSesion extends JFrame {
 
         add(panel);
 
-        btnRegistro.addActionListener(e -> abrirRegistro());
+        // Acción de Iniciar Sesión
+        btnLogin.addActionListener(new ActionListener() {
+            public void actionPerformed(ActionEvent e) {
+                String email = txtEmail.getText();
+                String password = new String(txtPassword.getPassword());
 
+                // Simulación de validación de usuario (puedes conectarlo a la base de datos)
+                Usuario usuario = validarUsuario(email, password);
+                if (usuario != null) {
+                    JOptionPane.showMessageDialog(null, "Inicio de sesión exitoso.");
+                    dispose(); // Cerrar la ventana actual
+
+                    // Abrir la ventana de administración si el usuario es ADMIN
+                    if (usuario.getTipoUsuario().equals(TipoUsuario.ADMIN)) {
+                        new VentanaAdmin(usuario);
+                    } else {
+                        JOptionPane.showMessageDialog(null, "El usuario no tiene permisos de administrador.");
+                    }
+                } else {
+                    JOptionPane.showMessageDialog(null, "Credenciales incorrectas.", "Error", JOptionPane.ERROR_MESSAGE);
+                }
+            }
+        });
+
+        btnRegistro.addActionListener(e -> abrirRegistro());
         setVisible(true);
     }
-
 
     private void abrirRegistro() {
         new VentanaRegistro(this);
     }
+
+    // Método simulado para validar un usuario (en una aplicación real, usarías una base de datos)
+    private Usuario validarUsuario(String email, String password) {
+        // Aquí podrías agregar una validación real usando base de datos
+        if (email.equals("admin@example.com") && password.equals("admin123")) {
+            return new Usuario("admin@example.com", TipoUsuario.ADMIN);
+        }
+        return null; // Usuario no válido
+    }
 }
+
