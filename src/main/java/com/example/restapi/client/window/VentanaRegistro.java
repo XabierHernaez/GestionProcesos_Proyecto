@@ -1,9 +1,13 @@
 package com.example.restapi.client.window;
 
 import java.awt.*;
+import java.sql.SQLException;
+
 import javax.swing.*;
 
+import com.example.restapi.client.db.Bbdd;
 import com.example.restapi.model.TipoUsuario;
+import com.example.restapi.model.Usuario;
 
 public class VentanaRegistro extends JDialog {
     private static final long serialVersionUID = 1L;
@@ -23,9 +27,7 @@ public class VentanaRegistro extends JDialog {
         setLocationRelativeTo(parent);
 
 		// Cambiar icono de la ventana
-		ImageIcon imagen1 = new ImageIcon("resources/images/bravo.png");
-		setIconImage(imagen1.getImage());
-
+		
         JPanel panel = new JPanel(new GridLayout(9, 2, 5, 5)); // Aumentamos a 9 filas
         panel.setBorder(BorderFactory.createEmptyBorder(10, 10, 10, 10));
 
@@ -105,6 +107,25 @@ public class VentanaRegistro extends JDialog {
             return;
         }
 
+        int telefono;
+        try {
+            telefono = Integer.parseInt(telefonoStr);
+        } catch (NumberFormatException e) {
+            JOptionPane.showMessageDialog(this, "El teléfono debe ser un número válido.", "Error", JOptionPane.ERROR_MESSAGE);
+            return;
+        }
+
+        try {
+            if (Bbdd.emailExists(email)) {
+                JOptionPane.showMessageDialog(this, "El email ya está registrado.", "Error", JOptionPane.ERROR_MESSAGE);
+            } else {
+                Bbdd.insertUsuario(nombre, apellido, email, password, telefono, dni, tipoUsuario);
+                JOptionPane.showMessageDialog(this, "Usuario registrado correctamente. Ahora puedes iniciar sesión.");
+                dispose();
+            }
+        } catch (SQLException ex) {
+            JOptionPane.showMessageDialog(this, "Error al registrar usuario: " + ex.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
+        }
     }
 }
 
