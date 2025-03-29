@@ -59,7 +59,7 @@ public class MenuPrincipal extends JFrame{
             @Override
             public void actionPerformed(ActionEvent e) {
                 JOptionPane.showMessageDialog(null, "Inicio de Sesión seleccionado");
-                new VentanaInicioSesion();
+                new VentanaInicio();
             }
         });
 
