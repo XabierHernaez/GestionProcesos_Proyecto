@@ -169,4 +169,18 @@ public class Bbdd {
             stmt.executeUpdate();
         }
     }
+
+    public static boolean emailExists(String email) throws SQLException {
+    	getConnection();
+        String sql = "SELECT COUNT(*) FROM Usuarios WHERE email = ?";
+        try (PreparedStatement stmt = conn.prepareStatement(sql)) {
+            stmt.setString(1, email);
+            try (ResultSet rs = stmt.executeQuery()) {
+                if (rs.next()) {
+                    return rs.getInt(1) > 0;
+                }
+            }
+            return false;
+        }
+    }
 }
