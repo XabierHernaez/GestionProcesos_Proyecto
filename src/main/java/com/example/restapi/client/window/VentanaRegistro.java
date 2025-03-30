@@ -4,16 +4,22 @@ import java.awt.*;
 import java.sql.SQLException;
 
 import javax.swing.*;
+import javax.ws.rs.client.Client;
+import javax.ws.rs.client.ClientBuilder;
+import javax.ws.rs.client.Entity;
+import javax.ws.rs.core.MediaType;
+import javax.ws.rs.core.Response;
 
-import com.example.restapi.client.db.Bbdd;
+import com.example.restapi.model.TipoPago;
 import com.example.restapi.model.TipoUsuario;
 import com.example.restapi.model.Usuario;
 
 public class VentanaRegistro extends JDialog {
     private static final long serialVersionUID = 1L;
-    private JTextField txtNombre, txtApellido, txtEmail, txtTelefono, txtDni, txtCodigoSecreto;
+    private JTextField txtNombre, txtApellido, txtEmail, txtFechaNacimiento, txtTelefono, txtDni, txtCodigoSecreto;
     private JPasswordField txtPassword;
     private JComboBox<TipoUsuario> comboTipoUsuario;
+    private JComboBox<TipoPago> comboTipoPago; // Cambiado a JComboBox
     private JButton btnRegistrar;
     private JLabel lblCodigoSecreto;
     @SuppressWarnings("unused")
@@ -23,14 +29,18 @@ public class VentanaRegistro extends JDialog {
     public VentanaRegistro(VentanaInicio parent) {
         super(parent, "Registro de Usuario", true);
         this.parent = parent;
-        setSize(300, 350); // Aumentamos tamaño para el nuevo campo
+        setSize(400, 400); // Ajustamos el tamaño
         setLocationRelativeTo(parent);
 
-		// Cambiar icono de la ventana
-		
-        JPanel panel = new JPanel(new GridLayout(9, 2, 5, 5)); // Aumentamos a 9 filas
+        // Cambiar icono de la ventana
+        ImageIcon imagen1 = new ImageIcon("resources/images/bravo.png");
+        setIconImage(imagen1.getImage());
+
+        // Crear el panel del formulario
+        JPanel panel = new JPanel(new GridLayout(12, 2, 5, 5)); // Aumentamos a 12 filas
         panel.setBorder(BorderFactory.createEmptyBorder(10, 10, 10, 10));
 
+        // Campos del formulario
         panel.add(new JLabel("Nombre:"));
         txtNombre = new JTextField();
         panel.add(txtNombre);
@@ -51,6 +61,10 @@ public class VentanaRegistro extends JDialog {
         txtTelefono = new JTextField();
         panel.add(txtTelefono);
 
+        panel.add(new JLabel("Fecha de Nacimiento (yyyy-MM-dd):"));
+        txtFechaNacimiento = new JTextField();
+        panel.add(txtFechaNacimiento);
+
         panel.add(new JLabel("DNI:"));
         txtDni = new JTextField();
         panel.add(txtDni);
@@ -66,8 +80,13 @@ public class VentanaRegistro extends JDialog {
         panel.add(lblCodigoSecreto);
         panel.add(txtCodigoSecreto);
 
+        // ComboBox para TipoPago
+        panel.add(new JLabel("Método de Pago:"));
+        comboTipoPago = new JComboBox<>(TipoPago.values()); // ComboBox para TipoPago
+        panel.add(comboTipoPago);
+
         btnRegistrar = new JButton("Registrar");
-        panel.add(new JLabel(""));
+        panel.add(new JLabel("")); // Espacio vacío
         panel.add(btnRegistrar);
 
         add(panel);
@@ -82,6 +101,7 @@ public class VentanaRegistro extends JDialog {
             }
         });
 
+        // Acción del botón Registrar
         btnRegistrar.addActionListener(e -> registrar());
 
         setVisible(true);
@@ -93,38 +113,62 @@ public class VentanaRegistro extends JDialog {
         String email = txtEmail.getText().trim();
         String password = new String(txtPassword.getPassword());
         String telefonoStr = txtTelefono.getText().trim();
-        String dni = txtDni.getText().trim();
+        String fechaNacimientoStr = txtFechaNacimiento.getText().trim();
+        String dniStr = txtDni.getText().trim();
         String codigoSecreto = txtCodigoSecreto.getText().trim();
         TipoUsuario tipoUsuario = (TipoUsuario) comboTipoUsuario.getSelectedItem();
+        TipoPago tipoPago = (TipoPago) comboTipoPago.getSelectedItem(); // Obtener el método de pago seleccionado
 
-        if (nombre.isEmpty() || apellido.isEmpty() || email.isEmpty() || password.isEmpty() || telefonoStr.isEmpty() || dni.isEmpty()) {
+        // Validar campos vacíos
+        if (nombre.isEmpty() || apellido.isEmpty() || email.isEmpty() || password.isEmpty() || telefonoStr.isEmpty() || dniStr.isEmpty() || fechaNacimientoStr.isEmpty()) {
             JOptionPane.showMessageDialog(this, "Por favor, completa todos los campos.", "Error", JOptionPane.ERROR_MESSAGE);
             return;
         }
 
+        // Validar código secreto para ADMIN
         if (tipoUsuario.equals(TipoUsuario.ADMIN) && !codigoSecreto.equals(CODIGO_SECRETO_ADMIN)) {
             JOptionPane.showMessageDialog(this, "Código secreto incorrecto. No puedes registrarte como ADMIN.", "Error", JOptionPane.ERROR_MESSAGE);
             return;
         }
 
-        int telefono;
         try {
-            telefono = Integer.parseInt(telefonoStr);
-        } catch (NumberFormatException e) {
-            JOptionPane.showMessageDialog(this, "El teléfono debe ser un número válido.", "Error", JOptionPane.ERROR_MESSAGE);
-            return;
-        }
+            long dni = Long.parseLong(dniStr);
+            long telefono = Long.parseLong(telefonoStr);
 
-        try {
-            if (Bbdd.emailExists(email)) {
-                JOptionPane.showMessageDialog(this, "El email ya está registrado.", "Error", JOptionPane.ERROR_MESSAGE);
+            // Convertir la fecha de nacimiento a java.sql.Date
+            java.sql.Date fechaNacimiento = java.sql.Date.valueOf(fechaNacimientoStr);
+
+            // Crear objeto Usuario
+            Usuario usuario = new Usuario();
+            usuario.setNombre(nombre);
+            usuario.setApellidos(apellido);
+            usuario.setEmail(email);
+            usuario.setPassword(password);
+            usuario.setFechaNacimiento(fechaNacimiento);
+            usuario.setTelefono(String.valueOf(telefono));
+            usuario.setDni(dni);
+            usuario.setTipoUsuario(tipoUsuario);
+            usuario.setTipoPago(tipoPago); // Asignar el método de pago seleccionado
+
+            // Enviar datos al servidor
+            Client client = ClientBuilder.newClient();
+            String apiUrl = "http://localhost:8080/resource/register";
+            Response response = client.target(apiUrl)
+                    .request(MediaType.APPLICATION_JSON)
+                    .post(Entity.entity(usuario, MediaType.APPLICATION_JSON));
+
+            if (response.getStatus() == Response.Status.OK.getStatusCode()) {
+                JOptionPane.showMessageDialog(this, "Usuario registrado con éxito.");
+                dispose(); // Cerrar la ventana
             } else {
-                Bbdd.insertUsuario(nombre, apellido, email, password, telefono, dni, tipoUsuario);
-                JOptionPane.showMessageDialog(this, "Usuario registrado correctamente. Ahora puedes iniciar sesión.");
-                dispose();
+                JOptionPane.showMessageDialog(this, "Error al registrar el usuario. Código: " + response.getStatus(), "Error", JOptionPane.ERROR_MESSAGE);
             }
-        } catch (SQLException ex) {
-            JOptionPane.showMessageDialog(this, "Error al registrar usuario: " + ex.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
+
+            client.close();
+        } catch (NumberFormatException ex) {
+            JOptionPane.showMessageDialog(this, "DNI y Teléfono deben ser números válidos.", "Error", JOptionPane.ERROR_MESSAGE);
+        } catch (IllegalArgumentException ex) {
+            JOptionPane.showMessageDialog(this, "La fecha de nacimiento debe estar en el formato yyyy-MM-dd.", "Error", JOptionPane.ERROR_MESSAGE);
         }
     }
 }
