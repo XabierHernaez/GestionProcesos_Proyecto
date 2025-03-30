@@ -160,8 +160,6 @@ public class VentanaRegistro extends JDialog {
                 JOptionPane.showMessageDialog(VentanaRegistro.this, "Error al modificar los datos: " + ex.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
             }
         });
-        
-        
 
         setVisible(true);
     }
@@ -199,6 +197,7 @@ public class VentanaRegistro extends JDialog {
 
             long dni = Long.parseLong(dniStr);
             long telefono = Long.parseLong(telefonoStr);
+
             java.sql.Date fechaNacimiento = java.sql.Date.valueOf(fechaNacimientoStr);
 
             Usuario usuario = new Usuario();
@@ -234,4 +233,3 @@ public class VentanaRegistro extends JDialog {
             JOptionPane.showMessageDialog(this, "Error al registrar usuario: " + ex.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
         }
     }
-}
