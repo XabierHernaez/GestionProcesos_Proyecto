@@ -19,7 +19,7 @@ public class VentanaAdmin extends JFrame {
     private DefaultTableModel modeloTabla;
     private JTextField txtNombre, txtLugar, txtPrecioGeneral, txtPrecioVIP, txtPrecioPremium;
     private JSpinner spinnerFecha, spinnerCapacidadGeneral, spinnerCapacidadVIP, spinnerCapacidadPremium;
-    private JButton btnAgregar, btnEditar, btnEliminar, btnValidarEntradas, btnVerEntradas; // Nuevo botón
+    private JButton btnAgregar, btnEditar, btnEliminar;
     private Usuario usuario;
 
     public VentanaAdmin(Usuario usuario) {
@@ -93,15 +93,11 @@ public class VentanaAdmin extends JFrame {
         btnAgregar = new JButton("Agregar");
         btnEditar = new JButton("Editar");
         btnEliminar = new JButton("Eliminar");
-        btnValidarEntradas = new JButton("Validar Entradas");
-        btnVerEntradas = new JButton("Ver Entradas Compradas");
 
         panelEntrada.add(btnAgregar);
         JPanel botones = new JPanel(new FlowLayout());
         botones.add(btnEditar);
         botones.add(btnEliminar);
-        botones.add(btnValidarEntradas);
-        botones.add(btnVerEntradas);
         panelEntrada.add(botones);
 
         add(panelEntrada, BorderLayout.SOUTH);

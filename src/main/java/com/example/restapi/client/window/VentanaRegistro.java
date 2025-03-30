@@ -2,8 +2,10 @@ package com.example.restapi.client.window;
 
 import java.awt.*;
 import java.sql.SQLException;
-
 import javax.swing.*;
+
+import com.example.restapi.client.db.Bbdd;
+
 import javax.ws.rs.client.Client;
 import javax.ws.rs.client.ClientBuilder;
 import javax.ws.rs.client.Entity;
@@ -19,17 +21,17 @@ public class VentanaRegistro extends JDialog {
     private JTextField txtNombre, txtApellido, txtEmail, txtFechaNacimiento, txtTelefono, txtDni, txtCodigoSecreto;
     private JPasswordField txtPassword;
     private JComboBox<TipoUsuario> comboTipoUsuario;
-    private JComboBox<TipoPago> comboTipoPago; // Cambiado a JComboBox
-    private JButton btnRegistrar;
+    private JComboBox<TipoPago> comboTipoPago;
+    private JButton btnRegistrar, btnModificar;
     private JLabel lblCodigoSecreto;
     @SuppressWarnings("unused")
     private VentanaInicio parent;
-    private static final String CODIGO_SECRETO_ADMIN = "Admin123"; // Código secreto fijo (puedes cambiarlo)
+    private static final String CODIGO_SECRETO_ADMIN = "Admin123";
 
     public VentanaRegistro(VentanaInicio parent) {
         super(parent, "Registro de Usuario", true);
         this.parent = parent;
-        setSize(400, 400); // Ajustamos el tamaño
+        setSize(400, 400);
         setLocationRelativeTo(parent);
 
         // Cambiar icono de la ventana
@@ -37,7 +39,7 @@ public class VentanaRegistro extends JDialog {
         setIconImage(imagen1.getImage());
 
         // Crear el panel del formulario
-        JPanel panel = new JPanel(new GridLayout(12, 2, 5, 5)); // Aumentamos a 12 filas
+        JPanel panel = new JPanel(new GridLayout(12, 2, 5, 5));
         panel.setBorder(BorderFactory.createEmptyBorder(10, 10, 10, 10));
 
         // Campos del formulario
@@ -76,33 +78,90 @@ public class VentanaRegistro extends JDialog {
 
         lblCodigoSecreto = new JLabel("Código Secreto (solo ADMIN):");
         txtCodigoSecreto = new JTextField();
-        txtCodigoSecreto.setEnabled(false); // Deshabilitado por defecto
+        txtCodigoSecreto.setEnabled(false);
         panel.add(lblCodigoSecreto);
         panel.add(txtCodigoSecreto);
 
-        // ComboBox para TipoPago
         panel.add(new JLabel("Método de Pago:"));
-        comboTipoPago = new JComboBox<>(TipoPago.values()); // ComboBox para TipoPago
+        comboTipoPago = new JComboBox<>(TipoPago.values());
         panel.add(comboTipoPago);
 
+        // Botones
         btnRegistrar = new JButton("Registrar");
-        panel.add(new JLabel("")); // Espacio vacío
+        btnModificar = new JButton("Modificar datos");
         panel.add(btnRegistrar);
+        panel.add(btnModificar);
 
         add(panel);
 
-        // Habilitar/deshabilitar el campo de código secreto según el tipo seleccionado
+        // Lógica para activar/desactivar campo código secreto
         comboTipoUsuario.addActionListener(e -> {
             if (comboTipoUsuario.getSelectedItem().equals(TipoUsuario.ADMIN)) {
                 txtCodigoSecreto.setEnabled(true);
             } else {
                 txtCodigoSecreto.setEnabled(false);
-                txtCodigoSecreto.setText(""); // Limpiar el campo si no es ADMIN
+                txtCodigoSecreto.setText("");
             }
         });
 
         // Acción del botón Registrar
         btnRegistrar.addActionListener(e -> registrar());
+
+        // Acción del botón Modificar
+        btnModificar.addActionListener(e -> {
+            String nombre = txtNombre.getText().trim();
+            String apellido = txtApellido.getText().trim();
+            String email = txtEmail.getText().trim();
+            String password = new String(txtPassword.getPassword()).trim();
+            String telefonoStr = txtTelefono.getText().trim();
+            String fechaNacimientoStr = txtFechaNacimiento.getText().trim();
+            String dniStr = txtDni.getText().trim();
+            String tipoUsuario = ((TipoUsuario) comboTipoUsuario.getSelectedItem()).name(); // Obtener el tipo de usuario como string
+        
+            // Validar que los campos no estén vacíos
+            if (nombre.isEmpty() || apellido.isEmpty() || email.isEmpty() || password.isEmpty() ||
+                telefonoStr.isEmpty() || dniStr.isEmpty() || fechaNacimientoStr.isEmpty()) {
+                JOptionPane.showMessageDialog(VentanaRegistro.this, "Por favor, completa todos los campos.", "Error", JOptionPane.ERROR_MESSAGE);
+                return;
+            }
+        
+            try {
+                // Validar que el teléfono y el DNI sean números válidos
+                int telefono = Integer.parseInt(telefonoStr);
+        
+                // Validar que la fecha esté en el formato correcto (yyyy-MM-dd)
+                java.sql.Date fechaNacimiento = null;
+                try {
+                    fechaNacimiento = java.sql.Date.valueOf(fechaNacimientoStr);
+                } catch (IllegalArgumentException ex) {
+                    JOptionPane.showMessageDialog(VentanaRegistro.this, "La fecha de nacimiento debe estar en el formato yyyy-MM-dd.", "Error", JOptionPane.ERROR_MESSAGE);
+                    return;
+                }
+        
+                // Si la contraseña está vacía, no la actualizamos (puedes agregar una lógica de hashing si es necesario)
+                if (password.isEmpty()) {
+                    JOptionPane.showMessageDialog(VentanaRegistro.this, "La contraseña no puede estar vacía.", "Error", JOptionPane.ERROR_MESSAGE);
+                    return;
+                }
+        
+                // Llamar al método para actualizar los datos en la base de datos
+                Bbdd.actualizarUsuarioDatos(dniStr, nombre, apellido, email, password, telefono, fechaNacimientoStr, tipoUsuario);
+        
+                // Mostrar un mensaje de éxito
+                JOptionPane.showMessageDialog(VentanaRegistro.this, "Datos del usuario actualizados correctamente.");
+        
+                // Cerrar la ventana después de la actualización
+                dispose();  // Cerrar la ventana de modificación
+            } catch (NumberFormatException ex) {
+                // Si el teléfono o el DNI no son números válidos
+                JOptionPane.showMessageDialog(VentanaRegistro.this, "El teléfono y el DNI deben ser números válidos.", "Error", JOptionPane.ERROR_MESSAGE);
+            } catch (SQLException ex) {
+                // Si ocurre un error con la base de datos
+                JOptionPane.showMessageDialog(VentanaRegistro.this, "Error al modificar los datos: " + ex.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
+            }
+        });
+        
+        
 
         setVisible(true);
     }
@@ -117,40 +176,31 @@ public class VentanaRegistro extends JDialog {
         String dniStr = txtDni.getText().trim();
         String codigoSecreto = txtCodigoSecreto.getText().trim();
         TipoUsuario tipoUsuario = (TipoUsuario) comboTipoUsuario.getSelectedItem();
-        TipoPago tipoPago = (TipoPago) comboTipoPago.getSelectedItem(); // Obtener el método de pago seleccionado
-        int tel = Integer.parseInt(telefonoStr);
+        TipoPago tipoPago = (TipoPago) comboTipoPago.getSelectedItem();
 
-
-
-        // Validar campos vacíos
         if (nombre.isEmpty() || apellido.isEmpty() || email.isEmpty() || password.isEmpty() || telefonoStr.isEmpty() || dniStr.isEmpty() || fechaNacimientoStr.isEmpty()) {
             JOptionPane.showMessageDialog(this, "Por favor, completa todos los campos.", "Error", JOptionPane.ERROR_MESSAGE);
             return;
         }
 
-        // Validar código secreto para ADMIN
         if (tipoUsuario.equals(TipoUsuario.ADMIN) && !codigoSecreto.equals(CODIGO_SECRETO_ADMIN)) {
             JOptionPane.showMessageDialog(this, "Código secreto incorrecto. No puedes registrarte como ADMIN.", "Error", JOptionPane.ERROR_MESSAGE);
             return;
         }
 
         try {
-
             if (Bbdd.emailExists(email)) {
                 JOptionPane.showMessageDialog(this, "El email ya está registrado.", "Error", JOptionPane.ERROR_MESSAGE);
             } else {
-                Bbdd.insertUsuario(nombre, apellido, email, password, tel, dniStr, tipoUsuario);
+                Bbdd.insertUsuario(nombre, apellido, email, password, Integer.parseInt(telefonoStr), dniStr, tipoUsuario);
                 JOptionPane.showMessageDialog(this, "Usuario registrado correctamente. Ahora puedes iniciar sesión.");
                 dispose();
             }
-            
+
             long dni = Long.parseLong(dniStr);
             long telefono = Long.parseLong(telefonoStr);
-
-            // Convertir la fecha de nacimiento a java.sql.Date
             java.sql.Date fechaNacimiento = java.sql.Date.valueOf(fechaNacimientoStr);
 
-            // Crear objeto Usuario
             Usuario usuario = new Usuario();
             usuario.setNombre(nombre);
             usuario.setApellidos(apellido);
@@ -160,9 +210,8 @@ public class VentanaRegistro extends JDialog {
             usuario.setTelefono(String.valueOf(telefono));
             usuario.setDni(dni);
             usuario.setTipoUsuario(tipoUsuario);
-            usuario.setTipoPago(tipoPago); // Asignar el método de pago seleccionado
+            usuario.setTipoPago(tipoPago);
 
-            // Enviar datos al servidor
             Client client = ClientBuilder.newClient();
             String apiUrl = "http://localhost:8080/resource/register";
             Response response = client.target(apiUrl)
@@ -171,7 +220,7 @@ public class VentanaRegistro extends JDialog {
 
             if (response.getStatus() == Response.Status.OK.getStatusCode()) {
                 JOptionPane.showMessageDialog(this, "Usuario registrado con éxito.");
-                dispose(); // Cerrar la ventana
+                dispose();
             } else {
                 JOptionPane.showMessageDialog(this, "Error al registrar el usuario. Código: " + response.getStatus(), "Error", JOptionPane.ERROR_MESSAGE);
             }
@@ -186,4 +235,3 @@ public class VentanaRegistro extends JDialog {
         }
     }
 }
-
