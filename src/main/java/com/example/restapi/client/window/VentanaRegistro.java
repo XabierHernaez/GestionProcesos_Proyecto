@@ -2,8 +2,10 @@ package com.example.restapi.client.window;
 
 import java.awt.*;
 import java.sql.SQLException;
-
 import javax.swing.*;
+
+import com.example.restapi.client.db.Bbdd;
+
 import javax.ws.rs.client.Client;
 import javax.ws.rs.client.ClientBuilder;
 import javax.ws.rs.client.Entity;
@@ -146,6 +148,7 @@ public class VentanaRegistro extends JDialog {
             
             long dni = Long.parseLong(dniStr);
             long telefono = Long.parseLong(telefonoStr);
+            
 
             // Convertir la fecha de nacimiento a java.sql.Date
             java.sql.Date fechaNacimiento = java.sql.Date.valueOf(fechaNacimientoStr);
@@ -186,4 +189,6 @@ public class VentanaRegistro extends JDialog {
         }
     }
 }
+
+
 
