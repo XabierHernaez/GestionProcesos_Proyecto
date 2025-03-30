@@ -107,6 +107,7 @@ public class VentanaAdmin extends JFrame {
         add(panelEntrada, BorderLayout.SOUTH);
         btnAgregar.addActionListener(e -> agregarConcierto());
         btnEliminar.addActionListener(e -> eliminarConcierto());
+        btnEditar.addActionListener(e -> editarConcierto());
 
         setVisible(true);
     }
@@ -175,6 +176,45 @@ public class VentanaAdmin extends JFrame {
             JOptionPane.showMessageDialog(this, "Evento agregado correctamente.");
         } catch (SQLException e) {
             JOptionPane.showMessageDialog(this, "Error al agregar evento: " + e.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
+        }
+    }
+
+    private void editarConcierto() {
+        int fila = tablaEventos.getSelectedRow();
+        if (fila == -1) {
+            JOptionPane.showMessageDialog(this, "Selecciona un evento para editar.", "Error", JOptionPane.ERROR_MESSAGE);
+            return;
+        }
+
+        int id = (int) modeloTabla.getValueAt(fila, 0);
+        String nombre = txtNombre.getText().trim();
+        String lugar = txtLugar.getText().trim();
+        Date fecha = (Date) spinnerFecha.getValue();
+        int capacidadGeneral = (int) spinnerCapacidadGeneral.getValue();
+        int capacidadVIP = (int) spinnerCapacidadVIP.getValue();
+        int capacidadPremium = (int) spinnerCapacidadPremium.getValue();
+        double precioGeneral, precioVIP, precioPremium;
+        try {
+            precioGeneral = Double.parseDouble(txtPrecioGeneral.getText().trim());
+            precioVIP = Double.parseDouble(txtPrecioVIP.getText().trim());
+            precioPremium = Double.parseDouble(txtPrecioPremium.getText().trim());
+        } catch (NumberFormatException e) {
+            JOptionPane.showMessageDialog(this, "Los precios deben ser números válidos.", "Error", JOptionPane.ERROR_MESSAGE);
+            return;
+        }
+
+        if (nombre.isEmpty() || lugar.isEmpty()) {
+            JOptionPane.showMessageDialog(this, "Por favor, completa todos los campos.", "Error", JOptionPane.ERROR_MESSAGE);
+            return;
+        }
+
+        try {
+        	Bbdd.updateEvento(id, nombre, lugar, fecha, capacidadGeneral, capacidadVIP, capacidadPremium, precioGeneral, precioVIP, precioPremium);
+            actualizarTabla();
+            limpiarCampos();
+            JOptionPane.showMessageDialog(this, "Evento actualizado correctamente.");
+            } catch (SQLException e) {
+            JOptionPane.showMessageDialog(this, "Error al actualizar evento: " + e.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
         }
     }
 
