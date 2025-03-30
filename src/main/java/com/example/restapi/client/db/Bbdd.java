@@ -3,7 +3,6 @@ package com.example.restapi.client.db;
 import java.sql.*;
 import java.util.ArrayList;
 import java.util.List;
-import java.sql.Date;
 
 import com.example.restapi.model.TipoUsuario;
 
@@ -217,6 +216,37 @@ public class Bbdd {
             return usuario;
         }
     }
+    }
+
+    public static void actualizarUsuarioDatos(String dni, String nombre, String apellido, String email, 
+                                            String password, int telefono, String fechaNacimiento, 
+                                            String tipoUsuario) throws SQLException {
+        // Obtener la conexión a la base de datos
+        Connection conn = getConnection();
+
+        // SQL para actualizar todos los datos del usuario por DNI
+        String sql = "UPDATE Usuarios SET nombre = ?, apellido = ?, email = ?, password_hash = ?, telefono = ?, " +
+                    "fecha_nacimiento = ?, tipo_usuario = ? WHERE dni = ?";
+
+        try (PreparedStatement stmt = conn.prepareStatement(sql)) {
+            // Establecer los parámetros en el PreparedStatement
+            stmt.setString(1, nombre);               // Nombre del usuario
+            stmt.setString(2, apellido);             // Apellido del usuario
+            stmt.setString(3, email);                // Email del usuario
+            stmt.setString(4, password);             // Contraseña del usuario
+            stmt.setInt(5, telefono);                // Teléfono del usuario
+            stmt.setString(6, fechaNacimiento);      // Fecha de nacimiento del usuario
+            stmt.setString(7, tipoUsuario);          // Tipo de usuario (ADMIN/CLIENTE)
+            stmt.setString(8, dni);                  // DNI del usuario a actualizar
+
+            // Ejecutar la actualización en la base de datos
+            int filasActualizadas = stmt.executeUpdate();
+
+            // Verificar si se actualizó algún registro
+            if (filasActualizadas == 0) {
+                throw new SQLException("No se encontró ningún usuario con el DNI: " + dni);
+            }
+        }
     }
 
     // Obtener todos los eventos

@@ -1,23 +1,20 @@
-SpringBoot + REST API + MySQL
+TICKETERA
 =============================
 
-This example relies on the SpringBoot to create a REST API and connecting to a MySQL database using JPA, with a sample web application and a command line client.
+Ticketera es una aplicación diseñada para la gestión de tickets de conciertos y eventos especiales. Permite a los usuarios comprar, reservar y administrar sus entradas de manera sencilla y eficiente.
 
-The basic structure of a SpringBoot project can be initialized using *Spring initializr* at https://start.spring.io/.
-
-Launching the application
+Lanzamiento de la aplicación
 -------------------------
 
-First, check all the required dependencies specified by the pom.xml file and the database configuration contained in *src/main/resources/application.properties* file.
+Primero, verifica todas las dependencias requeridas especificadas en el archivo pom.xml.
 
-Now, run the following command to check to download all dependencies and check that everything correctly compiles
+Ejecuta el siguiente comando para descargar todas las dependencias y asegurarte de que todo compile correctamente:
 
       mvn compile
 
-Make sure that the MySQL database was correctly configured before connecting the application to use it. 
-Use the contents of the file *src/main/resources/dbsetup.sql* to create the database, an specific user 'spq' (pass: 'spq') for the application and grant privileges to that user. If you are using the command line client for MySQL you could run the following command
+Ahora, inicia el servidor con el siguiente comando:
 
-      mysql –uroot -p < src/main/resources/dbsetup.sql
+      mvn spring-boot:run
 
 otherwise you could use the contents of the file in any other MySQL client you are using.
 
@@ -25,9 +22,9 @@ Now, launch the server using the following command
 
     mvn spring-boot:run
 
-If there are no errors, you should get a running web application serving its contents at http://localhost:8080/. You can press Ctrl+C to stop the running application.
+Si no hay errores, la aplicación estará funcionando en http://localhost:8080/. Puedes presionar Ctrl+C para detener la aplicación.
 
-REST API
+Pruebas
 --------
 
 The application exposes a REST API, which is used by the web application, which is implemented in the BookController class. To execute these methods, you may install [POSTman app](https://learning.postman.com/docs/getting-started/first-steps/get-postman/) or [CURL command line tool](https://curl.se/). For example, some methods are
