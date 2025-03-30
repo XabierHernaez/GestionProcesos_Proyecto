@@ -30,67 +30,12 @@
         </dependencies>
   </dependencyManagement>
 	<dependencies>
-	<dependency>
-			<groupId>org.springframework.boot</groupId>
-			<artifactId>spring-boot-starter-data-jpa</artifactId>
-		</dependency>
-
-		<dependency>
-                <groupId>org.datanucleus</groupId>
-                <artifactId>javax.jdo</artifactId>
-                <version>[3.2.0-release,)</version>
-        </dependency>
-
-		<dependency>
-                <groupId>org.apache.logging.log4j</groupId>
-                <artifactId>log4j-api</artifactId>
-                <version>[2.17.1, 2.39.1]</version>
-            </dependency>
-
-            <dependency>
-                <groupId>org.apache.logging.log4j</groupId>
-                <artifactId>log4j-core</artifactId>
-                <version>[2.17.1, 2.39.1]</version>
-        </dependency>
-
-		<!-- Add your dependencies here -->
-		<dependency>
-    		<groupId>org.xerial</groupId>
-    		<artifactId>sqlite-jdbc</artifactId>
-    		<version>3.47.0.0</version>
-		</dependency>
-		<dependency>
-			<groupId>javax.ws.rs</groupId>
-			<artifactId>javax.ws.rs-api</artifactId>
-			<version>2.1</version>
-		</dependency>
-	
-	<dependency>
-        	<groupId>org.glassfish.jersey.containers</groupId>
-        	<artifactId>jersey-container-servlet-core</artifactId>
-        </dependency>
-		<dependency>
-			<groupId>org.glassfish.jersey.containers</groupId>
-			<artifactId>jersey-container-grizzly2-http</artifactId>
-		</dependency>
+	<!-- Spring Boot Starter Web -->
         <dependency>
-            <groupId>org.glassfish.jersey.inject</groupId>
-            <artifactId>jersey-hk2</artifactId>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-web</artifactId>
         </dependency>
-        <dependency>
-           <groupId>org.glassfish.jersey.media</groupId>
-           <artifactId>jersey-media-json-jackson</artifactId>
-        </dependency>
-
-		<!-- Spring Boot Starter Web (if using REST APIs) -->
-
-		<!-- Spring Boot Starter Web -->
-		<dependency>
-			<groupId>org.springframework.boot</groupId>
-			<artifactId>spring-boot-starter-web</artifactId>
-		</dependency>
-
-		<!-- Spring Boot Starter Data JPA -->
+		<!-- Spring Boot Starter Data JPA (includes Hibernate) -->
 		<dependency>
 			<groupId>org.springframework.boot</groupId>
 			<artifactId>spring-boot-starter-data-jpa</artifactId>
@@ -110,6 +55,18 @@
 		</dependency>
 
 		<!-- Jersey Dependencies -->
+            <dependency>
+                <groupId>org.apache.logging.log4j</groupId>
+                <artifactId>log4j-core</artifactId>
+                <version>[2.17.1, 2.39.1]</version>
+        </dependency>
+
+		<!-- Add your dependencies here -->
+		<dependency>
+    		<groupId>org.xerial</groupId>
+    		<artifactId>sqlite-jdbc</artifactId>
+    		<version>3.47.0.0</version>
+		</dependency>
 		<dependency>
 			<groupId>org.glassfish.jersey.core</groupId>
 			<artifactId>jersey-client</artifactId>
@@ -165,6 +122,7 @@
 			<artifactId>log4j-api</artifactId>
 			<version>2.17.1</version>
 		</dependency>
+		
 		<dependency>
 			<groupId>org.apache.logging.log4j</groupId>
 			<artifactId>log4j-core</artifactId>

@@ -2,16 +2,16 @@ package com.example.restapi.client.window;
 
 import java.awt.*;
 import java.sql.SQLException;
-
 import javax.swing.*;
+
+import com.example.restapi.client.db.Bbdd;
+
 import javax.ws.rs.client.Client;
 import javax.ws.rs.client.ClientBuilder;
 import javax.ws.rs.client.Entity;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 
-
-import com.example.restapi.client.db.Bbdd;
 import com.example.restapi.model.TipoPago;
 import com.example.restapi.model.TipoUsuario;
 import com.example.restapi.model.Usuario;
@@ -34,15 +34,12 @@ public class VentanaRegistro extends JDialog {
         setSize(400, 400); // Ajustamos el tamaño
         setLocationRelativeTo(parent);
 
-
-		// Cambiar icono de la ventana
-		
-        JPanel panel = new JPanel(new GridLayout(12, 2, 5, 5)); // Aumentamos a 12 filas
-
         // Cambiar icono de la ventana
         ImageIcon imagen1 = new ImageIcon("resources/images/bravo.png");
         setIconImage(imagen1.getImage());
 
+        // Crear el panel del formulario
+        JPanel panel = new JPanel(new GridLayout(12, 2, 5, 5)); // Aumentamos a 12 filas
         panel.setBorder(BorderFactory.createEmptyBorder(10, 10, 10, 10));
 
         // Campos del formulario
@@ -123,6 +120,9 @@ public class VentanaRegistro extends JDialog {
         String codigoSecreto = txtCodigoSecreto.getText().trim();
         TipoUsuario tipoUsuario = (TipoUsuario) comboTipoUsuario.getSelectedItem();
         TipoPago tipoPago = (TipoPago) comboTipoPago.getSelectedItem(); // Obtener el método de pago seleccionado
+        int tel = Integer.parseInt(telefonoStr);
+
+
 
         // Validar campos vacíos
         if (nombre.isEmpty() || apellido.isEmpty() || email.isEmpty() || password.isEmpty() || telefonoStr.isEmpty() || dniStr.isEmpty() || fechaNacimientoStr.isEmpty()) {
@@ -136,30 +136,18 @@ public class VentanaRegistro extends JDialog {
             return;
         }
 
-
-        int telefono;
         try {
-            telefono = Integer.parseInt(telefonoStr);
-        } catch (NumberFormatException e) {
-            JOptionPane.showMessageDialog(this, "El teléfono debe ser un número válido.", "Error", JOptionPane.ERROR_MESSAGE);
-            return;
-        }
 
-        try {
             if (Bbdd.emailExists(email)) {
                 JOptionPane.showMessageDialog(this, "El email ya está registrado.", "Error", JOptionPane.ERROR_MESSAGE);
             } else {
-                Bbdd.insertUsuario(nombre, apellido, email, password, telefono, dniStr, tipoUsuario);
+                Bbdd.insertUsuario(nombre, apellido, email, password, tel, dniStr, tipoUsuario);
                 JOptionPane.showMessageDialog(this, "Usuario registrado correctamente. Ahora puedes iniciar sesión.");
                 dispose();
             }
-        } catch (SQLException ex) {
-            JOptionPane.showMessageDialog(this, "Error al registrar usuario: " + ex.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
-            return; // Ensure the flow exits on SQLException
-        }
-
-        try {
+            
             long dni = Long.parseLong(dniStr);
+            long telefono = Long.parseLong(telefonoStr);
             
 
             // Convertir la fecha de nacimiento a java.sql.Date
@@ -196,6 +184,8 @@ public class VentanaRegistro extends JDialog {
             JOptionPane.showMessageDialog(this, "DNI y Teléfono deben ser números válidos.", "Error", JOptionPane.ERROR_MESSAGE);
         } catch (IllegalArgumentException ex) {
             JOptionPane.showMessageDialog(this, "La fecha de nacimiento debe estar en el formato yyyy-MM-dd.", "Error", JOptionPane.ERROR_MESSAGE);
+        } catch (SQLException ex) {
+            JOptionPane.showMessageDialog(this, "Error al registrar usuario: " + ex.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
         }
     }
 }
