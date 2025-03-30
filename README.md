@@ -65,6 +65,3 @@ Adrián San José
 Xabier Hernaez
 
 Francisco Martin
-
-
-
