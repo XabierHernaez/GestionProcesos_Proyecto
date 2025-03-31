@@ -76,9 +76,9 @@ public class Bbdd {
                     "nombre TEXT NOT NULL, " +
                     "lugar TEXT NOT NULL, " +
                     "fecha DATETIME NOT NULL, " +
-                    "capacidad_general INTEGER DEFAULT 100, " + // Capacidad para GENERAL
-                    "capacidad_vip INTEGER DEFAULT 50, " +      // Capacidad para VIP
-                    "capacidad_premium INTEGER DEFAULT 20, " +  // Capacidad para PREMIUM
+                    "capacidad_general INTEGER DEFAULT 100, " +
+                    "capacidad_vip INTEGER DEFAULT 50, " +
+                    "capacidad_premium INTEGER DEFAULT 20, " +
                     "precio_general REAL NOT NULL, " +
                     "precio_vip REAL NOT NULL, " +
                     "precio_premium REAL NOT NULL)";
@@ -141,7 +141,7 @@ public class Bbdd {
         }
         }
 
-        // Actualizar un evento
+    // Actualizar un evento
     public static void updateEvento(int id, String nombre, String lugar, java.util.Date fecha, int capacidadGeneral, int capacidadVIP, int capacidadPremium, 
     double precioGeneral, double precioVIP, double precioPremium) throws SQLException {
         getConnection();
@@ -172,6 +172,7 @@ public class Bbdd {
         }
     }
 
+    // Compronar si un email ya existe
     public static boolean emailExists(String email) throws SQLException {
     	getConnection();
         String sql = "SELECT COUNT(*) FROM Usuarios WHERE email = ?";
@@ -187,8 +188,9 @@ public class Bbdd {
 
     }
 
+    // Comprobar si un DNI ya existe
     public static Usuario login(String email, String password) throws SQLException {
-    getConnection(); // Asegúrate de que esta función esté correctamente implementada para obtener la conexión.
+    getConnection();
     String sql = "SELECT * FROM Usuarios WHERE email = ?";
     Usuario usuario = null;
 
@@ -218,6 +220,7 @@ public class Bbdd {
     }
     }
 
+    // Obtener un usuario por su DNI
     public static void actualizarUsuarioDatos(String dni, String nombre, String apellido, String email, 
                                             String password, int telefono, String fechaNacimiento, 
                                             String tipoUsuario) throws SQLException {

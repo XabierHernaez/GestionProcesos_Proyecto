@@ -6,7 +6,6 @@ import com.example.restapi.client.db.Bbdd;
 import javax.swing.*;
 import javax.swing.table.DefaultTableModel;
 import com.example.restapi.model.Usuario;
-import com.example.restapi.client.db.Bbdd;
 import java.util.Date;
 import java.util.List;
 import com.example.restapi.model.TipoUsuario;
