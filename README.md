@@ -15,6 +15,8 @@ Ejecuta el siguiente comando para descargar todas las dependencias y asegurarte 
 Ahora, inicia el servidor con el siguiente comando:
 
       mvn spring-boot:run
+      mvn exec:java -Dexec.mainClass="com.example.restapi.client.window.WindowLauncher"
+
     
 otherwise you could use the contents of the file in any other MySQL client you are using.
 
