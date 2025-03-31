@@ -82,4 +82,19 @@ public class UsuarioController {
             return ResponseEntity.notFound().build();
         }
     }
+
+    @PostMapping("/login")
+    public ResponseEntity<UsuarioJPA> loginUsuario(@RequestBody UsuarioJPA credenciales) {
+        Optional<UsuarioJPA> usuarioExistente = usuarioRepository.findById(credenciales.getEmail());
+        if (usuarioExistente.isPresent()) {
+            UsuarioJPA usuario = usuarioExistente.get();
+            if (usuario.getPassword().equals(credenciales.getPassword())) {
+                return ResponseEntity.ok(usuario); // 👈 Devuelve el objeto completo
+            } else {
+                return ResponseEntity.status(401).build();
+            }
+        } else {
+            return ResponseEntity.status(404).build();
+        }
+    }
 }

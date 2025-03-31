@@ -81,6 +81,60 @@ public class VentanaInicio extends JFrame {
     private void login() {
         String email = txtEmail.getText().trim();
         String password = new String(txtPassword.getPassword());
+    
+        if (email.isEmpty() || password.isEmpty()) {
+            JOptionPane.showMessageDialog(this, "Por favor, completa todos los campos.", "Error", JOptionPane.ERROR_MESSAGE);
+            return;
+        }
+    
+        try {
+            // Crear cliente REST
+            Client client = ClientBuilder.newClient();
+            String apiUrl = "http://localhost:8080/api/usuarios/login"; // Asegúrate de que esta URL sea correcta
+    
+            // Crear objeto Usuario para enviar al servidor
+            Usuario usuario = new Usuario();
+            usuario.setEmail(email);
+            usuario.setPassword(password);
+    
+            // Realizar la solicitud POST al servidor
+            Response response = client.target(apiUrl)
+                    .request(MediaType.APPLICATION_JSON)
+                    .post(Entity.entity(usuario, MediaType.APPLICATION_JSON));
+    
+            // Manejar la respuesta del servidor
+            if (response.getStatus() == Response.Status.OK.getStatusCode()) {
+                // Leer el usuario completo desde la respuesta
+                Usuario usuarioLogueado = response.readEntity(Usuario.class);
+    
+                JOptionPane.showMessageDialog(this, "Inicio de sesión exitoso.", "Éxito", JOptionPane.INFORMATION_MESSAGE);
+    
+                // Redirigir según el tipo de usuario
+                if (usuarioLogueado.getTipoUsuario() == TipoUsuario.ADMIN) {
+                    dispose();
+                    new VentanaAdmin(usuarioLogueado);
+                } else {
+                    dispose();
+                    /*new VentanaUsuario(usuarioLogueado);*/
+                }
+            } else if (response.getStatus() == Response.Status.UNAUTHORIZED.getStatusCode()) {
+                JOptionPane.showMessageDialog(this, "Contraseña incorrecta.", "Error", JOptionPane.ERROR_MESSAGE);
+            } else if (response.getStatus() == Response.Status.NOT_FOUND.getStatusCode()) {
+                JOptionPane.showMessageDialog(this, "Usuario no encontrado.", "Error", JOptionPane.ERROR_MESSAGE);
+            } else {
+                JOptionPane.showMessageDialog(this, "Error al iniciar sesión. Código: " + response.getStatus(), "Error", JOptionPane.ERROR_MESSAGE);
+            }
+    
+            client.close();
+        } catch (Exception ex) {
+            JOptionPane.showMessageDialog(this, "Error al conectar con el servidor: " + ex.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
+        }
+    }
+
+    /* 
+    private void login() {
+        String email = txtEmail.getText().trim();
+        String password = new String(txtPassword.getPassword());
 
         if (email.isEmpty() || password.isEmpty()) {
             JOptionPane.showMessageDialog(this, "Por favor, completa todos los campos.", "Error", JOptionPane.ERROR_MESSAGE);
@@ -128,9 +182,10 @@ public class VentanaInicio extends JFrame {
             JOptionPane.showMessageDialog(this, "Error al conectar con el servidor: " + ex.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
         }
     }
-
+    */
     private void abrirRegistro() {
         new VentanaRegistro(this);
     }
+    
 }
 
