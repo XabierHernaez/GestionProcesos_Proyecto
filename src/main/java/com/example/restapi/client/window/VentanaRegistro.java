@@ -108,7 +108,9 @@ public class VentanaRegistro extends JDialog {
         btnRegistrar.addActionListener(e -> registrar());
 
         // Acción del botón Modificar
-        btnModificar.addActionListener(e -> {
+        /* 
+        btnModificar.addActionListener(e -> {     
+                 
             String nombre = txtNombre.getText().trim();
             String apellido = txtApellido.getText().trim();
             String email = txtEmail.getText().trim();
@@ -159,7 +161,122 @@ public class VentanaRegistro extends JDialog {
                 // Si ocurre un error con la base de datos
                 JOptionPane.showMessageDialog(VentanaRegistro.this, "Error al modificar los datos: " + ex.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
             }
-        });
+            */
+            // Acción del botón Modificar
+       // Acción del botón Modificar
+       btnModificar.addActionListener(e -> {
+        // Si el botón está en la fase de "Buscar Usuario"
+        if (btnModificar.getText().equals("Modificar datos")) {
+            // Mostrar un cuadro de diálogo para que el usuario introduzca su email
+            String email = JOptionPane.showInputDialog(VentanaRegistro.this, "Introduce el email del usuario:", "Buscar Usuario", JOptionPane.QUESTION_MESSAGE);
+    
+            if (email == null || email.trim().isEmpty()) {
+                JOptionPane.showMessageDialog(VentanaRegistro.this, "El email no puede estar vacío.", "Error", JOptionPane.ERROR_MESSAGE);
+                return;
+            }
+    
+            try {
+                // Crear un cliente HTTP para buscar el usuario
+                Client client = ClientBuilder.newClient();
+                try {
+                    String apiUrl = "http://localhost:8080/api/usuarios/" + email.trim();
+                    Response response = client.target(apiUrl)
+                            .request(MediaType.APPLICATION_JSON)
+                            .get();
+    
+                    if (response.getStatus() == Response.Status.OK.getStatusCode()) {
+                        // Obtener el usuario desde la respuesta
+                        Usuario usuario = response.readEntity(Usuario.class);
+    
+                        // Mostrar la información del usuario en los campos correspondientes
+                        txtNombre.setText(usuario.getNombre());
+                        txtApellido.setText(usuario.getApellidos());
+                        txtEmail.setText(usuario.getEmail());
+                        txtEmail.setEnabled(false); // Deshabilitar el campo de email para que no pueda ser modificado
+                        txtPassword.setText(usuario.getPassword());
+                        txtTelefono.setText(usuario.getTelefono());
+                        txtFechaNacimiento.setText(usuario.getFechaNacimiento().toString());
+                        txtDni.setText(String.valueOf(usuario.getDni()));
+                        comboTipoUsuario.setSelectedItem(usuario.getTipoUsuario());
+                        comboTipoPago.setSelectedItem(usuario.getTipoPago());
+    
+                        // Cambiar el texto del botón a "Guardar cambios"
+                        btnModificar.setText("Guardar cambios");
+    
+                        // Guardar el email del usuario en un atributo oculto para usarlo en la actualización
+                        txtEmail.setName(email.trim());
+                    } else {
+                        JOptionPane.showMessageDialog(VentanaRegistro.this, "No se encontró ningún usuario con el email proporcionado.", "Error", JOptionPane.ERROR_MESSAGE);
+                    }
+                } finally {
+                    client.close(); // Cerrar el cliente HTTP de búsqueda
+                }
+            } catch (Exception ex) {
+                JOptionPane.showMessageDialog(VentanaRegistro.this, "Error al buscar el usuario: " + ex.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
+            }
+        }
+        // Si el botón está en la fase de "Guardar cambios"
+        else if (btnModificar.getText().equals("Guardar cambios")) {
+            String nombre = txtNombre.getText().trim();
+            String apellido = txtApellido.getText().trim();
+            String password = new String(txtPassword.getPassword()).trim();
+            String telefonoStr = txtTelefono.getText().trim();
+            String fechaNacimientoStr = txtFechaNacimiento.getText().trim();
+            String dniStr = txtDni.getText().trim();
+            TipoUsuario tipoUsuario = (TipoUsuario) comboTipoUsuario.getSelectedItem();
+            TipoPago tipoPago = (TipoPago) comboTipoPago.getSelectedItem();
+    
+            // Validar que los campos no estén vacíos
+            if (nombre.isEmpty() || apellido.isEmpty() || password.isEmpty() || telefonoStr.isEmpty() || dniStr.isEmpty() || fechaNacimientoStr.isEmpty()) {
+                JOptionPane.showMessageDialog(VentanaRegistro.this, "Por favor, completa todos los campos.", "Error", JOptionPane.ERROR_MESSAGE);
+                return;
+            }
+    
+            try {
+                // Validar que el teléfono y el DNI sean números válidos
+                long telefono = Long.parseLong(telefonoStr);
+                long dni = Long.parseLong(dniStr);
+    
+                // Validar que la fecha esté en el formato correcto (yyyy-MM-dd)
+                java.sql.Date fechaNacimiento = java.sql.Date.valueOf(fechaNacimientoStr);
+    
+                // Crear un cliente HTTP para actualizar el usuario
+                Client client = ClientBuilder.newClient();
+                try {
+                    String apiUrl = "http://localhost:8080/api/usuarios/" + txtEmail.getName(); // Usar el email guardado
+                    Usuario usuario = new Usuario();
+                    usuario.setNombre(nombre);
+                    usuario.setApellidos(apellido);
+                    usuario.setPassword(password);
+                    usuario.setTelefono(String.valueOf(telefono));
+                    usuario.setDni(dni);
+                    usuario.setFechaNacimiento(fechaNacimiento);
+                    usuario.setTipoUsuario(tipoUsuario);
+                    usuario.setTipoPago(tipoPago);
+    
+                    Response response = client.target(apiUrl)
+                            .request(MediaType.APPLICATION_JSON)
+                            .put(Entity.entity(usuario, MediaType.APPLICATION_JSON));
+    
+                    if (response.getStatus() == Response.Status.OK.getStatusCode()) {
+                        JOptionPane.showMessageDialog(VentanaRegistro.this, "Datos del usuario actualizados correctamente.");
+                        dispose(); // Cerrar la ventana después de la actualización
+                    } else {
+                        JOptionPane.showMessageDialog(VentanaRegistro.this, "Error al actualizar los datos: " + response.getStatus(), "Error", JOptionPane.ERROR_MESSAGE);
+                    }
+                } finally {
+                    client.close(); // Cerrar el cliente HTTP de actualización
+                }
+            } catch (NumberFormatException ex) {
+                JOptionPane.showMessageDialog(VentanaRegistro.this, "El teléfono y el DNI deben ser números válidos.", "Error", JOptionPane.ERROR_MESSAGE);
+            } catch (IllegalArgumentException ex) {
+                JOptionPane.showMessageDialog(VentanaRegistro.this, "La fecha de nacimiento debe estar en el formato yyyy-MM-dd.", "Error", JOptionPane.ERROR_MESSAGE);
+            }
+        }
+    });
+    
+    
+
 
         setVisible(true);
     }
