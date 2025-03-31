@@ -233,3 +233,4 @@ public class VentanaRegistro extends JDialog {
             JOptionPane.showMessageDialog(this, "Error al registrar usuario: " + ex.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
         }
     }
+}
