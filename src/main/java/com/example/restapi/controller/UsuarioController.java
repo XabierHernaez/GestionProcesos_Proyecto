@@ -33,13 +33,20 @@ public class UsuarioController {
         return usuario.map(ResponseEntity::ok).orElseGet(() -> ResponseEntity.notFound().build());
     }
 
-    // Crear un nuevo usuario
     @PostMapping
     public ResponseEntity<UsuarioJPA> createUsuario(@RequestBody UsuarioJPA usuario) {
         try {
+            // Imprimir el usuario recibido
+            System.out.println("Usuario recibido: " + usuario);
+
             UsuarioJPA nuevoUsuario = usuarioRepository.save(usuario);
+
+            // Imprimir el usuario guardado
+            System.out.println("Usuario guardado: " + nuevoUsuario);
+
             return ResponseEntity.ok(nuevoUsuario);
         } catch (Exception e) {
+            e.printStackTrace(); // Imprimir el error en consola
             return ResponseEntity.badRequest().build();
         }
     }
@@ -48,7 +55,7 @@ public class UsuarioController {
     @PutMapping("/{email}")
     public ResponseEntity<UsuarioJPA> updateUsuario(@PathVariable String email, @RequestBody UsuarioJPA usuarioDetalles) {
         Optional<UsuarioJPA> usuarioExistente = usuarioRepository.findById(email);
-        if (usuarioExistente.isPresent()) {
+        if(usuarioExistente.isPresent()) {
             UsuarioJPA usuario = usuarioExistente.get();
             usuario.setNombre(usuarioDetalles.getNombre());
             usuario.setApellidos(usuarioDetalles.getApellidos());
