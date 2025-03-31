@@ -15,7 +15,7 @@ Ejecuta el siguiente comando para descargar todas las dependencias y asegurarte 
 Ahora, inicia el servidor con el siguiente comando:
 
       mvn spring-boot:run
-
+    
 otherwise you could use the contents of the file in any other MySQL client you are using.
 
 Now, launch the server using the following command
