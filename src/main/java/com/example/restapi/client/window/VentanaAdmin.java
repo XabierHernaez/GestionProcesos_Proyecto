@@ -1,8 +1,6 @@
 package com.example.restapi.client.window;
 import java.awt.*;
-import java.sql.SQLException;
 
-import com.example.restapi.client.db.Bbdd;
 import javax.swing.*;
 import javax.swing.table.DefaultTableModel;
 import javax.ws.rs.client.Client;
@@ -25,6 +23,7 @@ public class VentanaAdmin extends JFrame {
     private JTextField txtNombre, txtLugar, txtPrecioGeneral, txtPrecioVIP, txtPrecioPremium;
     private JSpinner spinnerFecha, spinnerCapacidadGeneral, spinnerCapacidadVIP, spinnerCapacidadPremium;
     private JButton btnAgregar, btnEditar, btnEliminar;
+    @SuppressWarnings("unused")
     private Usuario usuario;
 
     public VentanaAdmin(Usuario usuario) {

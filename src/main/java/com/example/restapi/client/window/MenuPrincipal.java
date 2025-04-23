@@ -66,6 +66,7 @@ public class MenuPrincipal extends JFrame{
         catalogButton.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
+                new VentanaConciertos(null);
                 JOptionPane.showMessageDialog(null, "Catálogo de Eventos seleccionado");
             }
         });
