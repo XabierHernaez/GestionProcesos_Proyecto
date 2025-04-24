@@ -22,8 +22,7 @@ public class VentanaAdmin extends JFrame {
     private DefaultTableModel modeloTabla;
     private JTextField txtNombre, txtLugar, txtPrecioGeneral, txtPrecioVIP, txtPrecioPremium;
     private JSpinner spinnerFecha, spinnerCapacidadGeneral, spinnerCapacidadVIP, spinnerCapacidadPremium;
-    private JButton btnAgregar, btnEditar, btnEliminar;
-    @SuppressWarnings("unused")
+    private JButton btnAgregar, btnEditar, btnEliminar, btnVerCliente;
     private Usuario usuario;
 
     public VentanaAdmin(Usuario usuario) {
@@ -43,9 +42,9 @@ public class VentanaAdmin extends JFrame {
 
         modeloTabla = new DefaultTableModel(new String[]{"ID", "Nombre", "Lugar", "Fecha", "Cap. General", "Cap. VIP", "Cap. Premium", "Precio General", "Precio VIP", "Precio Premium"}, 0) {
 
-			private static final long serialVersionUID = 1L;
+            private static final long serialVersionUID = 1L;
 
-			@Override
+            @Override
             public boolean isCellEditable(int row, int column) {
                 return false;
             }
@@ -97,20 +96,69 @@ public class VentanaAdmin extends JFrame {
         btnAgregar = new JButton("Agregar");
         btnEditar = new JButton("Editar");
         btnEliminar = new JButton("Eliminar");
+        btnVerCliente = new JButton("Ver Vista Cliente");
 
-        panelEntrada.add(btnAgregar);
-        JPanel botones = new JPanel(new FlowLayout());
-        botones.add(btnEditar);
-        botones.add(btnEliminar);
-        panelEntrada.add(botones);
+        // Panel para los botones de gestión
+        JPanel botonesGestion = new JPanel(new FlowLayout());
+        botonesGestion.add(btnAgregar);
+        botonesGestion.add(btnEditar);
+        botonesGestion.add(btnEliminar);
+        panelEntrada.add(botonesGestion);
+        
+        // Panel para el botón de ver vista cliente
+        JPanel botonesVista = new JPanel(new FlowLayout());
+        botonesVista.add(btnVerCliente);
+        panelEntrada.add(botonesVista);
 
         add(panelEntrada, BorderLayout.SOUTH);
+        
+        // Configurar listeners
         btnAgregar.addActionListener(e -> agregarConcierto());
         btnEliminar.addActionListener(e -> eliminarConcierto());
         btnEditar.addActionListener(e -> editarConcierto());
+        btnVerCliente.addActionListener(e -> {
+            // Abrir la vista de cliente sin cerrar la vista de administrador
+            new VentanaConciertos(usuario);
+        });
+        
+        // Añadir escucha a la tabla para cargar datos en formulario cuando se seleccione
+        tablaEventos.getSelectionModel().addListSelectionListener(e -> {
+            if (!e.getValueIsAdjusting() && tablaEventos.getSelectedRow() != -1) {
+                int fila = tablaEventos.getSelectedRow();
+                cargarDatosEnFormulario(fila);
+            }
+        });
+        
         cargarConciertos();
     
         setVisible(true);
+    }
+
+    private void cargarDatosEnFormulario(int fila) {
+        try {
+            txtNombre.setText(modeloTabla.getValueAt(fila, 1).toString());
+            txtLugar.setText(modeloTabla.getValueAt(fila, 2).toString());
+            
+            // Fecha
+            if (modeloTabla.getValueAt(fila, 3) instanceof Date) {
+                spinnerFecha.setValue(modeloTabla.getValueAt(fila, 3));
+            } else if (modeloTabla.getValueAt(fila, 3) instanceof java.sql.Date) {
+                // Convertir SQL Date a util.Date
+                spinnerFecha.setValue(new Date(((java.sql.Date)modeloTabla.getValueAt(fila, 3)).getTime()));
+            }
+            
+            // Capacidades
+            spinnerCapacidadGeneral.setValue(modeloTabla.getValueAt(fila, 4));
+            spinnerCapacidadVIP.setValue(modeloTabla.getValueAt(fila, 5));
+            spinnerCapacidadPremium.setValue(modeloTabla.getValueAt(fila, 6));
+            
+            // Precios
+            txtPrecioGeneral.setText(modeloTabla.getValueAt(fila, 7).toString());
+            txtPrecioVIP.setText(modeloTabla.getValueAt(fila, 8).toString());
+            txtPrecioPremium.setText(modeloTabla.getValueAt(fila, 9).toString());
+        } catch (Exception ex) {
+            JOptionPane.showMessageDialog(this, "Error al cargar datos: " + ex.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
+        }
     }
 
     private void cargarConciertos() {
@@ -208,6 +256,9 @@ public class VentanaAdmin extends JFrame {
                 });
     
                 JOptionPane.showMessageDialog(this, "Concierto agregado correctamente.", "Éxito", JOptionPane.INFORMATION_MESSAGE);
+                
+                // Limpiar campos del formulario después de añadir
+                limpiarFormulario();
             } else {
                 JOptionPane.showMessageDialog(this, "Error al agregar el concierto. Código: " + response.getStatus(), "Error", JOptionPane.ERROR_MESSAGE);
             }
@@ -246,6 +297,7 @@ public class VentanaAdmin extends JFrame {
             if (response.getStatus() == Response.Status.NO_CONTENT.getStatusCode()) {
                 modeloTabla.removeRow(filaSeleccionada);
                 JOptionPane.showMessageDialog(this, "Concierto eliminado correctamente.", "Éxito", JOptionPane.INFORMATION_MESSAGE);
+                limpiarFormulario();
             } else if (response.getStatus() == Response.Status.NOT_FOUND.getStatusCode()) {
                 JOptionPane.showMessageDialog(this, "Concierto no encontrado en el servidor.", "Error", JOptionPane.ERROR_MESSAGE);
             } else {
@@ -320,6 +372,7 @@ public class VentanaAdmin extends JFrame {
                 modeloTabla.setValueAt(conciertoEditado.getPrecioPremium(), filaSeleccionada, 9);
     
                 JOptionPane.showMessageDialog(this, "Concierto actualizado correctamente.", "Éxito", JOptionPane.INFORMATION_MESSAGE);
+                limpiarFormulario();
             } else if (response.getStatus() == Response.Status.NOT_FOUND.getStatusCode()) {
                 JOptionPane.showMessageDialog(this, "Concierto no encontrado.", "Error", JOptionPane.ERROR_MESSAGE);
             } else {
@@ -335,8 +388,22 @@ public class VentanaAdmin extends JFrame {
         }
     }
     
-    
+    private void limpiarFormulario() {
+        txtNombre.setText("");
+        txtLugar.setText("");
+        spinnerFecha.setValue(new Date());
+        spinnerCapacidadGeneral.setValue(100);
+        spinnerCapacidadVIP.setValue(50);
+        spinnerCapacidadPremium.setValue(20);
+        txtPrecioGeneral.setText("0.0");
+        txtPrecioVIP.setText("0.0");
+        txtPrecioPremium.setText("0.0");
+        
+        // Quitar selección de la tabla
+        tablaEventos.clearSelection();
+    }
 
+    
     // Métodos existentes sin cambios
     /* 
     private void actualizarTabla() {
