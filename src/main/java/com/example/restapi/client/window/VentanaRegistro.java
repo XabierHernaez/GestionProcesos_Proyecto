@@ -292,31 +292,26 @@ public class VentanaRegistro extends JDialog {
         String codigoSecreto = txtCodigoSecreto.getText().trim();
         TipoUsuario tipoUsuario = (TipoUsuario) comboTipoUsuario.getSelectedItem();
         TipoPago tipoPago = (TipoPago) comboTipoPago.getSelectedItem();
-
+    
+        // Validación de campos obligatorios
         if (nombre.isEmpty() || apellido.isEmpty() || email.isEmpty() || password.isEmpty() || telefonoStr.isEmpty() || dniStr.isEmpty() || fechaNacimientoStr.isEmpty()) {
             JOptionPane.showMessageDialog(this, "Por favor, completa todos los campos.", "Error", JOptionPane.ERROR_MESSAGE);
             return;
         }
-
+    
+        // Validación del código secreto para ADMIN
         if (tipoUsuario.equals(TipoUsuario.ADMIN) && !codigoSecreto.equals(CODIGO_SECRETO_ADMIN)) {
             JOptionPane.showMessageDialog(this, "Código secreto incorrecto. No puedes registrarte como ADMIN.", "Error", JOptionPane.ERROR_MESSAGE);
             return;
         }
-
+    
         try {
-            if (Bbdd.emailExists(email)) {
-                JOptionPane.showMessageDialog(this, "El email ya está registrado.", "Error", JOptionPane.ERROR_MESSAGE);
-            } else {
-                Bbdd.insertUsuario(nombre, apellido, email, password, Integer.parseInt(telefonoStr), dniStr, tipoUsuario);
-                JOptionPane.showMessageDialog(this, "Usuario registrado correctamente. Ahora puedes iniciar sesión.");
-                dispose();
-            }
-
             long dni = Long.parseLong(dniStr);
             long telefono = Long.parseLong(telefonoStr);
-
+    
             java.sql.Date fechaNacimiento = java.sql.Date.valueOf(fechaNacimientoStr);
-
+    
+            // Crear el objeto Usuario
             Usuario usuario = new Usuario();
             usuario.setNombre(nombre);
             usuario.setApellidos(apellido);
@@ -327,27 +322,36 @@ public class VentanaRegistro extends JDialog {
             usuario.setDni(dni);
             usuario.setTipoUsuario(tipoUsuario);
             usuario.setTipoPago(tipoPago);
-
+    
+            // Configurar el cliente HTTP
             Client client = ClientBuilder.newClient();
             String apiUrl = "http://localhost:8080/resource/register";
+            
+            // Realizar la solicitud POST al backend
             Response response = client.target(apiUrl)
                     .request(MediaType.APPLICATION_JSON)
                     .post(Entity.entity(usuario, MediaType.APPLICATION_JSON));
-
+    
+            // Manejo de la respuesta
             if (response.getStatus() == Response.Status.OK.getStatusCode()) {
                 JOptionPane.showMessageDialog(this, "Usuario registrado con éxito.");
                 dispose();
+            } else if (response.getStatus() == Response.Status.CONFLICT.getStatusCode()) {
+                // Si el email ya está registrado, mostrar mensaje de conflicto
+                JOptionPane.showMessageDialog(this, "El email ya está registrado.", "Error", JOptionPane.ERROR_MESSAGE);
             } else {
+                // En caso de cualquier otro error
                 JOptionPane.showMessageDialog(this, "Error al registrar el usuario. Código: " + response.getStatus(), "Error", JOptionPane.ERROR_MESSAGE);
             }
-
+    
             client.close();
         } catch (NumberFormatException ex) {
+            // Manejo de excepciones para el DNI y teléfono
             JOptionPane.showMessageDialog(this, "DNI y Teléfono deben ser números válidos.", "Error", JOptionPane.ERROR_MESSAGE);
         } catch (IllegalArgumentException ex) {
+            // Manejo de excepciones para la fecha de nacimiento
             JOptionPane.showMessageDialog(this, "La fecha de nacimiento debe estar en el formato yyyy-MM-dd.", "Error", JOptionPane.ERROR_MESSAGE);
-        } catch (SQLException ex) {
-            JOptionPane.showMessageDialog(this, "Error al registrar usuario: " + ex.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
         }
     }
+    
 }

@@ -20,9 +20,9 @@ public class VentanaAdmin extends JFrame {
 
     private JTable tablaEventos;
     private DefaultTableModel modeloTabla;
-    private JTextField txtNombre, txtLugar, txtPrecioGeneral, txtPrecioVIP, txtPrecioPremium;
+    private JTextField txtNombre, txtLugar, txtPrecioGeneral, txtPrecioVIP, txtPrecioPremium, txtBuscar;
     private JSpinner spinnerFecha, spinnerCapacidadGeneral, spinnerCapacidadVIP, spinnerCapacidadPremium;
-    private JButton btnAgregar, btnEditar, btnEliminar, btnVerCliente;
+    private JButton btnAgregar, btnEditar, btnEliminar, btnBuscar, btnVerUsuarios;
     private Usuario usuario;
 
     public VentanaAdmin(Usuario usuario) {
@@ -32,28 +32,27 @@ public class VentanaAdmin extends JFrame {
             dispose();
             return;
         }
-        
+
         setTitle("Gestión de Eventos");
         setSize(1100, 700);
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         setLocationRelativeTo(null);
-
         setLayout(new BorderLayout());
 
-        modeloTabla = new DefaultTableModel(new String[]{"ID", "Nombre", "Lugar", "Fecha", "Cap. General", "Cap. VIP", "Cap. Premium", "Precio General", "Precio VIP", "Precio Premium"}, 0) {
-
+        modeloTabla = new DefaultTableModel(new String[]{
+            "ID", "Nombre", "Lugar", "Fecha", "Cap. General", "Cap. VIP", "Cap. Premium", "Precio General", "Precio VIP", "Precio Premium"
+        }, 0) {
             private static final long serialVersionUID = 1L;
-
             @Override
             public boolean isCellEditable(int row, int column) {
                 return false;
             }
         };
+
         tablaEventos = new JTable(modeloTabla);
-        
         add(new JScrollPane(tablaEventos), BorderLayout.CENTER);
 
-        JPanel panelEntrada = new JPanel(new GridLayout(11, 2, 5, 5));
+        JPanel panelEntrada = new JPanel(new GridLayout(12, 2, 5, 5));
         panelEntrada.setBorder(BorderFactory.createEmptyBorder(10, 10, 10, 10));
 
         panelEntrada.add(new JLabel("Nombre:"));
@@ -93,44 +92,43 @@ public class VentanaAdmin extends JFrame {
         txtPrecioPremium = new JTextField("0.0");
         panelEntrada.add(txtPrecioPremium);
 
+        panelEntrada.add(new JLabel("Buscar por nombre:"));
+        txtBuscar = new JTextField();
+        panelEntrada.add(txtBuscar);
+
+        btnBuscar = new JButton("Buscar");
+        panelEntrada.add(btnBuscar);
+
         btnAgregar = new JButton("Agregar");
         btnEditar = new JButton("Editar");
         btnEliminar = new JButton("Eliminar");
-        btnVerCliente = new JButton("Ver Vista Cliente");
+        btnVerUsuarios = new JButton("Ver Usuarios");
 
-        // Panel para los botones de gestión
         JPanel botonesGestion = new JPanel(new FlowLayout());
         botonesGestion.add(btnAgregar);
         botonesGestion.add(btnEditar);
         botonesGestion.add(btnEliminar);
         panelEntrada.add(botonesGestion);
-        
-        // Panel para el botón de ver vista cliente
+
         JPanel botonesVista = new JPanel(new FlowLayout());
-        botonesVista.add(btnVerCliente);
+        botonesVista.add(btnVerUsuarios);
         panelEntrada.add(botonesVista);
 
         add(panelEntrada, BorderLayout.SOUTH);
-        
-        // Configurar listeners
+
         btnAgregar.addActionListener(e -> agregarConcierto());
         btnEliminar.addActionListener(e -> eliminarConcierto());
         btnEditar.addActionListener(e -> editarConcierto());
-        btnVerCliente.addActionListener(e -> {
-            // Abrir la vista de cliente sin cerrar la vista de administrador
-            new VentanaConciertos(usuario);
-        });
-        
-        // Añadir escucha a la tabla para cargar datos en formulario cuando se seleccione
+        btnVerUsuarios.addActionListener(e -> new VentanaUsuarios());
+
         tablaEventos.getSelectionModel().addListSelectionListener(e -> {
             if (!e.getValueIsAdjusting() && tablaEventos.getSelectedRow() != -1) {
                 int fila = tablaEventos.getSelectedRow();
                 cargarDatosEnFormulario(fila);
             }
         });
-        
+
         cargarConciertos();
-    
         setVisible(true);
     }
 
@@ -403,135 +401,74 @@ public class VentanaAdmin extends JFrame {
         tablaEventos.clearSelection();
     }
 
-    
-    // Métodos existentes sin cambios
-    /* 
-    private void actualizarTabla() {
-        modeloTabla.setRowCount(0);
-        try {
-            List<Concierto> eventos = Bbdd.getAllEventos();
-            for (Concierto evento : eventos) {
-                modeloTabla.addRow(new Object[]{
-                        evento.getId(),
-                        evento.getNombre(),
-                        evento.getLugar(),
-                        evento.getFecha(),
-                        evento.getCapacidadGeneral(),
-                        evento.getCapacidadVIP(),
-                        evento.getCapacidadPremium(),
-                        evento.getPrecioGeneral(),
-                        evento.getPrecioVIP(),
-                        evento.getPrecioPremium()
-                });
-            }
-        } catch (SQLException e) {
-            JOptionPane.showMessageDialog(this, "Error al cargar eventos: " + e.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
-        }
-    }
-    private void limpiarCampos() {
-        txtNombre.setText("");
-        txtLugar.setText("");
-        spinnerFecha.setValue(new Date());
-        spinnerCapacidadGeneral.setValue(100);
-        spinnerCapacidadVIP.setValue(50);
-        spinnerCapacidadPremium.setValue(20);
-        txtPrecioGeneral.setText("0.0");
-        txtPrecioVIP.setText("0.0");
-        txtPrecioPremium.setText("0.0");
-    }
+    private static class VentanaUsuarios extends JFrame {
+        private JTable tabla;
+        private DefaultTableModel modelo;
 
-    private void agregarConcierto() {
-        String nombre = txtNombre.getText().trim();
-        String lugar = txtLugar.getText().trim();
-        Date fecha = (Date) spinnerFecha.getValue();
-        int capacidadGeneral = (int) spinnerCapacidadGeneral.getValue();
-        int capacidadVIP = (int) spinnerCapacidadVIP.getValue();
-        int capacidadPremium = (int) spinnerCapacidadPremium.getValue();
-        double precioGeneral, precioVIP, precioPremium;
-        try {
-            precioGeneral = Double.parseDouble(txtPrecioGeneral.getText().trim());
-            precioVIP = Double.parseDouble(txtPrecioVIP.getText().trim());
-            precioPremium = Double.parseDouble(txtPrecioPremium.getText().trim());
-        } catch (NumberFormatException e) {
-            JOptionPane.showMessageDialog(this, "Los precios deben ser números válidos.", "Error", JOptionPane.ERROR_MESSAGE);
-            return;
+        public VentanaUsuarios() {
+            setTitle("Listado de Usuarios");
+            setSize(1000, 400);
+            setLocationRelativeTo(null);
+            setLayout(new BorderLayout());
+
+            modelo = new DefaultTableModel(new String[]{
+                "Nombre", "Apellidos", "Email", "Password", "Teléfono", "DNI", "Fecha Nacimiento", "Tipo Pago", "Tipo Usuario"
+            }, 0) {
+                @Override
+                public boolean isCellEditable(int row, int column) {
+                    return false;
+                }
+            };
+
+            tabla = new JTable(modelo);
+            add(new JScrollPane(tabla), BorderLayout.CENTER);
+
+            JButton btnCerrar = new JButton("Cerrar");
+            btnCerrar.addActionListener(e -> dispose());
+            JPanel panelBoton = new JPanel();
+            panelBoton.add(btnCerrar);
+            add(panelBoton, BorderLayout.SOUTH);
+
+            cargarUsuarios();
+            setVisible(true);
         }
 
-        if (nombre.isEmpty() || lugar.isEmpty()) {
-            JOptionPane.showMessageDialog(this, "Por favor, completa todos los campos.", "Error", JOptionPane.ERROR_MESSAGE);
-            return;
-        }
-
-        try {
-        	Bbdd.insertConcierto(nombre, lugar, fecha, capacidadGeneral, capacidadVIP, capacidadPremium, precioGeneral, precioVIP, precioPremium);
-            actualizarTabla();
-            limpiarCampos();
-            JOptionPane.showMessageDialog(this, "Evento agregado correctamente.");
-        } catch (SQLException e) {
-            JOptionPane.showMessageDialog(this, "Error al agregar evento: " + e.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
-        }
-    }
-
-    private void editarConcierto() {
-        int fila = tablaEventos.getSelectedRow();
-        if (fila == -1) {
-            JOptionPane.showMessageDialog(this, "Selecciona un evento para editar.", "Error", JOptionPane.ERROR_MESSAGE);
-            return;
-        }
-
-        int id = (int) modeloTabla.getValueAt(fila, 0);
-        String nombre = txtNombre.getText().trim();
-        String lugar = txtLugar.getText().trim();
-        Date fecha = (Date) spinnerFecha.getValue();
-        int capacidadGeneral = (int) spinnerCapacidadGeneral.getValue();
-        int capacidadVIP = (int) spinnerCapacidadVIP.getValue();
-        int capacidadPremium = (int) spinnerCapacidadPremium.getValue();
-        double precioGeneral, precioVIP, precioPremium;
-        try {
-            precioGeneral = Double.parseDouble(txtPrecioGeneral.getText().trim());
-            precioVIP = Double.parseDouble(txtPrecioVIP.getText().trim());
-            precioPremium = Double.parseDouble(txtPrecioPremium.getText().trim());
-        } catch (NumberFormatException e) {
-            JOptionPane.showMessageDialog(this, "Los precios deben ser números válidos.", "Error", JOptionPane.ERROR_MESSAGE);
-            return;
-        }
-
-        if (nombre.isEmpty() || lugar.isEmpty()) {
-            JOptionPane.showMessageDialog(this, "Por favor, completa todos los campos.", "Error", JOptionPane.ERROR_MESSAGE);
-            return;
-        }
-
-        try {
-        	Bbdd.updateEvento(id, nombre, lugar, fecha, capacidadGeneral, capacidadVIP, capacidadPremium, precioGeneral, precioVIP, precioPremium);
-            actualizarTabla();
-            limpiarCampos();
-            JOptionPane.showMessageDialog(this, "Evento actualizado correctamente.");
-            } catch (SQLException e) {
-            JOptionPane.showMessageDialog(this, "Error al actualizar evento: " + e.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
-        }
-    }
-
-    private void eliminarConcierto() {
-        int fila = tablaEventos.getSelectedRow();
-        if (fila == -1) {
-            JOptionPane.showMessageDialog(this, "Selecciona un evento para eliminar.", "Error", JOptionPane.ERROR_MESSAGE);
-            return;
-        }
-
-        int id = (int) modeloTabla.getValueAt(fila, 0);
-        int confirm = JOptionPane.showConfirmDialog(this, "¿Estás seguro de eliminar este evento?", "Confirmar", JOptionPane.YES_NO_OPTION);
-        if (confirm == JOptionPane.YES_OPTION) {
+        private void cargarUsuarios() {
             try {
-            	Bbdd.deleteEvento(id);
-                actualizarTabla();
-                limpiarCampos();
-                JOptionPane.showMessageDialog(this, "Evento eliminado correctamente.");
-            } catch (SQLException e) {
-                JOptionPane.showMessageDialog(this, "Error al eliminar evento: " + e.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
+                Client client = ClientBuilder.newClient();
+                String apiUrl = "http://localhost:8080/api/usuarios";
+
+                Response response = client.target(apiUrl)
+                        .request(MediaType.APPLICATION_JSON)
+                        .get();
+
+                if (response.getStatus() == Response.Status.OK.getStatusCode()) {
+                    List<Usuario> usuarios = response.readEntity(new GenericType<List<Usuario>>() {});
+                    modelo.setRowCount(0);
+
+                    for (Usuario u : usuarios) {
+                        modelo.addRow(new Object[]{
+                                u.getNombre(),
+                                u.getApellidos(),
+                                u.getEmail(),
+                                u.getPassword(),
+                                u.getTelefono(),
+                                u.getDni(),
+                                u.getFechaNacimiento(),
+                                u.getTipoPago(),
+                                u.getTipoUsuario()
+                        });
+                    }
+                } else {
+                    JOptionPane.showMessageDialog(this, "Error al cargar usuarios. Código: " + response.getStatus(), "Error", JOptionPane.ERROR_MESSAGE);
+                }
+
+                client.close();
+            } catch (Exception e) {
+                JOptionPane.showMessageDialog(this, "Error al conectar con el servidor: " + e.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
             }
         }
     }
-    */
 
 }
 

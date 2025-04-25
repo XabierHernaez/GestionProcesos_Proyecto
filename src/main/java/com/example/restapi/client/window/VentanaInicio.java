@@ -77,7 +77,7 @@ public class VentanaInicio extends JFrame {
 
         setVisible(true);
     }
-
+    
     private void login() {
         String email = txtEmail.getText().trim();
         String password = new String(txtPassword.getPassword());
@@ -131,6 +131,7 @@ public class VentanaInicio extends JFrame {
         }
     }
 
+   
     /* 
     private void login() {
         String email = txtEmail.getText().trim();
