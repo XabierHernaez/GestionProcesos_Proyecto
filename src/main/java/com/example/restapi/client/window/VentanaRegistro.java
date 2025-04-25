@@ -1,10 +1,8 @@
 package com.example.restapi.client.window;
 
 import java.awt.*;
-import java.sql.SQLException;
 import javax.swing.*;
 
-import com.example.restapi.client.db.Bbdd;
 
 import javax.ws.rs.client.Client;
 import javax.ws.rs.client.ClientBuilder;
@@ -106,63 +104,6 @@ public class VentanaRegistro extends JDialog {
 
         // Acción del botón Registrar
         btnRegistrar.addActionListener(e -> registrar());
-
-        // Acción del botón Modificar
-        /* 
-        btnModificar.addActionListener(e -> {     
-                 
-            String nombre = txtNombre.getText().trim();
-            String apellido = txtApellido.getText().trim();
-            String email = txtEmail.getText().trim();
-            String password = new String(txtPassword.getPassword()).trim();
-            String telefonoStr = txtTelefono.getText().trim();
-            String fechaNacimientoStr = txtFechaNacimiento.getText().trim();
-            String dniStr = txtDni.getText().trim();
-            String tipoUsuario = ((TipoUsuario) comboTipoUsuario.getSelectedItem()).name(); // Obtener el tipo de usuario como string
-        
-            // Validar que los campos no estén vacíos
-            if (nombre.isEmpty() || apellido.isEmpty() || email.isEmpty() || password.isEmpty() ||
-                telefonoStr.isEmpty() || dniStr.isEmpty() || fechaNacimientoStr.isEmpty()) {
-                JOptionPane.showMessageDialog(VentanaRegistro.this, "Por favor, completa todos los campos.", "Error", JOptionPane.ERROR_MESSAGE);
-                return;
-            }
-        
-            try {
-                // Validar que el teléfono y el DNI sean números válidos
-                int telefono = Integer.parseInt(telefonoStr);
-        
-                // Validar que la fecha esté en el formato correcto (yyyy-MM-dd)
-                java.sql.Date fechaNacimiento = null;
-                try {
-                    fechaNacimiento = java.sql.Date.valueOf(fechaNacimientoStr);
-                } catch (IllegalArgumentException ex) {
-                    JOptionPane.showMessageDialog(VentanaRegistro.this, "La fecha de nacimiento debe estar en el formato yyyy-MM-dd.", "Error", JOptionPane.ERROR_MESSAGE);
-                    return;
-                }
-        
-                // Si la contraseña está vacía, no la actualizamos (puedes agregar una lógica de hashing si es necesario)
-                if (password.isEmpty()) {
-                    JOptionPane.showMessageDialog(VentanaRegistro.this, "La contraseña no puede estar vacía.", "Error", JOptionPane.ERROR_MESSAGE);
-                    return;
-                }
-        
-                // Llamar al método para actualizar los datos en la base de datos
-                Bbdd.actualizarUsuarioDatos(dniStr, nombre, apellido, email, password, telefono, fechaNacimientoStr, tipoUsuario);
-        
-                // Mostrar un mensaje de éxito
-                JOptionPane.showMessageDialog(VentanaRegistro.this, "Datos del usuario actualizados correctamente.");
-        
-                // Cerrar la ventana después de la actualización
-                dispose();  // Cerrar la ventana de modificación
-            } catch (NumberFormatException ex) {
-                // Si el teléfono o el DNI no son números válidos
-                JOptionPane.showMessageDialog(VentanaRegistro.this, "El teléfono y el DNI deben ser números válidos.", "Error", JOptionPane.ERROR_MESSAGE);
-            } catch (SQLException ex) {
-                // Si ocurre un error con la base de datos
-                JOptionPane.showMessageDialog(VentanaRegistro.this, "Error al modificar los datos: " + ex.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
-            }
-            */
-            // Acción del botón Modificar
        // Acción del botón Modificar
        btnModificar.addActionListener(e -> {
         // Si el botón está en la fase de "Buscar Usuario"
