@@ -3,6 +3,7 @@ package com.example.restapi.server;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -42,42 +43,38 @@ public class Resource {
                 return ResponseEntity.badRequest().body("El campo 'password' es obligatorio.");
             }
 
-            logger.info("Comprobando que el usuario no exista: '{}'", usuario.getEmail());
+            // Comprobar si el usuario ya existe
+            logger.info("Comprobando si el usuario ya existe: '{}'", usuario.getEmail());
             Optional<UsuarioJPA> usuarioExistente = usuarioRepository.findById(usuario.getEmail());
 
             if (usuarioExistente.isPresent()) {
-                logger.info("Usuario ya existe, actualizando datos: {}", usuario.getEmail());
-                UsuarioJPA usuarioJPA = usuarioExistente.get();
-                usuarioJPA.setPassword(usuario.getPassword());
-                usuarioJPA.setNombre(usuario.getNombre());
-                usuarioJPA.setApellidos(usuario.getApellidos());
-                usuarioJPA.setTelefono(usuario.getTelefono());
-                usuarioJPA.setFechaNacimiento(usuario.getFechaNacimiento());
-                usuarioJPA.setTipoUsuario(usuario.getTipoUsuario());
-                usuarioJPA.setTipoPago(usuario.getTipoPago());
-                usuarioRepository.save(usuarioJPA);
-                logger.info("Usuario actualizado: {}", usuarioJPA);
-            } else {
-                logger.info("Creando nuevo usuario: {}", usuario.getEmail());
-                UsuarioJPA nuevoUsuario = new UsuarioJPA(
-                        usuario.getDni(),
-                        usuario.getNombre(),
-                        usuario.getApellidos(),
-                        usuario.getEmail(),
-                        usuario.getPassword(),
-                        usuario.getTelefono(),
-                        usuario.getFechaNacimiento(),
-                        usuario.getTipoPago(),
-                        usuario.getTipoUsuario()
-                );
-                usuarioRepository.save(nuevoUsuario);
-                logger.info("Usuario creado: {}", nuevoUsuario);
+                // Si ya existe, devolvemos un error con status 409 (Conflict)
+                logger.warn("Intento de registro con email ya existente: {}", usuario.getEmail());
+                return ResponseEntity.status(HttpStatus.CONFLICT).body("El email ya está registrado.");
             }
-            return ResponseEntity.ok("Usuario registrado o actualizado con éxito.");
+
+            // Crear nuevo usuario si no existe
+            logger.info("Creando nuevo usuario: {}", usuario.getEmail());
+            UsuarioJPA nuevoUsuario = new UsuarioJPA(
+                    usuario.getDni(),
+                    usuario.getNombre(),
+                    usuario.getApellidos(),
+                    usuario.getEmail(),
+                    usuario.getPassword(),
+                    usuario.getTelefono(),
+                    usuario.getFechaNacimiento(),
+                    usuario.getTipoPago(),
+                    usuario.getTipoUsuario()
+            );
+            usuarioRepository.save(nuevoUsuario);
+            logger.info("Usuario creado: {}", nuevoUsuario);
+
+            // Devolver respuesta exitosa
+            return ResponseEntity.ok("Usuario registrado con éxito.");
         } catch (Exception e) {
-            // Registrar la excepción completa
+            // Registrar cualquier error que ocurra durante el proceso
             logger.error("Error al registrar el usuario: ", e);
-            return ResponseEntity.status(500).body("Error al registrar el usuario.");
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Error al registrar el usuario.");
         }
     }
 
