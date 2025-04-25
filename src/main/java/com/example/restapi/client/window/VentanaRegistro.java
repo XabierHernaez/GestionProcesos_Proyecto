@@ -22,9 +22,12 @@ public class VentanaRegistro extends JDialog {
     private JComboBox<TipoPago> comboTipoPago;
     private JButton btnRegistrar, btnModificar;
     private JLabel lblCodigoSecreto;
+    
     @SuppressWarnings("unused")
     private VentanaInicio parent;
     private static final String CODIGO_SECRETO_ADMIN = "Admin123";
+
+    
 
     public VentanaRegistro(VentanaInicio parent) {
         super(parent, "Registro de Usuario", true);
@@ -219,10 +222,10 @@ public class VentanaRegistro extends JDialog {
     
 
 
-        setVisible(true);
+        //setVisible(true);
     }
 
-    private void registrar() {
+    protected void registrar() {
         String nombre = txtNombre.getText().trim();
         String apellido = txtApellido.getText().trim();
         String email = txtEmail.getText().trim();
@@ -293,6 +296,55 @@ public class VentanaRegistro extends JDialog {
             // Manejo de excepciones para la fecha de nacimiento
             JOptionPane.showMessageDialog(this, "La fecha de nacimiento debe estar en el formato yyyy-MM-dd.", "Error", JOptionPane.ERROR_MESSAGE);
         }
+    }
+
+     // Getters para los campos privados
+     public JTextField getTxtNombre() {
+        return txtNombre;
+    }
+
+    public JTextField getTxtApellido() {
+        return txtApellido;
+    }
+
+    public JTextField getTxtEmail() {
+        return txtEmail;
+    }
+
+    public JTextField getTxtFechaNacimiento() {
+        return txtFechaNacimiento;
+    }
+
+    public JTextField getTxtTelefono() {
+        return txtTelefono;
+    }
+
+    public JTextField getTxtDni() {
+        return txtDni;
+    }
+
+    public JTextField getTxtCodigoSecreto() {
+        return txtCodigoSecreto;
+    }
+
+    public JPasswordField getTxtPassword() {
+        return txtPassword;
+    }
+
+    public JComboBox<TipoUsuario> getComboTipoUsuario() {
+        return comboTipoUsuario;
+    }
+
+    public JComboBox<TipoPago> getComboTipoPago() {
+        return comboTipoPago;
+    }
+
+    public JButton getBtnRegistrar() {
+        return btnRegistrar;
+    }
+
+    public JButton getBtnModificar() {
+        return btnModificar;
     }
     
 }
