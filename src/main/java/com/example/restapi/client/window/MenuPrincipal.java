@@ -1,8 +1,5 @@
 package com.example.restapi.client.window;
 
-import javax.swing.JFrame;
-
-
 import javax.swing.*;
 import java.awt.*;
 import java.awt.event.ActionEvent;
@@ -51,7 +48,8 @@ public class MenuPrincipal extends JFrame{
             @Override
             public void actionPerformed(ActionEvent e) {
                 JOptionPane.showMessageDialog(null, "Registro seleccionado");
-                new VentanaRegistro(null);
+                VentanaRegistro ventanaRegistro = new VentanaRegistro(null);
+                ventanaRegistro.setVisible(true); 
             }
         });
 
