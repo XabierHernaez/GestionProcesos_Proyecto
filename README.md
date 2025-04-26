@@ -8,6 +8,11 @@ Lanzamiento de la aplicación
 
 Primero, verifica todas las dependencias requeridas especificadas en el archivo pom.xml.
 
+Para la creacion de las tablas de la base de datos, en una terminal de cmd ve a la ruta en el que esta el repositorio
+y ejecuta el siguiente comando:
+
+      mysql -u root -p < src\main\resources\dbsetup.sql
+
 Ejecuta el siguiente comando para descargar todas las dependencias y asegurarte de que todo compile correctamente:
 
       mvn compile
@@ -17,7 +22,7 @@ Ahora, inicia el servidor con el siguiente comando:
       mvn spring-boot:run
       mvn exec:java -Dexec.mainClass="com.example.restapi.client.window.WindowLauncher"
 
-    
+
 otherwise you could use the contents of the file in any other MySQL client you are using.
 
 Now, launch the server using the following command
@@ -33,6 +38,11 @@ Para ejecutar las pruebas unitarias, usa el siguiente comando:
 
     mvn test
 
+Para comprobar el correcto funcionamiento de las pruebas unitarias, usa el siguiente comando:
+
+    mvn verify
+
+
 Empaquetado de la aplicación
 -------------------
 
@@ -40,7 +50,7 @@ La aplicación se puede empaquetar ejecutando el siguiente comando:
 
     mvn package
 
-See <build> section in *pom.xml* to see how this command was configured to work.
+See <build> section in pom.xml to see how this command was configured to work.
 
 Packaging the application
 -------------------------
