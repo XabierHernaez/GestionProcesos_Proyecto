@@ -16,6 +16,7 @@ import java.util.List;
 import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.*;
 
 public class ConciertoControllerTest {
@@ -73,4 +74,46 @@ public class ConciertoControllerTest {
         verify(conciertoRepository, times(1)).findById(id);
     }
 
+    @Test
+    public void testAddConcierto() {
+        ConciertoJPA nuevoConcierto = new ConciertoJPA();
+
+        when(conciertoRepository.save(nuevoConcierto)).thenReturn(nuevoConcierto);
+
+        ResponseEntity<ConciertoJPA> response = conciertoController.addConcierto(nuevoConcierto);
+
+        assertEquals(HttpStatus.OK, response.getStatusCode());
+        assertEquals(nuevoConcierto, response.getBody());
+        verify(conciertoRepository, times(1)).save(nuevoConcierto);
+    }
+
+    @Test
+    public void testUpdateConcierto_Found() {
+        int id = 1;
+        ConciertoJPA existente = new ConciertoJPA();
+        ConciertoJPA datosActualizados = new ConciertoJPA();
+
+        when(conciertoRepository.findById(id)).thenReturn(Optional.of(existente));
+        when(conciertoRepository.save(any(ConciertoJPA.class))).thenReturn(existente);
+
+        ResponseEntity<ConciertoJPA> response = conciertoController.updateConcierto(id, datosActualizados);
+
+        assertEquals(HttpStatus.OK, response.getStatusCode());
+        verify(conciertoRepository, times(1)).findById(id);
+        verify(conciertoRepository, times(1)).save(existente);
+    }
+
+    @Test
+    public void testUpdateConcierto_NotFound() {
+        int id = 1;
+        ConciertoJPA datosActualizados = new ConciertoJPA();
+
+        when(conciertoRepository.findById(id)).thenReturn(Optional.empty());
+
+        ResponseEntity<ConciertoJPA> response = conciertoController.updateConcierto(id, datosActualizados);
+
+        assertEquals(HttpStatus.NOT_FOUND, response.getStatusCode());
+        verify(conciertoRepository, times(1)).findById(id);
+        verify(conciertoRepository, never()).save(any(ConciertoJPA.class));
+    }
 }
