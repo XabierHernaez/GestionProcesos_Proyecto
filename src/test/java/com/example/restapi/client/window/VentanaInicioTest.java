@@ -13,8 +13,8 @@ public class VentanaInicioTest {
 
     @BeforeEach
     public void setUp() {
-        // Importante: en tests GUI, mejor lanzar en EDT (Event Dispatch Thread)
-        SwingUtilities.invokeLater(() -> ventana = new VentanaInicio());
+        ventana = new VentanaInicio();
+        ventana.setVisible(false); // Opcional: que no abra la ventana durante los tests
     }
 
     @Test
