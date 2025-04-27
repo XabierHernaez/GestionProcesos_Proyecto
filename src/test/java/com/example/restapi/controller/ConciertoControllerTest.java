@@ -17,6 +17,7 @@ import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.*;
 
 public class ConciertoControllerTest {
@@ -115,5 +116,35 @@ public class ConciertoControllerTest {
         assertEquals(HttpStatus.NOT_FOUND, response.getStatusCode());
         verify(conciertoRepository, times(1)).findById(id);
         verify(conciertoRepository, never()).save(any(ConciertoJPA.class));
+    }
+
+    @Test
+    public void testDeleteConcierto_Found() {
+        int id = 1;
+
+        when(conciertoRepository.existsById(id)).thenReturn(true);
+        doNothing().when(conciertoRepository).deleteById(id);
+        doNothing().when(jdbcTemplate).execute(anyString());
+
+        ResponseEntity<Void> response = conciertoController.deleteConcierto(id);
+
+        assertEquals(HttpStatus.NO_CONTENT, response.getStatusCode());
+        verify(conciertoRepository, times(1)).existsById(id);
+        verify(conciertoRepository, times(1)).deleteById(id);
+        verify(jdbcTemplate, times(1)).execute(anyString());
+    }
+
+    @Test
+    public void testDeleteConcierto_NotFound() {
+        int id = 1;
+
+        when(conciertoRepository.existsById(id)).thenReturn(false);
+
+        ResponseEntity<Void> response = conciertoController.deleteConcierto(id);
+
+        assertEquals(HttpStatus.NOT_FOUND, response.getStatusCode());
+        verify(conciertoRepository, times(1)).existsById(id);
+        verify(conciertoRepository, never()).deleteById(id);
+        verify(jdbcTemplate, never()).execute(anyString());
     }
 }
