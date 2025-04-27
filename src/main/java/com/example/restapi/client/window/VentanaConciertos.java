@@ -18,7 +18,7 @@ public class VentanaConciertos extends JFrame {
     private static final long serialVersionUID = 1L;
     private JTable tablaConciertos;
     private DefaultTableModel modeloTabla;
-    private JButton btnComprar, btnActualizar;
+    private JButton btnComprar, btnActualizar, btnDetalle;
     private Usuario usuario;
 
     public VentanaConciertos(Usuario usuario) {
@@ -66,6 +66,7 @@ public class VentanaConciertos extends JFrame {
         
         panelBotones.add(btnComprar);
         panelBotones.add(btnActualizar);
+        panelBotones.add(btnDetalle);
         
         add(panelBotones, BorderLayout.SOUTH);
 
@@ -90,6 +91,22 @@ public class VentanaConciertos extends JFrame {
         
         btnActualizar.addActionListener(e -> actualizarTabla());
 
+        btnDetalle.addActionListener(e -> {
+            int filaSeleccionada = tablaConciertos.getSelectedRow();
+            if (filaSeleccionada != -1) {
+                int idConcierto = (int) tablaConciertos.getValueAt(filaSeleccionada, 0);
+                Concierto conciertoSeleccionado = obtenerConciertoPorId(idConcierto);
+                
+                if (conciertoSeleccionado != null) {
+                    new VentanaConciertoDetalle(conciertoSeleccionado); // Abre la ventana de detalles
+                }
+            } else {
+                JOptionPane.showMessageDialog(this, 
+                        "Por favor, selecciona un evento para ver detalles.", 
+                        "Error", JOptionPane.ERROR_MESSAGE);
+            }
+        });
+        
         // Cargar datos iniciales
         actualizarTabla();
         
