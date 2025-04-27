@@ -21,7 +21,7 @@ package com.example.restapi.client.window;
 // import static org.mockito.Mockito.*;
 // import static org.junit.jupiter.api.Assertions.*;
 
-public class VentanaRegistroTest {
+// public class VentanaRegistroTest {
 
     // @Mock
     // private Client mockClient;
