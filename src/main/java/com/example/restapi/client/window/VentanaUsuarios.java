@@ -15,7 +15,7 @@ public class VentanaUsuarios extends JFrame {
 
     private JTable tabla;
     private DefaultTableModel modelo;
-    private Client client; // <-- nuevo atributo
+    private Client client;
 
     // Constructor original (para producción)
     public VentanaUsuarios() {
@@ -26,10 +26,15 @@ public class VentanaUsuarios extends JFrame {
     public VentanaUsuarios(Client client) {
         this.client = client;
         setTitle("Listado de Usuarios");
-        setSize(1000, 400);
+        setSize(1000, 500);
         setLocationRelativeTo(null);
         setLayout(new BorderLayout());
+        setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
 
+        // Establecer una apariencia moderna para el fondo
+        getContentPane().setBackground(new Color(245, 245, 245));
+
+        // Crear el modelo de la tabla con cabeceras estilizadas
         modelo = new DefaultTableModel(new String[]{
                 "Nombre", "Apellidos", "Email", "Password", "Teléfono", "DNI", "Fecha Nacimiento", "Tipo Pago", "Tipo Usuario"
         }, 0) {
@@ -39,15 +44,40 @@ public class VentanaUsuarios extends JFrame {
             }
         };
 
+        // Crear la tabla con un estilo más moderno
         tabla = new JTable(modelo);
-        add(new JScrollPane(tabla), BorderLayout.CENTER);
+        tabla.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
+        tabla.setFont(new Font("Arial", Font.PLAIN, 14));
+        tabla.setRowHeight(30);
+        tabla.setGridColor(new Color(204, 204, 204));
+        tabla.setSelectionBackground(new Color(42, 87, 141)); // Color de selección en azul
+        tabla.setSelectionForeground(Color.WHITE); // Texto blanco al seleccionar
 
-        JButton btnCerrar = new JButton("Cerrar");
-        btnCerrar.addActionListener(e -> dispose());
+        // Usar un panel de desplazamiento con un borde suave
+        JScrollPane scrollPane = new JScrollPane(tabla);
+        scrollPane.setBorder(BorderFactory.createLineBorder(new Color(204, 204, 204), 1));
+        add(scrollPane, BorderLayout.CENTER);
+
+        // Panel para el botón de cerrar
         JPanel panelBoton = new JPanel();
+        panelBoton.setLayout(new FlowLayout(FlowLayout.RIGHT));
+        panelBoton.setBackground(new Color(245, 245, 245)); // Fondo claro del panel
+        JButton btnCerrar = new JButton("Cerrar");
+        btnCerrar.setFont(new Font("Arial", Font.BOLD, 14));
+        btnCerrar.setBackground(new Color(242, 85, 96));
+        btnCerrar.setForeground(Color.WHITE);
+        btnCerrar.setBorderPainted(false);
+        btnCerrar.setFocusPainted(false);
+        btnCerrar.setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
+        btnCerrar.setPreferredSize(new Dimension(100, 35));
+
+        // Añadir acción al botón de cerrar
+        btnCerrar.addActionListener(e -> dispose());
+
         panelBoton.add(btnCerrar);
         add(panelBoton, BorderLayout.SOUTH);
 
+        // Cargar los usuarios desde la API
         cargarUsuarios();
         setVisible(true);
     }
