@@ -18,11 +18,11 @@ import com.example.restapi.model.Concierto;
 public class VentanaAdmin extends JFrame {
     private static final long serialVersionUID = 1L;
 
-    private JTable tablaEventos;
-    private DefaultTableModel modeloTabla;
-    private JTextField txtNombre, txtLugar, txtPrecioGeneral, txtPrecioVIP, txtPrecioPremium, txtBuscar;
-    private JSpinner spinnerFecha, spinnerCapacidadGeneral, spinnerCapacidadVIP, spinnerCapacidadPremium;
-    private JButton btnAgregar, btnEditar, btnEliminar, btnBuscar, btnVerUsuarios;
+    protected JTable tablaEventos;
+    protected DefaultTableModel modeloTabla;
+    protected JTextField txtNombre, txtLugar, txtPrecioGeneral, txtPrecioVIP, txtPrecioPremium, txtBuscar;
+    protected JSpinner spinnerFecha, spinnerCapacidadGeneral, spinnerCapacidadVIP, spinnerCapacidadPremium;
+    protected JButton btnAgregar, btnEditar, btnEliminar, btnBuscar, btnVerUsuarios;
     private Usuario usuario;
 
     public VentanaAdmin(Usuario usuario) {
@@ -159,7 +159,7 @@ public class VentanaAdmin extends JFrame {
         }
     }
 
-    private void cargarConciertos() {
+    protected void cargarConciertos() {
         try {
             // Crear cliente REST
             Client client = ClientBuilder.newClient();
@@ -202,7 +202,7 @@ public class VentanaAdmin extends JFrame {
         }
     }
    
-    private void agregarConcierto() {
+    protected void agregarConcierto() {
         try {
             String nombre = txtNombre.getText().trim();
             String lugar = txtLugar.getText().trim();
@@ -270,7 +270,7 @@ public class VentanaAdmin extends JFrame {
         }
     }
 
-    private void eliminarConcierto() {
+    protected void eliminarConcierto() {
         int filaSeleccionada = tablaEventos.getSelectedRow();
     
         if (filaSeleccionada == -1) {
@@ -310,7 +310,7 @@ public class VentanaAdmin extends JFrame {
         }
     }
 
-    private void editarConcierto() {
+    protected void editarConcierto() {
         int filaSeleccionada = tablaEventos.getSelectedRow();
     
         if (filaSeleccionada == -1) {

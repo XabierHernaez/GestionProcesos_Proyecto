@@ -1,6 +1,6 @@
 package com.example.restapi.client.window;
-import java.awt.*;
 
+import java.awt.*;
 import javax.swing.*;
 import javax.swing.table.DefaultTableModel;
 import javax.ws.rs.client.Client;
@@ -12,18 +12,26 @@ import com.example.restapi.model.Usuario;
 import java.util.List;
 
 public class VentanaUsuarios extends JFrame {
-    
+
     private JTable tabla;
     private DefaultTableModel modelo;
+    private Client client; // <-- nuevo atributo
 
+    // Constructor original (para producción)
     public VentanaUsuarios() {
+        this(ClientBuilder.newClient());
+    }
+
+    // Constructor extra (para testing)
+    public VentanaUsuarios(Client client) {
+        this.client = client;
         setTitle("Listado de Usuarios");
         setSize(1000, 400);
         setLocationRelativeTo(null);
         setLayout(new BorderLayout());
 
         modelo = new DefaultTableModel(new String[]{
-            "Nombre", "Apellidos", "Email", "Password", "Teléfono", "DNI", "Fecha Nacimiento", "Tipo Pago", "Tipo Usuario"
+                "Nombre", "Apellidos", "Email", "Password", "Teléfono", "DNI", "Fecha Nacimiento", "Tipo Pago", "Tipo Usuario"
         }, 0) {
             @Override
             public boolean isCellEditable(int row, int column) {
@@ -46,7 +54,6 @@ public class VentanaUsuarios extends JFrame {
 
     private void cargarUsuarios() {
         try {
-            Client client = ClientBuilder.newClient();
             String apiUrl = "http://localhost:8080/api/usuarios";
 
             Response response = client.target(apiUrl)
@@ -73,10 +80,16 @@ public class VentanaUsuarios extends JFrame {
             } else {
                 JOptionPane.showMessageDialog(this, "Error al cargar usuarios. Código: " + response.getStatus(), "Error", JOptionPane.ERROR_MESSAGE);
             }
-
-            client.close();
         } catch (Exception e) {
             JOptionPane.showMessageDialog(this, "Error al conectar con el servidor: " + e.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
         }
+    }
+
+    public JTable getTabla() {
+        return tabla;
+    }
+
+    public DefaultTableModel getModelo() {
+        return modelo;
     }
 }
