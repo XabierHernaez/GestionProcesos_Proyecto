@@ -157,6 +157,16 @@ public class ConciertoTest {
         assertEquals(120.0, concierto.getPrecio(TipoEntrada.PREMIUM));
     }
 
+    @Test
+    public void testGetCapacidadTipoEntradaInvalido() {
+        assertEquals(0, concierto.getCapacidad(null));
+    }
+
+    @Test
+    public void testGetPrecioTipoEntradaInvalido() {
+        assertEquals(0.0, concierto.getPrecio(null));
+    }
+
     // Test del constructor con parámetros
     @Test
     public void testConstructorConParametros() {
