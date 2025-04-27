@@ -5,51 +5,65 @@ import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 
-public class MenuPrincipal extends JFrame{
+public class MenuPrincipal extends JFrame {
+    private static final long serialVersionUID = 1L;
+
     public MenuPrincipal() {
-        // Set up the frame
-        setTitle("Menu Principal");
-        setSize(600, 400);
+        // Configurar la ventana
+        setTitle("Menú Principal");
+        setSize(700, 500);
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         setLocationRelativeTo(null);
-        setLayout(new BorderLayout());
+        setLayout(new BorderLayout(20, 20));
+        getContentPane().setBackground(new Color(240, 248, 255)); // Color de fondo suave
 
-        // Create a welcome label
-        JLabel welcomeLabel = new JLabel("<html><center>BIENVENIDO A LA WEB DONDE PODRAS ENCONTRAR<br>CUALQUIER CONCIERTO DE TU ARTISTA FAVORITO</center></html>", SwingConstants.CENTER);
-        welcomeLabel.setFont(new Font("Arial", Font.BOLD, 16));
-        welcomeLabel.setForeground(Color.BLUE);
+        // Crear etiqueta de bienvenida
+        JLabel welcomeLabel = new JLabel("<html><div style='text-align: center;'>"
+                + "🎵 Bienvenido a la plataforma de conciertos <br>"
+                + "Encuentra eventos de tus artistas favoritos"
+                + "</div></html>", SwingConstants.CENTER);
+        welcomeLabel.setFont(new Font("SansSerif", Font.BOLD, 22));
+        welcomeLabel.setForeground(new Color(60, 90, 153));
+        welcomeLabel.setBorder(BorderFactory.createEmptyBorder(30, 20, 10, 20));
         add(welcomeLabel, BorderLayout.NORTH);
 
-        // Create a panel for buttons
+        // Crear panel para los botones
         JPanel buttonPanel = new JPanel();
-        buttonPanel.setLayout(new GridLayout(1, 3, 10, 10));
-        buttonPanel.setBorder(BorderFactory.createEmptyBorder(20, 20, 20, 20));
+        buttonPanel.setLayout(new GridLayout(1, 3, 20, 20));
+        buttonPanel.setBackground(new Color(240, 248, 255));
+        buttonPanel.setBorder(BorderFactory.createEmptyBorder(40, 40, 40, 40));
 
-        // Create buttons
+        // Crear botones
         JButton registerButton = new JButton("Registro");
         JButton loginButton = new JButton("Inicio de Sesión");
         JButton catalogButton = new JButton("Catálogo de Eventos");
 
-        // Style buttons
-        registerButton.setFont(new Font("Arial", Font.PLAIN, 14));
-        loginButton.setFont(new Font("Arial", Font.PLAIN, 14));
-        catalogButton.setFont(new Font("Arial", Font.PLAIN, 14));
+        // Estilizar botones
+        JButton[] buttons = {registerButton, loginButton, catalogButton};
+        for (JButton button : buttons) {
+            button.setFont(new Font("SansSerif", Font.BOLD, 16));
+            button.setFocusPainted(false);
+            button.setBackground(new Color(70, 130, 180));
+            button.setForeground(Color.WHITE);
+            button.setBorder(BorderFactory.createLineBorder(new Color(70, 130, 180), 2));
+            button.setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
+        }
 
-        // Add buttons to the panel
+        // Añadir botones al panel
         buttonPanel.add(registerButton);
         buttonPanel.add(loginButton);
         buttonPanel.add(catalogButton);
 
-        // Add the button panel to the frame
+        // Añadir el panel de botones a la ventana
         add(buttonPanel, BorderLayout.CENTER);
 
-        // Add action listeners (optional)
+        // Acciones de los botones
         registerButton.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
                 JOptionPane.showMessageDialog(null, "Registro seleccionado");
                 VentanaRegistro ventanaRegistro = new VentanaRegistro(null);
-                ventanaRegistro.setVisible(true); 
+                ventanaRegistro.setVisible(true);
             }
         });
 
@@ -69,7 +83,7 @@ public class MenuPrincipal extends JFrame{
             }
         });
 
-        // Make the frame visible
+        // Mostrar la ventana
         setVisible(true);
     }
 }

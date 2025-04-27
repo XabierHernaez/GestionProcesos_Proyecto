@@ -2,6 +2,9 @@ package com.example.restapi.client.window;
 import java.awt.*;
 
 import javax.swing.*;
+import javax.swing.border.EmptyBorder;
+import javax.swing.event.ListSelectionEvent;
+import javax.swing.event.ListSelectionListener;
 import javax.swing.table.DefaultTableModel;
 import javax.ws.rs.client.Client;
 import javax.ws.rs.client.ClientBuilder;
@@ -40,9 +43,10 @@ public class VentanaAdmin extends JFrame {
         setLayout(new BorderLayout());
 
         modeloTabla = new DefaultTableModel(new String[]{
-            "ID", "Nombre", "Lugar", "Fecha", "Cap. General", "Cap. VIP", "Cap. Premium", "Precio General", "Precio VIP", "Precio Premium"
+                "ID", "Nombre", "Lugar", "Fecha", "Cap. General", "Cap. VIP", "Cap. Premium", "Precio General", "Precio VIP", "Precio Premium"
         }, 0) {
             private static final long serialVersionUID = 1L;
+
             @Override
             public boolean isCellEditable(int row, int column) {
                 return false;
@@ -50,10 +54,11 @@ public class VentanaAdmin extends JFrame {
         };
 
         tablaEventos = new JTable(modeloTabla);
+        tablaEventos.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
         add(new JScrollPane(tablaEventos), BorderLayout.CENTER);
 
         JPanel panelEntrada = new JPanel(new GridLayout(12, 2, 5, 5));
-        panelEntrada.setBorder(BorderFactory.createEmptyBorder(10, 10, 10, 10));
+        panelEntrada.setBorder(new EmptyBorder(10, 10, 10, 10));
 
         panelEntrada.add(new JLabel("Nombre:"));
         txtNombre = new JTextField();
@@ -99,35 +104,43 @@ public class VentanaAdmin extends JFrame {
         btnBuscar = new JButton("Buscar");
         panelEntrada.add(btnBuscar);
 
+        // Panel para botones de gestión
+        JPanel botonesGestion = new JPanel(new FlowLayout());
         btnAgregar = new JButton("Agregar");
         btnEditar = new JButton("Editar");
         btnEliminar = new JButton("Eliminar");
-        btnVerUsuarios = new JButton("Ver Usuarios");
-
-        JPanel botonesGestion = new JPanel(new FlowLayout());
         botonesGestion.add(btnAgregar);
         botonesGestion.add(btnEditar);
         botonesGestion.add(btnEliminar);
+
         panelEntrada.add(botonesGestion);
 
+        // Panel para botones de vista
         JPanel botonesVista = new JPanel(new FlowLayout());
+        btnVerUsuarios = new JButton("Ver Usuarios");
         botonesVista.add(btnVerUsuarios);
         panelEntrada.add(botonesVista);
 
         add(panelEntrada, BorderLayout.SOUTH);
 
+        // Acciones de los botones
         btnAgregar.addActionListener(e -> agregarConcierto());
         btnEliminar.addActionListener(e -> eliminarConcierto());
         btnEditar.addActionListener(e -> editarConcierto());
         btnVerUsuarios.addActionListener(e -> new VentanaUsuarios());
 
-        tablaEventos.getSelectionModel().addListSelectionListener(e -> {
-            if (!e.getValueIsAdjusting() && tablaEventos.getSelectedRow() != -1) {
-                int fila = tablaEventos.getSelectedRow();
-                cargarDatosEnFormulario(fila);
+        // Selección en la tabla de eventos
+        tablaEventos.getSelectionModel().addListSelectionListener(new ListSelectionListener() {
+            @Override
+            public void valueChanged(ListSelectionEvent e) {
+                if (!e.getValueIsAdjusting() && tablaEventos.getSelectedRow() != -1) {
+                    int fila = tablaEventos.getSelectedRow();
+                    cargarDatosEnFormulario(fila);
+                }
             }
         });
 
+        // Cargar conciertos al iniciar
         cargarConciertos();
         setVisible(true);
     }
