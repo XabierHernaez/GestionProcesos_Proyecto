@@ -25,7 +25,7 @@ public class VentanaAdmin extends JFrame {
     protected DefaultTableModel modeloTabla;
     protected JTextField txtNombre, txtLugar, txtPrecioGeneral, txtPrecioVIP, txtPrecioPremium, txtBuscar;
     protected JSpinner spinnerFecha, spinnerCapacidadGeneral, spinnerCapacidadVIP, spinnerCapacidadPremium;
-    protected JButton btnAgregar, btnEditar, btnEliminar, btnBuscar, btnVerUsuarios;
+    protected JButton btnAgregar, btnEditar, btnEliminar, btnBuscar, btnVerUsuarios, btnVolverVentanaPrincipal;
     private Usuario usuario;
 
     public VentanaAdmin(Usuario usuario) {
@@ -118,7 +118,12 @@ public class VentanaAdmin extends JFrame {
         // Panel para botones de vista
         JPanel botonesVista = new JPanel(new FlowLayout());
         btnVerUsuarios = new JButton("Ver Usuarios");
+        
+        btnVolverVentanaPrincipal = new JButton("Volver");
+        
         botonesVista.add(btnVerUsuarios);
+        botonesVista.add(btnVolverVentanaPrincipal);
+        
         panelEntrada.add(botonesVista);
 
         add(panelEntrada, BorderLayout.SOUTH);
@@ -128,6 +133,10 @@ public class VentanaAdmin extends JFrame {
         btnEliminar.addActionListener(e -> eliminarConcierto());
         btnEditar.addActionListener(e -> editarConcierto());
         btnVerUsuarios.addActionListener(e -> new VentanaUsuarios());
+        btnVolverVentanaPrincipal.addActionListener(e -> {
+            dispose();
+            new MenuPrincipal();
+        });
 
         // Selección en la tabla de eventos
         tablaEventos.getSelectionModel().addListSelectionListener(new ListSelectionListener() {
