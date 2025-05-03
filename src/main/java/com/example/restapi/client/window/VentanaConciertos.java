@@ -19,8 +19,9 @@ public class VentanaConciertos extends JFrame {
     private static final long serialVersionUID = 1L;
     private JTable tablaConciertos;
     private DefaultTableModel modeloTabla;
-    private JButton btnComprar, btnActualizar, btnDetalle;
+    private JButton btnComprar, btnActualizar, btnDetalle, btnVolverVentanaPrincipal;
     private Usuario usuario;
+    private JTextField campoFiltroLugar;
 
     public VentanaConciertos(Usuario usuario) {
         this.usuario = usuario;
@@ -37,6 +38,25 @@ public class VentanaConciertos extends JFrame {
         lblTitulo.setFont(new Font("Arial", Font.BOLD, 28));
         lblTitulo.setBorder(new EmptyBorder(20, 0, 20, 0));
         add(lblTitulo, BorderLayout.NORTH);
+        
+        // Panel de filtro por lugar
+        JPanel panelFiltro = new JPanel(new FlowLayout(FlowLayout.CENTER, 10, 10));
+        panelFiltro.setBackground(Color.WHITE);
+
+        campoFiltroLugar = new JTextField(20);
+        campoFiltroLugar.setFont(new Font("Segoe UI", Font.PLAIN, 16));
+        campoFiltroLugar.setToolTipText("Filtrar por lugar");
+        campoFiltroLugar.setBorder(BorderFactory.createLineBorder(Color.BLACK));
+
+        JButton btnFiltrar = new JButton("🔍 Filtrar");
+        configurarBoton(btnFiltrar);
+        btnFiltrar.addActionListener(e -> filtrarPorLugar());
+
+        panelFiltro.add(new JLabel("Lugar:"));
+        panelFiltro.add(campoFiltroLugar);
+        panelFiltro.add(btnFiltrar);
+
+        add(panelFiltro, BorderLayout.BEFORE_FIRST_LINE);
 
         // Crear modelo de tabla
         modeloTabla = new DefaultTableModel(
@@ -65,17 +85,20 @@ public class VentanaConciertos extends JFrame {
         JPanel panelBotones = new JPanel(new FlowLayout(FlowLayout.CENTER, 30, 20));
         panelBotones.setBackground(Color.WHITE);
 
-        btnComprar = new JButton("🎫 Comprar Entrada");
-        btnActualizar = new JButton("🔄 Actualizar Lista");
-        btnDetalle = new JButton("🔍 Ver Detalle");
+        btnComprar = new JButton("Comprar Entrada");
+        btnActualizar = new JButton("Actualizar Lista");
+        btnDetalle = new JButton("Ver Detalle");
+        btnVolverVentanaPrincipal = new JButton("Volver");
 
         configurarBoton(btnComprar);
         configurarBoton(btnActualizar);
         configurarBoton(btnDetalle);
+        configurarBoton(btnVolverVentanaPrincipal);
 
         panelBotones.add(btnComprar);
         panelBotones.add(btnActualizar);
         panelBotones.add(btnDetalle);
+        panelBotones.add(btnVolverVentanaPrincipal);
 
         add(panelBotones, BorderLayout.SOUTH);
 
@@ -83,6 +106,10 @@ public class VentanaConciertos extends JFrame {
         btnComprar.addActionListener(e -> comprarEntrada());
         btnActualizar.addActionListener(e -> actualizarTabla());
         btnDetalle.addActionListener(e -> verDetalle());
+        btnVolverVentanaPrincipal.addActionListener(e -> {
+            dispose();
+            new MenuPrincipal();
+        });
 
         // Cargar datos iniciales
         actualizarTabla();
@@ -183,4 +210,46 @@ public class VentanaConciertos extends JFrame {
             return null;
         }
     }
+
+    private void filtrarPorLugar() {
+        String lugar = campoFiltroLugar.getText().trim().toLowerCase();
+        if (lugar.isEmpty()) {
+            actualizarTabla();
+            return;
+        }
+    
+        modeloTabla.setRowCount(0);
+        try {
+            Client client = ClientBuilder.newClient();
+            String apiUrl = "http://localhost:8080/api/conciertos";
+    
+            Response response = client.target(apiUrl)
+                    .request(MediaType.APPLICATION_JSON)
+                    .get();
+    
+            if (response.getStatus() == Response.Status.OK.getStatusCode()) {
+                List<Concierto> conciertos = response.readEntity(new GenericType<List<Concierto>>() {});
+                for (Concierto concierto : conciertos) {
+                    if (concierto.getLugar().toLowerCase().contains(lugar)) {
+                        modeloTabla.addRow(new Object[]{
+                                concierto.getId(),
+                                concierto.getNombre(),
+                                concierto.getLugar(),
+                                concierto.getFecha(),
+                                concierto.getPrecioGeneral(),
+                                concierto.getPrecioVIP(),
+                                concierto.getPrecioPremium()
+                        });
+                    }
+                }
+            } else {
+                mostrarMensajeError("Error al cargar conciertos. Código: " + response.getStatus());
+            }
+    
+            client.close();
+        } catch (Exception e) {
+            mostrarMensajeError("Error al conectar con el servidor: " + e.getMessage());
+        }
+    }
+    
 }
