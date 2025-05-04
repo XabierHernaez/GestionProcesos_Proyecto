@@ -135,7 +135,7 @@ public class VentanaInicio extends JFrame {
                     new VentanaAdmin(usuarioLogueado);
                 } else {
                     dispose();
-                    /*new VentanaUsuario(usuarioLogueado);*/
+                    new VentanaConciertos(usuarioLogueado);
                 }
             } else if (response.getStatus() == Response.Status.UNAUTHORIZED.getStatusCode()) {
                 JOptionPane.showMessageDialog(this, "Contraseña incorrecta.", "Error", JOptionPane.ERROR_MESSAGE);
