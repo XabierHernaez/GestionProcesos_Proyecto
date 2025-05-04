@@ -1,8 +1,6 @@
 package com.example.restapi.client.window;
 
 import java.awt.*;
-// import java.util.Calendar;
-// import java.util.Date;
 import java.util.List;
 import javax.swing.*;
 import javax.swing.border.EmptyBorder;
@@ -17,8 +15,7 @@ import javax.ws.rs.core.GenericType;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import java.text.SimpleDateFormat;
-// import java.time.LocalDate;
-// import java.time.ZoneId;
+
 
 public class VentanaConciertos extends JFrame {
     private static final long serialVersionUID = 1L;
@@ -27,9 +24,7 @@ public class VentanaConciertos extends JFrame {
     private JButton btnComprar, btnActualizar, btnDetalle, btnVolverVentanaPrincipal, btnFiltrarFecha, btnFiltrarAmbos;
     private Usuario usuario;
     private JTextField campoFiltroLugar, campoFiltroFecha;
-    // private JTable tablaConciertosCercanos;
-    // private DefaultTableModel modeloTablaCercanos;
-    // private JPanel panelConciertosCercanos;
+
 
     public VentanaConciertos(Usuario usuario) {
         this.usuario = usuario;
@@ -113,32 +108,6 @@ public class VentanaConciertos extends JFrame {
         scrollPane.setBorder(new EmptyBorder(10, 20, 10, 20));
         add(scrollPane, BorderLayout.CENTER);
 
-        // // Crear el panel y la tabla de conciertos cercanos
-        // panelConciertosCercanos = new JPanel(new BorderLayout());
-        // modeloTablaCercanos = new DefaultTableModel(
-        //         new String[]{"ID", "Nombre", "Lugar", "Fecha", "Precio General", "Precio VIP", "Precio Premium"},
-        //         0) {
-        //     private static final long serialVersionUID = 1L;
-
-        //     @Override
-        //     public boolean isCellEditable(int row, int column) {
-        //         return false;
-        //     }
-        // };
-
-        // tablaConciertosCercanos = new JTable(modeloTablaCercanos);
-        // tablaConciertosCercanos.setRowHeight(30);
-        // tablaConciertosCercanos.setFont(new Font("Segoe UI", Font.PLAIN, 16));
-        // tablaConciertosCercanos.getTableHeader().setFont(new Font("Segoe UI", Font.BOLD, 18));
-        // tablaConciertosCercanos.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
-
-        // // Panel para mostrar conciertos cercanos
-        // JScrollPane scrollPaneCercanos = new JScrollPane(tablaConciertosCercanos);
-        // scrollPaneCercanos.setBorder(new EmptyBorder(10, 20, 10, 20));
-        // panelConciertosCercanos.add(scrollPaneCercanos, BorderLayout.CENTER);
-        // panelConciertosCercanos.setVisible(false);  // Inicialmente oculto
-        // add(panelConciertosCercanos, BorderLayout.SOUTH);
-
         // Panel de botones
         JPanel panelBotones = new JPanel(new FlowLayout(FlowLayout.CENTER, 30, 20));
         panelBotones.setBackground(Color.WHITE);
@@ -190,8 +159,21 @@ public class VentanaConciertos extends JFrame {
             int idConcierto = (int) tablaConciertos.getValueAt(filaSeleccionada, 0);
             Concierto conciertoSeleccionado = obtenerConciertoPorId(idConcierto);
             if (conciertoSeleccionado != null) {
-                new VentanaCompra(conciertoSeleccionado, usuario);
-                dispose();
+                if (usuario == null) {
+                    // Si no hay usuario logueado, redirigir a la ventana de inicio de sesión
+                    int respuesta = JOptionPane.showConfirmDialog(this, 
+                            "Debes iniciar sesión para realizar la compra. ¿Quieres iniciar sesión?", 
+                            "Iniciar Sesión", JOptionPane.YES_NO_OPTION);
+                    if (respuesta == JOptionPane.YES_OPTION) {
+                        // Abre la ventana de inicio de sesión (suponiendo que la tienes)
+                        new VentanaInicio();
+                        dispose();
+                    }
+                } else {
+                    // Si el usuario está logueado, continuar con la compra
+                    new VentanaCompra(conciertoSeleccionado, usuario);
+                    dispose(); // Cierra la ventana actual
+                }
             }
         } else {
             mostrarMensajeError("Por favor, selecciona un evento.");
@@ -406,76 +388,5 @@ public class VentanaConciertos extends JFrame {
             mostrarMensajeError("Error al conectar con el servidor: " + e.getMessage());
         }
     }   
-
-    // private void filtrarPorLugarYFecha() {
-    //     String lugar = campoFiltroLugar.getText().trim().toLowerCase();
-    //     String fechaInput = campoFiltroFecha.getText().trim();
-    
-    //     // Intentar convertir la fecha de entrada a LocalDate
-    //     LocalDate fechaUsuario = null;
-    //     try {
-    //         fechaUsuario = LocalDate.parse(fechaInput);
-    //     } catch (Exception e) {
-    //         mostrarMensajeError("Formato de fecha incorrecto. Usa el formato: yyyy-MM-dd.");
-    //         return;
-    //     }
-    
-    //     // Limpiar la tabla de conciertos cercanos antes de filtrar
-    //     modeloTablaCercanos.setRowCount(0); 
-    //     panelConciertosCercanos.setVisible(false); // Inicialmente oculto
-    //     boolean hayConciertosCercanos = false;
-    
-    //     try {
-    //         Client client = ClientBuilder.newClient();
-    //         String apiUrl = "http://localhost:8080/api/conciertos"; // Asegúrate que la URL es correcta
-    //         Response response = client.target(apiUrl)
-    //                 .request(MediaType.APPLICATION_JSON)
-    //                 .get();
-    
-    //         if (response.getStatus() == Response.Status.OK.getStatusCode()) {
-    //             List<Concierto> conciertos = response.readEntity(new GenericType<List<Concierto>>() {});
-    
-    //             // Filtramos conciertos que sean del lugar y que estén dentro del rango de fechas de 3 semanas
-    //             for (Concierto concierto : conciertos) {
-    //                 if (concierto.getLugar().toLowerCase().contains(lugar)) {
-    //                     // Convertir la fecha del concierto a LocalDate
-    //                     Date fechaConciertoDate = concierto.getFecha(); // Suponiendo que getFecha() devuelve un objeto Date
-    //                     LocalDate fechaConcierto = fechaConciertoDate.toInstant().atZone(ZoneId.systemDefault()).toLocalDate();
-    
-    //                     // Verificar si la fecha del concierto está dentro del rango de 3 semanas antes o después
-    //                     if (!fechaConcierto.isBefore(fechaUsuario.minusWeeks(3)) && !fechaConcierto.isAfter(fechaUsuario.plusWeeks(3))) {
-    //                         // El concierto está dentro del rango de 3 semanas
-    //                         modeloTablaCercanos.addRow(new Object[] {
-    //                             concierto.getId(),
-    //                             concierto.getNombre(),
-    //                             concierto.getLugar(),
-    //                             fechaConcierto, // Mostrar solo la fecha sin la hora
-    //                             concierto.getPrecioGeneral(),
-    //                             concierto.getPrecioVIP(),
-    //                             concierto.getPrecioPremium()
-    //                         });
-    //                         hayConciertosCercanos = true;
-    //                     }
-    //                 }
-    //             }
-    
-    //             // Si hay conciertos cercanos, mostramos la tabla
-    //             if (hayConciertosCercanos) {
-    //                 panelConciertosCercanos.setVisible(true); // Hacer visible la tabla de conciertos cercanos
-    //             } else {
-    //                 // Si no hay conciertos cercanos, mostramos un mensaje de error
-    //                 mostrarMensajeError("No hay conciertos cercanos para la fecha y lugar seleccionados.");
-    //             }
-    //         } else {
-    //             mostrarMensajeError("Error en la conexión con el servidor: " + response.getStatus());
-    //         }
-    
-    //         client.close();
-    
-    //     } catch (Exception e) {
-    //         mostrarMensajeError("Error al conectar con el servidor: " + e.getMessage());
-    //     }
-    // }
-    
     
 }
