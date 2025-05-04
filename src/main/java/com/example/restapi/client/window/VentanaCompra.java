@@ -149,7 +149,7 @@ public class VentanaCompra extends JFrame{
             compra.setPrecioTotal(actualizarPrecioTotal());  // Calcular el precio total
     
             // Crear la URL de la API para realizar la compra
-            String apiUrl = "http://localhost:8080/api/compras";  // Ajusta la URL si es necesario
+            String apiUrl = "http://localhost:8080/compras";  // Ajusta la URL si es necesario
             
             // Enviar la solicitud POST con los detalles de la compra
             response = client.target(apiUrl)
