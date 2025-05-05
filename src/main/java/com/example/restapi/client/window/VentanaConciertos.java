@@ -21,7 +21,7 @@ public class VentanaConciertos extends JFrame {
     private static final long serialVersionUID = 1L;
     private JTable tablaConciertos;
     private DefaultTableModel modeloTabla;
-    private JButton btnComprar, btnActualizar, btnDetalle, btnVolverVentanaPrincipal, btnFiltrarFecha, btnFiltrarAmbos;
+    private JButton btnComprar, btnActualizar, btnDetalle, btnVolverVentanaPrincipal, btnFiltrarFecha, btnFiltrarAmbos, btnMisCopras;
     private Usuario usuario;
     private JTextField campoFiltroLugar, campoFiltroFecha;
 
@@ -116,16 +116,19 @@ public class VentanaConciertos extends JFrame {
         btnActualizar = new JButton("Actualizar Lista");
         btnDetalle = new JButton("Ver Detalle");
         btnVolverVentanaPrincipal = new JButton("Volver");
+        btnMisCopras = new JButton("Mis Compras");
 
         configurarBoton(btnComprar);
         configurarBoton(btnActualizar);
         configurarBoton(btnDetalle);
         configurarBoton(btnVolverVentanaPrincipal);
+        configurarBoton(btnMisCopras);
 
         panelBotones.add(btnComprar);
         panelBotones.add(btnActualizar);
         panelBotones.add(btnDetalle);
         panelBotones.add(btnVolverVentanaPrincipal);
+        panelBotones.add(btnMisCopras);
 
         add(panelBotones, BorderLayout.SOUTH);
 
@@ -137,12 +140,14 @@ public class VentanaConciertos extends JFrame {
             dispose();
             new MenuPrincipal();
         });
+        btnMisCopras.addActionListener(e -> verMisCompras());
 
         // Cargar datos iniciales
         actualizarTabla();
 
         setVisible(true);
     }
+
 
     private void configurarBoton(JButton boton) {
         boton.setFont(new Font("Segoe UI", Font.BOLD, 16));
@@ -151,6 +156,22 @@ public class VentanaConciertos extends JFrame {
         boton.setFocusPainted(false);
         boton.setBorder(BorderFactory.createEmptyBorder(10, 20, 10, 20));
         boton.setCursor(new Cursor(Cursor.HAND_CURSOR));
+    }
+
+    private void verMisCompras(){
+        if (usuario == null) {
+            // Si no hay usuario logueado, redirigir a la ventana de inicio de sesión
+            int respuesta = JOptionPane.showConfirmDialog(this, 
+                    "Debes iniciar sesión para ver tus compras. ¿Quieres iniciar sesión?", 
+                    "Iniciar Sesión", JOptionPane.YES_NO_OPTION);
+            if (respuesta == JOptionPane.YES_OPTION) {
+                // Abre la ventana de inicio de sesión (suponiendo que la tienes)
+                new VentanaInicio();
+                dispose();
+            }
+        }else{
+            new VentanaMisCompras(usuario);
+        }
     }
 
     private void comprarEntrada() {
