@@ -23,10 +23,6 @@ public class VentanaInicio extends JFrame {
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         setLocationRelativeTo(null);
 
-        // Cambiar icono de la ventana
-        ImageIcon imagen = new ImageIcon("resources/images/bravo.png");
-        setIconImage(imagen.getImage());
-
         // Panel principal con bordes
         JPanel panel = new JPanel();
         panel.setLayout(new GridBagLayout());

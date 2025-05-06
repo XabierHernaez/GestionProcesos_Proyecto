@@ -185,7 +185,7 @@ public class VentanaConciertos extends JFrame {
                     }
                 } else {
                     new VentanaCompra(conciertoSeleccionado, usuario);
-                    dispose();
+                    //dispose();
                 }
             }
         } else {
