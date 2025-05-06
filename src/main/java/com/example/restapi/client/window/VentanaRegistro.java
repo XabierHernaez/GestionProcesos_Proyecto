@@ -27,17 +27,12 @@ public class VentanaRegistro extends JDialog {
     private VentanaInicio parent;
     private static final String CODIGO_SECRETO_ADMIN = "Admin123";
 
-    
 
     public VentanaRegistro(VentanaInicio parent) {
         super(parent, "Registro de Usuario", true);
         this.parent = parent;
         setSize(400, 400);
         setLocationRelativeTo(parent);
-
-        // Cambiar icono de la ventana
-        ImageIcon imagen1 = new ImageIcon("resources/images/bravo.png");
-        setIconImage(imagen1.getImage());
 
         // Crear el panel del formulario
         JPanel panel = new JPanel(new GridLayout(12, 2, 5, 5));
