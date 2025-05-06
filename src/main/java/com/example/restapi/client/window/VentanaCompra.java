@@ -59,9 +59,9 @@ public class VentanaCompra extends JFrame {
         panelCentral.add(new JLabel(concierto.getFecha().toString()));
 
         // Mostrar disponibilidad
-        int dispGeneral = concierto.getCapacidadGeneral() - getEntradasVendidas(concierto.getId(), "General");
+        int dispGeneral = concierto.getCapacidadGeneral() - getEntradasVendidas(concierto.getId(), "GENERAL");
         int dispVIP = concierto.getCapacidadVIP() - getEntradasVendidas(concierto.getId(), "VIP");
-        int dispPremium = concierto.getCapacidadPremium() - getEntradasVendidas(concierto.getId(), "Premium");
+        int dispPremium = concierto.getCapacidadPremium() - getEntradasVendidas(concierto.getId(), "PREMIUM");
 
         panelCentral.add(new JLabel("Disponibilidad General:"));
         lblDispGeneral = new JLabel(dispGeneral + " entradas");
@@ -144,19 +144,20 @@ public class VentanaCompra extends JFrame {
             String tipoEntrada = (String) comboTipoEntrada.getSelectedItem();
 
             // Validar disponibilidad
-            int dispGeneral = concierto.getCapacidadGeneral() - getEntradasVendidas(concierto.getId(), "General");
+            int dispGeneral = concierto.getCapacidadGeneral() - getEntradasVendidas(concierto.getId(), "GENERAL");
             int dispVIP = concierto.getCapacidadVIP() - getEntradasVendidas(concierto.getId(), "VIP");
-            int dispPremium = concierto.getCapacidadPremium() - getEntradasVendidas(concierto.getId(), "Premium");
+            int dispPremium = concierto.getCapacidadPremium() - getEntradasVendidas(concierto.getId(), "PREMIUM");
 
             int disponibles = 0;
-            switch (tipoEntrada) {
-                case "General":
+            String tipoEntradaUpper = tipoEntrada.toUpperCase();
+            switch (tipoEntradaUpper) {
+                case "GENERAL":
                     disponibles = dispGeneral;
                     break;
                 case "VIP":
                     disponibles = dispVIP;
                     break;
-                case "Premium":
+                case "PREMIUM":
                     disponibles = dispPremium;
                     break;
             }
@@ -176,7 +177,7 @@ public class VentanaCompra extends JFrame {
             compra.setEmail(usuario.getEmail());
             compra.setConciertoId(concierto.getId());
             compra.setCantidad(cantidad);
-            compra.setTipoEntrada(tipoEntrada);
+            compra.setTipoEntrada(tipoEntradaUpper);
             compra.setPrecioTotal(actualizarPrecioTotal());
 
             // Enviar al backend
@@ -191,7 +192,8 @@ public class VentanaCompra extends JFrame {
                 JOptionPane.showMessageDialog(this, "Compra realizada con éxito!", "Éxito", JOptionPane.INFORMATION_MESSAGE);
                 dispose();
             } else {
-                JOptionPane.showMessageDialog(this, "Error al realizar la compra. Código: " + response.getStatus(), "Error", JOptionPane.ERROR_MESSAGE);
+                String mensajeError = response.readEntity(String.class);
+                JOptionPane.showMessageDialog(this, "Error al realizar la compra: " + mensajeError, "Error", JOptionPane.ERROR_MESSAGE);
             }
 
         } catch (NumberFormatException e) {
@@ -210,7 +212,7 @@ public class VentanaCompra extends JFrame {
 
     private int getEntradasVendidas(int conciertoId, String tipoEntrada) {
         Client client = ClientBuilder.newClient();
-        String apiUrl = "http://localhost:8080/api/compras/concierto/" + conciertoId + "/vendidas/" + tipoEntrada;
+        String apiUrl = "http://localhost:8080/compras/concierto/" + conciertoId + "/vendidas/" + tipoEntrada;
         try {
             Response response = client.target(apiUrl)
                     .request(MediaType.APPLICATION_JSON)
