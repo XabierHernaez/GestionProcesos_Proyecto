@@ -24,88 +24,91 @@ import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import com.example.restapi.model.Compra;
 
-public class VentanaCompra extends JFrame{
+public class VentanaCompra extends JFrame {
     private static final long serialVersionUID = 1L;
     private Concierto concierto;
     private Usuario usuario;
     private JComboBox<String> comboTipoEntrada;
     private JTextField campoCantidad;
-    private JLabel lblPrecioTotal;
+    private JLabel lblPrecioTotal, lblDispGeneral, lblDispVIP, lblDispPremium;
 
     public VentanaCompra(Concierto concierto, Usuario usuario) {
         this.concierto = concierto;
         this.usuario = usuario;
 
         setTitle("Compra de Entrada");
-        setSize(400, 300);
+        setSize(450, 400);
         setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
         setLocationRelativeTo(null);
-        
+
         setLayout(new BorderLayout(10, 10));
-        
+
         // Panel superior con título
         JLabel lblTitulo = new JLabel("Compra de Entrada para " + concierto.getNombre(), SwingConstants.CENTER);
         lblTitulo.setFont(new Font("Arial", Font.BOLD, 20));
         add(lblTitulo, BorderLayout.NORTH);
 
-        // Panel de información del concierto
-        JPanel panelInfo = new JPanel();
-        panelInfo.setLayout(new GridLayout(4, 2, 10, 10));
-        panelInfo.add(new JLabel("Lugar:"));
-        panelInfo.add(new JLabel(concierto.getLugar()));
-        panelInfo.add(new JLabel("Fecha:"));
-        panelInfo.add(new JLabel(concierto.getFecha().toString()));
-        panelInfo.add(new JLabel("Precio General:"));
-        panelInfo.add(new JLabel(String.format("€ %.2f", concierto.getPrecioGeneral())));
-        panelInfo.add(new JLabel("Precio VIP:"));
-        panelInfo.add(new JLabel(String.format("€ %.2f", concierto.getPrecioVIP())));
-        
-        add(panelInfo, BorderLayout.CENTER);
-        
-        // Panel de selección de tipo de entrada y cantidad
-        JPanel panelEntrada = new JPanel();
-        panelEntrada.setLayout(new GridLayout(3, 2, 10, 10));
-        
-        panelEntrada.add(new JLabel("Tipo de Entrada:"));
-        
-        comboTipoEntrada = new JComboBox<>(new String[] { "General", "VIP", "Premium" });
-        panelEntrada.add(comboTipoEntrada);
-        
-        panelEntrada.add(new JLabel("Cantidad:"));
-        campoCantidad = new JTextField("1");
-        panelEntrada.add(campoCantidad);
-        
-        panelEntrada.add(new JLabel("Precio Total:"));
-        lblPrecioTotal = new JLabel("€ " + concierto.getPrecioGeneral());
-        panelEntrada.add(lblPrecioTotal);
-        
-        add(panelEntrada, BorderLayout.CENTER);
+        // Panel central con información y selección
+        JPanel panelCentral = new JPanel(new GridLayout(7, 2, 10, 10));
+        panelCentral.setBorder(BorderFactory.createEmptyBorder(10, 10, 10, 10));
 
-        // Botón para realizar la compra
-        JPanel panelBoton = new JPanel();
+        panelCentral.add(new JLabel("Lugar:"));
+        panelCentral.add(new JLabel(concierto.getLugar()));
+
+        panelCentral.add(new JLabel("Fecha:"));
+        panelCentral.add(new JLabel(concierto.getFecha().toString()));
+
+        // Mostrar disponibilidad
+        int dispGeneral = concierto.getCapacidadGeneral() - getEntradasVendidas(concierto.getId(), "General");
+        int dispVIP = concierto.getCapacidadVIP() - getEntradasVendidas(concierto.getId(), "VIP");
+        int dispPremium = concierto.getCapacidadPremium() - getEntradasVendidas(concierto.getId(), "Premium");
+
+        panelCentral.add(new JLabel("Disponibilidad General:"));
+        lblDispGeneral = new JLabel(dispGeneral + " entradas");
+        panelCentral.add(lblDispGeneral);
+
+        panelCentral.add(new JLabel("Disponibilidad VIP:"));
+        lblDispVIP = new JLabel(dispVIP + " entradas");
+        panelCentral.add(lblDispVIP);
+
+        panelCentral.add(new JLabel("Disponibilidad Premium:"));
+        lblDispPremium = new JLabel(dispPremium + " entradas");
+        panelCentral.add(lblDispPremium);
+
+        panelCentral.add(new JLabel("Tipo de Entrada:"));
+        comboTipoEntrada = new JComboBox<>(new String[]{"General", "VIP", "Premium"});
+        panelCentral.add(comboTipoEntrada);
+
+        panelCentral.add(new JLabel("Cantidad:"));
+        campoCantidad = new JTextField("1");
+        panelCentral.add(campoCantidad);
+
+        add(panelCentral, BorderLayout.CENTER);
+
+        // Panel inferior con precio total y botón
+        JPanel panelInferior = new JPanel(new GridLayout(2, 1, 5, 5));
+        lblPrecioTotal = new JLabel("Precio Total: € " + String.format("%.2f", concierto.getPrecioGeneral()), SwingConstants.CENTER);
+        panelInferior.add(lblPrecioTotal);
+
         JButton btnComprar = new JButton("Comprar");
         btnComprar.setFont(new Font("Segoe UI", Font.BOLD, 16));
         btnComprar.setBackground(new Color(0, 123, 255));
         btnComprar.setForeground(Color.WHITE);
         btnComprar.setFocusPainted(false);
-        btnComprar.setCursor(new Cursor(Cursor.HAND_CURSOR));
         btnComprar.setBorder(BorderFactory.createEmptyBorder(10, 20, 10, 20));
-        btnComprar.addActionListener(new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                realizarCompra();
-            }
-        });
-        panelBoton.add(btnComprar);
-        add(panelBoton, BorderLayout.SOUTH);
-        
+        btnComprar.addActionListener(e -> realizarCompra());
+        panelInferior.add(btnComprar);
+
+        add(panelInferior, BorderLayout.SOUTH);
+
         // Actualizar precio total cuando se cambia el tipo de entrada o la cantidad
         comboTipoEntrada.addActionListener(e -> actualizarPrecioTotal());
         campoCantidad.addActionListener(e -> actualizarPrecioTotal());
+        actualizarPrecioTotal();
 
         setVisible(true);
     }
-    
+
     private double actualizarPrecioTotal() {
         double total = 0.0;
         try {
@@ -125,9 +128,9 @@ public class VentanaCompra extends JFrame{
             }
 
             total = precio * cantidad;
-            lblPrecioTotal.setText("€ " + total);
+            lblPrecioTotal.setText("Precio Total: € " + String.format("%.2f", total));
         } catch (NumberFormatException e) {
-            lblPrecioTotal.setText("€ 0.00");
+            lblPrecioTotal.setText("Precio Total: € 0.00");
         }
         return total;
     }
@@ -135,46 +138,93 @@ public class VentanaCompra extends JFrame{
     private void realizarCompra() {
         Client client = null;
         Response response = null;
-        
+
         try {
-            // Crear un cliente HTTP
-            client = ClientBuilder.newClient();
-            
-            // Crear el objeto de compra con el email del usuario
+            int cantidad = Integer.parseInt(campoCantidad.getText());
+            String tipoEntrada = (String) comboTipoEntrada.getSelectedItem();
+
+            // Validar disponibilidad
+            int dispGeneral = concierto.getCapacidadGeneral() - getEntradasVendidas(concierto.getId(), "General");
+            int dispVIP = concierto.getCapacidadVIP() - getEntradasVendidas(concierto.getId(), "VIP");
+            int dispPremium = concierto.getCapacidadPremium() - getEntradasVendidas(concierto.getId(), "Premium");
+
+            int disponibles = 0;
+            switch (tipoEntrada) {
+                case "General":
+                    disponibles = dispGeneral;
+                    break;
+                case "VIP":
+                    disponibles = dispVIP;
+                    break;
+                case "Premium":
+                    disponibles = dispPremium;
+                    break;
+            }
+
+            if (cantidad <= 0) {
+                JOptionPane.showMessageDialog(this, "La cantidad debe ser mayor que 0.", "Error", JOptionPane.ERROR_MESSAGE);
+                return;
+            }
+
+            if (cantidad > disponibles) {
+                JOptionPane.showMessageDialog(this, "No hay suficientes entradas disponibles. Solo hay " + disponibles + " entradas de tipo " + tipoEntrada + ".", "Error", JOptionPane.ERROR_MESSAGE);
+                return;
+            }
+
+            // Crear el objeto de compra
             Compra compra = new Compra();
-            compra.setEmail(usuario.getEmail());  // Usar el email del usuario
-            compra.setConciertoId(concierto.getId());  // ID del concierto
-            compra.setCantidad(Integer.parseInt(campoCantidad.getText()));  // Obtener la cantidad de entradas
-            compra.setTipoEntrada((String) comboTipoEntrada.getSelectedItem());  // Obtener el tipo de entrada
-            compra.setPrecioTotal(actualizarPrecioTotal());  // Calcular el precio total
-    
-            // Crear la URL de la API para realizar la compra
-            String apiUrl = "http://localhost:8080/compras";  // Ajusta la URL si es necesario
-            
-            // Enviar la solicitud POST con los detalles de la compra
+            compra.setEmail(usuario.getEmail());
+            compra.setConciertoId(concierto.getId());
+            compra.setCantidad(cantidad);
+            compra.setTipoEntrada(tipoEntrada);
+            compra.setPrecioTotal(actualizarPrecioTotal());
+
+            // Enviar al backend
+            client = ClientBuilder.newClient();
+            String apiUrl = "http://localhost:8080/compras";
+
             response = client.target(apiUrl)
                     .request(MediaType.APPLICATION_JSON)
                     .post(Entity.entity(compra, MediaType.APPLICATION_JSON));
-    
-            // Verificar la respuesta de la API
+
             if (response.getStatus() == Response.Status.OK.getStatusCode()) {
                 JOptionPane.showMessageDialog(this, "Compra realizada con éxito!", "Éxito", JOptionPane.INFORMATION_MESSAGE);
-                dispose();  // Cerrar la ventana de compra
+                dispose();
             } else {
                 JOptionPane.showMessageDialog(this, "Error al realizar la compra. Código: " + response.getStatus(), "Error", JOptionPane.ERROR_MESSAGE);
             }
-            
+
+        } catch (NumberFormatException e) {
+            JOptionPane.showMessageDialog(this, "Por favor, introduce una cantidad válida.", "Error", JOptionPane.ERROR_MESSAGE);
         } catch (Exception e) {
-            // Mostrar el mensaje de error si ocurre alguna excepción
             JOptionPane.showMessageDialog(this, "Error al realizar la compra: " + e.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
         } finally {
-            // Cerrar la respuesta y el cliente
             if (response != null) {
                 response.close();
             }
             if (client != null) {
                 client.close();
             }
+        }
+    }
+
+    private int getEntradasVendidas(int conciertoId, String tipoEntrada) {
+        Client client = ClientBuilder.newClient();
+        String apiUrl = "http://localhost:8080/api/compras/concierto/" + conciertoId + "/vendidas/" + tipoEntrada;
+        try {
+            Response response = client.target(apiUrl)
+                    .request(MediaType.APPLICATION_JSON)
+                    .get();
+            if (response.getStatus() == Response.Status.OK.getStatusCode()) {
+                return response.readEntity(Integer.class);
+            } else {
+                throw new RuntimeException("Error al obtener entradas vendidas. Código: " + response.getStatus());
+            }
+        } catch (Exception e) {
+            JOptionPane.showMessageDialog(this, "Error al obtener disponibilidad: " + e.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
+            return 0;
+        } finally {
+            client.close();
         }
     }
 }
