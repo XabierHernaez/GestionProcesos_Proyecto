@@ -223,9 +223,12 @@ public class VentanaConciertos extends JFrame {
             if (response.getStatus() == Response.Status.OK.getStatusCode()) {
                 List<Concierto> conciertos = response.readEntity(new GenericType<List<Concierto>>() {});
                 for (Concierto concierto : conciertos) {
-                    int dispGeneral = concierto.getCapacidadGeneral() - getEntradasVendidas(concierto.getId(), "GENERAL");
-                    int dispVIP = concierto.getCapacidadVIP() - getEntradasVendidas(concierto.getId(), "VIP");
-                    int dispPremium = concierto.getCapacidadPremium() - getEntradasVendidas(concierto.getId(), "PREMIUM");
+                    // Usar directamente las capacidades del concierto
+                    int dispGeneral = concierto.getCapacidadGeneral();
+                    int dispVIP = concierto.getCapacidadVIP();
+                    int dispPremium = concierto.getCapacidadPremium();
+                    // Log para depuración
+                    System.out.println("Concierto ID=" + concierto.getId() + ": dispGeneral=" + dispGeneral + ", dispVIP=" + dispVIP + ", dispPremium=" + dispPremium);
                     modeloTabla.addRow(new Object[]{
                             concierto.getId(),
                             concierto.getNombre(),
@@ -270,26 +273,6 @@ public class VentanaConciertos extends JFrame {
         }
     }
 
-    private int getEntradasVendidas(int conciertoId, String tipoEntrada) {
-        Client client = ClientBuilder.newClient();
-        String apiUrl = "http://localhost:8080/compras/concierto/" + conciertoId + "/vendidas/" + tipoEntrada;
-        try {
-            Response response = client.target(apiUrl)
-                    .request(MediaType.APPLICATION_JSON)
-                    .get();
-            if (response.getStatus() == Response.Status.OK.getStatusCode()) {
-                return response.readEntity(Integer.class);
-            } else {
-                throw new RuntimeException("Error al obtener entradas vendidas. Código: " + response.getStatus());
-            }
-        } catch (Exception e) {
-            mostrarMensajeError("Error al obtener disponibilidad: " + e.getMessage());
-            return 0;
-        } finally {
-            client.close();
-        }
-    }
-
     private void filtrarPorLugar() {
         String lugar = campoFiltroLugar.getText().trim().toLowerCase();
         if (lugar.isEmpty()) {
@@ -310,9 +293,9 @@ public class VentanaConciertos extends JFrame {
                 List<Concierto> conciertos = response.readEntity(new GenericType<List<Concierto>>() {});
                 for (Concierto concierto : conciertos) {
                     if (concierto.getLugar().toLowerCase().contains(lugar)) {
-                        int dispGeneral = concierto.getCapacidadGeneral() - getEntradasVendidas(concierto.getId(), "GENERAL");
-                        int dispVIP = concierto.getCapacidadVIP() - getEntradasVendidas(concierto.getId(), "VIP");
-                        int dispPremium = concierto.getCapacidadPremium() - getEntradasVendidas(concierto.getId(), "PREMIUM");
+                        int dispGeneral = concierto.getCapacidadGeneral();
+                        int dispVIP = concierto.getCapacidadVIP();
+                        int dispPremium = concierto.getCapacidadPremium();
                         modeloTabla.addRow(new Object[]{
                                 concierto.getId(),
                                 concierto.getNombre(),
@@ -360,9 +343,9 @@ public class VentanaConciertos extends JFrame {
                 for (Concierto concierto : conciertos) {
                     String fechaFormateada = sdf.format(concierto.getFecha());
                     if (fechaFormateada.equals(fechaStr)) {
-                        int dispGeneral = concierto.getCapacidadGeneral() - getEntradasVendidas(concierto.getId(), "GENERAL");
-                        int dispVIP = concierto.getCapacidadVIP() - getEntradasVendidas(concierto.getId(), "VIP");
-                        int dispPremium = concierto.getCapacidadPremium() - getEntradasVendidas(concierto.getId(), "PREMIUM");
+                        int dispGeneral = concierto.getCapacidadGeneral();
+                        int dispVIP = concierto.getCapacidadVIP();
+                        int dispPremium = concierto.getCapacidadPremium();
                         modeloTabla.addRow(new Object[]{
                                 concierto.getId(),
                                 concierto.getNombre(),
@@ -417,9 +400,9 @@ public class VentanaConciertos extends JFrame {
                     boolean coincideFecha = fechaStr.isEmpty() || fechaConcierto.equals(fechaStr);
 
                     if (coincideLugar && coincideFecha) {
-                        int dispGeneral = concierto.getCapacidadGeneral() - getEntradasVendidas(concierto.getId(), "GENERAL");
-                        int dispVIP = concierto.getCapacidadVIP() - getEntradasVendidas(concierto.getId(), "VIP");
-                        int dispPremium = concierto.getCapacidadPremium() - getEntradasVendidas(concierto.getId(), "PREMIUM");
+                        int dispGeneral = concierto.getCapacidadGeneral();
+                        int dispVIP = concierto.getCapacidadVIP();
+                        int dispPremium = concierto.getCapacidadPremium();
                         modeloTabla.addRow(new Object[]{
                                 concierto.getId(),
                                 concierto.getNombre(),

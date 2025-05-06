@@ -31,6 +31,7 @@ public class VentanaCompra extends JFrame {
     private JComboBox<String> comboTipoEntrada;
     private JTextField campoCantidad;
     private JLabel lblPrecioTotal, lblDispGeneral, lblDispVIP, lblDispPremium;
+    private boolean compraEnProgreso = false; // Evitar clics múltiples
 
     public VentanaCompra(Concierto concierto, Usuario usuario) {
         this.concierto = concierto;
@@ -58,10 +59,10 @@ public class VentanaCompra extends JFrame {
         panelCentral.add(new JLabel("Fecha:"));
         panelCentral.add(new JLabel(concierto.getFecha().toString()));
 
-        // Mostrar disponibilidad
-        int dispGeneral = concierto.getCapacidadGeneral() - getEntradasVendidas(concierto.getId(), "GENERAL");
-        int dispVIP = concierto.getCapacidadVIP() - getEntradasVendidas(concierto.getId(), "VIP");
-        int dispPremium = concierto.getCapacidadPremium() - getEntradasVendidas(concierto.getId(), "PREMIUM");
+        // Mostrar disponibilidad directamente desde el concierto
+        int dispGeneral = concierto.getCapacidadGeneral();
+        int dispVIP = concierto.getCapacidadVIP();
+        int dispPremium = concierto.getCapacidadPremium();
 
         panelCentral.add(new JLabel("Disponibilidad General:"));
         lblDispGeneral = new JLabel(dispGeneral + " entradas");
@@ -136,6 +137,11 @@ public class VentanaCompra extends JFrame {
     }
 
     private void realizarCompra() {
+        if (compraEnProgreso) {
+            return; // Evitar múltiples clics
+        }
+        compraEnProgreso = true;
+
         Client client = null;
         Response response = null;
 
@@ -144,9 +150,9 @@ public class VentanaCompra extends JFrame {
             String tipoEntrada = (String) comboTipoEntrada.getSelectedItem();
 
             // Validar disponibilidad
-            int dispGeneral = concierto.getCapacidadGeneral() - getEntradasVendidas(concierto.getId(), "GENERAL");
-            int dispVIP = concierto.getCapacidadVIP() - getEntradasVendidas(concierto.getId(), "VIP");
-            int dispPremium = concierto.getCapacidadPremium() - getEntradasVendidas(concierto.getId(), "PREMIUM");
+            int dispGeneral = concierto.getCapacidadGeneral();
+            int dispVIP = concierto.getCapacidadVIP();
+            int dispPremium = concierto.getCapacidadPremium();
 
             int disponibles = 0;
             String tipoEntradaUpper = tipoEntrada.toUpperCase();
@@ -180,6 +186,9 @@ public class VentanaCompra extends JFrame {
             compra.setTipoEntrada(tipoEntradaUpper);
             compra.setPrecioTotal(actualizarPrecioTotal());
 
+            // Log para depuración
+            System.out.println("Enviando compra: conciertoId=" + concierto.getId() + ", tipoEntrada=" + tipoEntradaUpper + ", cantidad=" + cantidad);
+
             // Enviar al backend
             client = ClientBuilder.newClient();
             String apiUrl = "http://localhost:8080/compras";
@@ -201,32 +210,13 @@ public class VentanaCompra extends JFrame {
         } catch (Exception e) {
             JOptionPane.showMessageDialog(this, "Error al realizar la compra: " + e.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
         } finally {
+            compraEnProgreso = false;
             if (response != null) {
                 response.close();
             }
             if (client != null) {
                 client.close();
             }
-        }
-    }
-
-    private int getEntradasVendidas(int conciertoId, String tipoEntrada) {
-        Client client = ClientBuilder.newClient();
-        String apiUrl = "http://localhost:8080/compras/concierto/" + conciertoId + "/vendidas/" + tipoEntrada;
-        try {
-            Response response = client.target(apiUrl)
-                    .request(MediaType.APPLICATION_JSON)
-                    .get();
-            if (response.getStatus() == Response.Status.OK.getStatusCode()) {
-                return response.readEntity(Integer.class);
-            } else {
-                throw new RuntimeException("Error al obtener entradas vendidas. Código: " + response.getStatus());
-            }
-        } catch (Exception e) {
-            JOptionPane.showMessageDialog(this, "Error al obtener disponibilidad: " + e.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
-            return 0;
-        } finally {
-            client.close();
         }
     }
 }
