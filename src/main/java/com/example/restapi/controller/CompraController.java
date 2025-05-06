@@ -7,6 +7,7 @@ import com.example.restapi.server.repository.CompraRepository;
 import com.example.restapi.server.repository.ConciertoRepository;
 import com.example.restapi.server.repository.UsuarioRepository;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import java.util.Optional;
 import java.util.List;
@@ -71,6 +72,21 @@ public class CompraController {
     @GetMapping("/usuario")
     public List<CompraJPA> obtenerComprasPorUsuario(@RequestParam String email) {
         return compraRepository.findByUsuarioEmail(email);
+    }
+
+    @GetMapping("/concierto/{id}/vendidas/{tipo}")
+    public ResponseEntity<Integer> getEntradasVendidas(@PathVariable("id") int conciertoId,
+                                                      @PathVariable("tipo") String tipoEntrada) {
+        try {
+            String tipoEntradaUpper = tipoEntrada.toUpperCase();
+            if (!tipoEntradaUpper.equals("GENERAL") && !tipoEntradaUpper.equals("VIP") && !tipoEntradaUpper.equals("PREMIUM")) {
+                return ResponseEntity.badRequest().body(0);
+            }
+            int entradasVendidas = compraRepository.sumCantidadByConciertoIdAndTipoEntrada(conciertoId, tipoEntradaUpper);
+            return ResponseEntity.ok(entradasVendidas);
+        } catch (Exception e) {
+            return ResponseEntity.status(500).body(0);
+        }
     }
     
 }
