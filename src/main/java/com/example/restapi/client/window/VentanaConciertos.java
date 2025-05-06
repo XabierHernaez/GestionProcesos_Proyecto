@@ -25,7 +25,6 @@ public class VentanaConciertos extends JFrame {
     private Usuario usuario;
     private JTextField campoFiltroLugar, campoFiltroFecha;
 
-
     public VentanaConciertos(Usuario usuario) {
         this.usuario = usuario;
         setTitle("🎵 Eventos Disponibles 🎵");
@@ -45,7 +44,7 @@ public class VentanaConciertos extends JFrame {
         // Panel de filtro (lugar y fecha en el mismo panel)
         JPanel panelFiltro = new JPanel(new FlowLayout(FlowLayout.CENTER, 10, 10));
         panelFiltro.setBackground(Color.WHITE);
-        
+
         // Panel de filtro por lugar
         campoFiltroLugar = new JTextField(20);
         campoFiltroLugar.setFont(new Font("Segoe UI", Font.PLAIN, 16));
@@ -66,7 +65,7 @@ public class VentanaConciertos extends JFrame {
         configurarBoton(btnFiltrarFecha);
         btnFiltrarFecha.addActionListener(e -> filtrarPorFecha());
 
-        //Boton para filtrar ambos
+        // Botón para filtrar ambos
         btnFiltrarAmbos = new JButton("🎯 Filtrar Ambos");
         configurarBoton(btnFiltrarAmbos);
         btnFiltrarAmbos.addActionListener(e -> filtrarPorLugarYFecha());
@@ -79,16 +78,15 @@ public class VentanaConciertos extends JFrame {
         panelFiltro.add(new JLabel("Fecha:"));
         panelFiltro.add(campoFiltroFecha);
         panelFiltro.add(btnFiltrarFecha);
-      
+
         panelFiltro.add(btnFiltrarAmbos);
 
-        // Colocar panel de filtro en la parte superior
         add(panelFiltro, BorderLayout.NORTH);
 
-        // Crear modelo de tabla
+        // Crear modelo de tabla con columnas adicionales para disponibilidad
         modeloTabla = new DefaultTableModel(
-                new String[]{"ID", "Nombre", "Lugar", "Fecha", "Precio General", "Precio VIP", "Precio Premium"},
-                0) {
+                new String[]{"ID", "Nombre", "Lugar", "Fecha", "Precio General", "Disp. General",
+                             "Precio VIP", "Disp. VIP", "Precio Premium", "Disp. Premium"}, 0) {
             private static final long serialVersionUID = 1L;
 
             @Override
@@ -148,7 +146,6 @@ public class VentanaConciertos extends JFrame {
         setVisible(true);
     }
 
-
     private void configurarBoton(JButton boton) {
         boton.setFont(new Font("Segoe UI", Font.BOLD, 16));
         boton.setBackground(new Color(0, 123, 255));
@@ -158,18 +155,16 @@ public class VentanaConciertos extends JFrame {
         boton.setCursor(new Cursor(Cursor.HAND_CURSOR));
     }
 
-    private void verMisCompras(){
+    private void verMisCompras() {
         if (usuario == null) {
-            // Si no hay usuario logueado, redirigir a la ventana de inicio de sesión
-            int respuesta = JOptionPane.showConfirmDialog(this, 
-                    "Debes iniciar sesión para ver tus compras. ¿Quieres iniciar sesión?", 
+            int respuesta = JOptionPane.showConfirmDialog(this,
+                    "Debes iniciar sesión para ver tus compras. ¿Quieres iniciar sesión?",
                     "Iniciar Sesión", JOptionPane.YES_NO_OPTION);
             if (respuesta == JOptionPane.YES_OPTION) {
-                // Abre la ventana de inicio de sesión (suponiendo que la tienes)
                 new VentanaInicio();
                 dispose();
             }
-        }else{
+        } else {
             new VentanaMisCompras(usuario);
         }
     }
@@ -181,19 +176,16 @@ public class VentanaConciertos extends JFrame {
             Concierto conciertoSeleccionado = obtenerConciertoPorId(idConcierto);
             if (conciertoSeleccionado != null) {
                 if (usuario == null) {
-                    // Si no hay usuario logueado, redirigir a la ventana de inicio de sesión
-                    int respuesta = JOptionPane.showConfirmDialog(this, 
-                            "Debes iniciar sesión para realizar la compra. ¿Quieres iniciar sesión?", 
+                    int respuesta = JOptionPane.showConfirmDialog(this,
+                            "Debes iniciar sesión para realizar la compra. ¿Quieres iniciar sesión?",
                             "Iniciar Sesión", JOptionPane.YES_NO_OPTION);
                     if (respuesta == JOptionPane.YES_OPTION) {
-                        // Abre la ventana de inicio de sesión (suponiendo que la tienes)
                         new VentanaInicio();
                         dispose();
                     }
                 } else {
-                    // Si el usuario está logueado, continuar con la compra
                     new VentanaCompra(conciertoSeleccionado, usuario);
-                    dispose(); // Cierra la ventana actual
+                    dispose();
                 }
             }
         } else {
@@ -231,14 +223,20 @@ public class VentanaConciertos extends JFrame {
             if (response.getStatus() == Response.Status.OK.getStatusCode()) {
                 List<Concierto> conciertos = response.readEntity(new GenericType<List<Concierto>>() {});
                 for (Concierto concierto : conciertos) {
+                    int dispGeneral = concierto.getCapacidadGeneral() - getEntradasVendidas(concierto.getId(), "General");
+                    int dispVIP = concierto.getCapacidadVIP() - getEntradasVendidas(concierto.getId(), "VIP");
+                    int dispPremium = concierto.getCapacidadPremium() - getEntradasVendidas(concierto.getId(), "Premium");
                     modeloTabla.addRow(new Object[]{
                             concierto.getId(),
                             concierto.getNombre(),
                             concierto.getLugar(),
                             concierto.getFecha(),
-                            concierto.getPrecioGeneral(),
-                            concierto.getPrecioVIP(),
-                            concierto.getPrecioPremium()
+                            String.format("€ %.2f", concierto.getPrecioGeneral()),
+                            dispGeneral,
+                            String.format("€ %.2f", concierto.getPrecioVIP()),
+                            dispVIP,
+                            String.format("€ %.2f", concierto.getPrecioPremium()),
+                            dispPremium
                     });
                 }
             } else {
@@ -272,41 +270,67 @@ public class VentanaConciertos extends JFrame {
         }
     }
 
+    private int getEntradasVendidas(int conciertoId, String tipoEntrada) {
+        Client client = ClientBuilder.newClient();
+        String apiUrl = "http://localhost:8080/api/compras/concierto/" + conciertoId + "/vendidas/" + tipoEntrada;
+        try {
+            Response response = client.target(apiUrl)
+                    .request(MediaType.APPLICATION_JSON)
+                    .get();
+            if (response.getStatus() == Response.Status.OK.getStatusCode()) {
+                return response.readEntity(Integer.class);
+            } else {
+                throw new RuntimeException("Error al obtener entradas vendidas. Código: " + response.getStatus());
+            }
+        } catch (Exception e) {
+            mostrarMensajeError("Error al obtener disponibilidad: " + e.getMessage());
+            return 0;
+        } finally {
+            client.close();
+        }
+    }
+
     private void filtrarPorLugar() {
         String lugar = campoFiltroLugar.getText().trim().toLowerCase();
         if (lugar.isEmpty()) {
             actualizarTabla();
             return;
         }
-    
+
         modeloTabla.setRowCount(0);
         try {
             Client client = ClientBuilder.newClient();
             String apiUrl = "http://localhost:8080/api/conciertos";
-    
+
             Response response = client.target(apiUrl)
                     .request(MediaType.APPLICATION_JSON)
                     .get();
-    
+
             if (response.getStatus() == Response.Status.OK.getStatusCode()) {
                 List<Concierto> conciertos = response.readEntity(new GenericType<List<Concierto>>() {});
                 for (Concierto concierto : conciertos) {
                     if (concierto.getLugar().toLowerCase().contains(lugar)) {
+                        int dispGeneral = concierto.getCapacidadGeneral() - getEntradasVendidas(concierto.getId(), "General");
+                        int dispVIP = concierto.getCapacidadVIP() - getEntradasVendidas(concierto.getId(), "VIP");
+                        int dispPremium = concierto.getCapacidadPremium() - getEntradasVendidas(concierto.getId(), "Premium");
                         modeloTabla.addRow(new Object[]{
                                 concierto.getId(),
                                 concierto.getNombre(),
                                 concierto.getLugar(),
                                 concierto.getFecha(),
-                                concierto.getPrecioGeneral(),
-                                concierto.getPrecioVIP(),
-                                concierto.getPrecioPremium()
+                                String.format("€ %.2f", concierto.getPrecioGeneral()),
+                                dispGeneral,
+                                String.format("€ %.2f", concierto.getPrecioVIP()),
+                                dispVIP,
+                                String.format("€ %.2f", concierto.getPrecioPremium()),
+                                dispPremium
                         });
                     }
                 }
             } else {
                 mostrarMensajeError("Error al cargar conciertos. Código: " + response.getStatus());
             }
-    
+
             client.close();
         } catch (Exception e) {
             mostrarMensajeError("Error al conectar con el servidor: " + e.getMessage());
@@ -314,100 +338,109 @@ public class VentanaConciertos extends JFrame {
     }
 
     private void filtrarPorFecha() {
-        String fechaStr = campoFiltroFecha.getText().trim(); // Formato esperado: yyyy-MM-dd
+        String fechaStr = campoFiltroFecha.getText().trim();
         if (fechaStr.isEmpty()) {
             actualizarTabla();
             return;
         }
-    
+
         modeloTabla.setRowCount(0);
         try {
             Client client = ClientBuilder.newClient();
             String apiUrl = "http://localhost:8080/api/conciertos";
-    
+
             Response response = client.target(apiUrl)
                     .request(MediaType.APPLICATION_JSON)
                     .get();
-    
+
             if (response.getStatus() == Response.Status.OK.getStatusCode()) {
                 List<Concierto> conciertos = response.readEntity(new GenericType<List<Concierto>>() {});
-                
-                // Formato para comparar
                 SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
-    
+
                 for (Concierto concierto : conciertos) {
                     String fechaFormateada = sdf.format(concierto.getFecha());
                     if (fechaFormateada.equals(fechaStr)) {
-                        modeloTabla.addRow(new Object[]{
-                                concierto.getId(),
-                                concierto.getNombre(),
-                                concierto.getLugar(),
-                                concierto.getFecha(),  // o usa fechaFormateada si prefieres mostrarlo más limpio
-                                concierto.getPrecioGeneral(),
-                                concierto.getPrecioVIP(),
-                                concierto.getPrecioPremium()
-                        });
-                    }
-                }
-            } else {
-                mostrarMensajeError("Error al cargar conciertos. Código: " + response.getStatus());
-            }
-    
-            client.close();
-        } catch (Exception e) {
-            mostrarMensajeError("Error al conectar con el servidor: " + e.getMessage());
-        }
-    } 
-
-    private void filtrarPorLugarYFecha() {
-        String lugar = campoFiltroLugar.getText().trim().toLowerCase();
-        String fechaStr = campoFiltroFecha.getText().trim(); // formato yyyy-MM-dd
-    
-        if (lugar.isEmpty() && fechaStr.isEmpty()) {
-            actualizarTabla();
-            return;
-        }
-    
-        modeloTabla.setRowCount(0);
-        try {
-            Client client = ClientBuilder.newClient();
-            String apiUrl = "http://localhost:8080/api/conciertos";
-    
-            Response response = client.target(apiUrl)
-                    .request(MediaType.APPLICATION_JSON)
-                    .get();
-    
-            if (response.getStatus() == Response.Status.OK.getStatusCode()) {
-                List<Concierto> conciertos = response.readEntity(new GenericType<List<Concierto>>() {});
-                SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
-    
-                for (Concierto concierto : conciertos) {
-                    String lugarConcierto = concierto.getLugar().toLowerCase();
-                    String fechaConcierto = sdf.format(concierto.getFecha());
-    
-                    boolean coincideLugar = !lugar.isEmpty() && lugarConcierto.contains(lugar);
-                    boolean coincideFecha = !fechaStr.isEmpty() && fechaConcierto.equals(fechaStr);
-    
-                    if (coincideLugar && coincideFecha) {
+                        int dispGeneral = concierto.getCapacidadGeneral() - getEntradasVendidas(concierto.getId(), "General");
+                        int dispVIP = concierto.getCapacidadVIP() - getEntradasVendidas(concierto.getId(), "VIP");
+                        int dispPremium = concierto.getCapacidadPremium() - getEntradasVendidas(concierto.getId(), "Premium");
                         modeloTabla.addRow(new Object[]{
                                 concierto.getId(),
                                 concierto.getNombre(),
                                 concierto.getLugar(),
                                 concierto.getFecha(),
-                                concierto.getPrecioGeneral(),
-                                concierto.getPrecioVIP(),
-                                concierto.getPrecioPremium()
+                                String.format("€ %.2f", concierto.getPrecioGeneral()),
+                                dispGeneral,
+                                String.format("€ %.2f", concierto.getPrecioVIP()),
+                                dispVIP,
+                                String.format("€ %.2f", concierto.getPrecioPremium()),
+                                dispPremium
                         });
                     }
                 }
             } else {
                 mostrarMensajeError("Error al cargar conciertos. Código: " + response.getStatus());
             }
-    
+
             client.close();
         } catch (Exception e) {
             mostrarMensajeError("Error al conectar con el servidor: " + e.getMessage());
         }
-    }   
-    
+    }
+
+    private void filtrarPorLugarYFecha() {
+        String lugar = campoFiltroLugar.getText().trim().toLowerCase();
+        String fechaStr = campoFiltroFecha.getText().trim();
+
+        if (lugar.isEmpty() && fechaStr.isEmpty()) {
+            actualizarTabla();
+            return;
+        }
+
+        modeloTabla.setRowCount(0);
+        try {
+            Client client = ClientBuilder.newClient();
+            String apiUrl = "http://localhost:8080/api/conciertos";
+
+            Response response = client.target(apiUrl)
+                    .request(MediaType.APPLICATION_JSON)
+                    .get();
+
+            if (response.getStatus() == Response.Status.OK.getStatusCode()) {
+                List<Concierto> conciertos = response.readEntity(new GenericType<List<Concierto>>() {});
+                SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
+
+                for (Concierto concierto : conciertos) {
+                    String lugarConcierto = concierto.getLugar().toLowerCase();
+                    String fechaConcierto = sdf.format(concierto.getFecha());
+
+                    boolean coincideLugar = lugar.isEmpty() || lugarConcierto.contains(lugar);
+                    boolean coincideFecha = fechaStr.isEmpty() || fechaConcierto.equals(fechaStr);
+
+                    if (coincideLugar && coincideFecha) {
+                        int dispGeneral = concierto.getCapacidadGeneral() - getEntradasVendidas(concierto.getId(), "General");
+                        int dispVIP = concierto.getCapacidadVIP() - getEntradasVendidas(concierto.getId(), "VIP");
+                        int dispPremium = concierto.getCapacidadPremium() - getEntradasVendidas(concierto.getId(), "Premium");
+                        modeloTabla.addRow(new Object[]{
+                                concierto.getId(),
+                                concierto.getNombre(),
+                                concierto.getLugar(),
+                                concierto.getFecha(),
+                                String.format("€ %.2f", concierto.getPrecioGeneral()),
+                                dispGeneral,
+                                String.format("€ %.2f", concierto.getPrecioVIP()),
+                                dispVIP,
+                                String.format("€ %.2f", concierto.getPrecioPremium()),
+                                dispPremium
+                        });
+                    }
+                }
+            } else {
+                mostrarMensajeError("Error al cargar conciertos. Código: " + response.getStatus());
+            }
+
+            client.close();
+        } catch (Exception e) {
+            mostrarMensajeError("Error al conectar con el servidor: " + e.getMessage());
+        }
+    }
 }
