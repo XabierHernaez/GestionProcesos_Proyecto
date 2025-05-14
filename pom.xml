@@ -1,23 +1,27 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project xmlns="http://maven.apache.org/POM/4.0.0"
-    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-    xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 https://maven.apache.org/xsd/maven-4.0.0.xsd">
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 https://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
+
     <parent>
         <groupId>org.springframework.boot</groupId>
         <artifactId>spring-boot-starter-parent</artifactId>
-        <version>3.4.2</version>
+        <version>3.1.3</version> <!-- Cambié la versión a una válida -->
         <relativePath /> <!-- lookup parent from repository -->
     </parent>
+
     <groupId>com.example</groupId>
     <artifactId>conciertos</artifactId>
     <version>0.0.1-SNAPSHOT</version>
     <name>conciertos</name>
     <description>Demo project for Conciertos</description>
+
     <properties>
         <java.version>17</java.version>
         <jersey.version>2.35</jersey.version>
     </properties>
+
     <dependencyManagement>
         <dependencies>
             <dependency>
@@ -29,13 +33,15 @@
             </dependency>
         </dependencies>
     </dependencyManagement>
+
     <dependencies>
         <!-- Spring Boot Starter Web -->
         <dependency>
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-web</artifactId>
         </dependency>
-        <!-- Spring Boot Starter Data JPA (includes Hibernate) -->
+
+        <!-- Spring Boot Starter Data JPA -->
         <dependency>
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-data-jpa</artifactId>
@@ -66,7 +72,6 @@
         <dependency>
             <groupId>org.glassfish.jersey.core</groupId>
             <artifactId>jersey-client</artifactId>
-            <version>${jersey.version}</version>
         </dependency>
         <dependency>
             <groupId>org.glassfish.jersey.containers</groupId>
@@ -105,7 +110,7 @@
             <artifactId>hibernate-validator</artifactId>
             <version>6.2.5.Final</version>
         </dependency>
-        
+
         <!-- javax.activation -->
         <dependency>
             <groupId>javax.activation</groupId>
@@ -147,11 +152,14 @@
             <scope>test</scope>
         </dependency>
 
+        <!-- Spring Boot Starter Test -->
         <dependency>
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-test</artifactId>
             <scope>test</scope>
         </dependency>
+
+        <!-- JUnitPerf -->
         <dependency>
             <groupId>com.github.noconnor</groupId>
             <artifactId>junitperf-junit5</artifactId>
@@ -166,6 +174,14 @@
             <plugin>
                 <groupId>org.springframework.boot</groupId>
                 <artifactId>spring-boot-maven-plugin</artifactId>
+                <configuration>
+                    <jvmArguments>
+                        -Dcom.sun.management.jmxremote
+                        -Dcom.sun.management.jmxremote.port=9010
+                        -Dcom.sun.management.jmxremote.authenticate=false
+                        -Dcom.sun.management.jmxremote.ssl=false
+                    </jvmArguments>
+                </configuration>
             </plugin>
 
             <!-- Exec Maven Plugin -->
@@ -197,6 +213,18 @@
                         </goals>
                     </execution>
                 </executions>
+            </plugin>
+
+            <!-- Maven Surefire Plugin -->
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-surefire-plugin</artifactId>
+                <version>3.0.0</version>
+                <configuration>
+                    <includes>
+                        <include>**/*Test.java</include>
+                    </includes>
+                </configuration>
             </plugin>
         </plugins>
     </build>
