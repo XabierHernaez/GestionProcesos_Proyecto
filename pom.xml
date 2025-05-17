@@ -182,13 +182,13 @@
 
     <build>
         <plugins>
-            <!-- Spring Boot Maven Plugin -->
+
+            <!-- Aquí los otros plugins bien colocados -->
             <plugin>
                 <groupId>org.springframework.boot</groupId>
                 <artifactId>spring-boot-maven-plugin</artifactId>
             </plugin>
 
-            <!-- Exec Maven Plugin -->
             <plugin>
                 <groupId>org.codehaus.mojo</groupId>
                 <artifactId>exec-maven-plugin</artifactId>
@@ -211,7 +211,6 @@
                 </configuration>
             </plugin>
 
-            <!-- JaCoCo Maven Plugin -->
             <plugin>
                 <groupId>org.jacoco</groupId>
                 <artifactId>jacoco-maven-plugin</artifactId>
@@ -231,69 +230,6 @@
                     </execution>
                 </executions>
             </plugin>
-
-            <!-- Doxygen Maven Plugin -->
-            <plugin>
-                <groupId>com.soebes.maven.plugins</groupId>
-                <artifactId>doxygen-maven-plugin</artifactId>
-                <version>1.1.0</version>
-                <executions>
-                    <execution>
-                        <id>generate-doxygen-site</id>
-                        <phase>site</phase>
-                        <goals>
-                            <goal>report</goal>
-                        </goals>
-                    </execution>
-                </executions>
-                <configuration>
-                    <configurationFile>${doxygen.config.file}</configurationFile>
-                </configuration>
-            </plugin>
-
-            <!-- Maven Resources Plugin -->
-            <plugin>
-                <artifactId>maven-resources-plugin</artifactId>
-                <version>3.3.1</version>
-                <executions>
-                    <execution>
-                        <id>copy-perf-report</id>
-                        <phase>prepare-package</phase>
-                        <goals>
-                            <goal>copy-resources</goal>
-                        </goals>
-                        <configuration>
-                            <outputDirectory>${project.build.directory}/site/reports</outputDirectory>
-                            <resources>
-                                <resource>
-                                    <directory>${project.build.directory}/reports</directory>
-                                    <includes>
-                                        <include>perf-report.html</include>
-                                    </includes>
-                                </resource>
-                            </resources>
-                        </configuration>
-                    </execution>
-                </executions>
-            </plugin>
         </plugins>
     </build>
-
-    <profiles>
-        <profile>
-            <id>performance</id>
-            <build>
-                <plugins>
-                    <plugin>
-                        <artifactId>maven-failsafe-plugin</artifactId>
-                        <configuration>
-                            <includes>
-                                <include>**/performance/**</include>
-                            </includes>
-                        </configuration>
-                    </plugin>
-                </plugins>
-            </build>
-        </profile>
-    </profiles>
 </project>
