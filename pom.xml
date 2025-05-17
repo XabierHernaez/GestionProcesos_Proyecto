@@ -132,12 +132,7 @@
         </dependency>
 
         
-        <dependency>
-			<groupId>com.github.noconnor</groupId>
-			<artifactId>junitperf-junit5</artifactId>
-			<version>1.37.0</version>
-			<scope>test</scope>
-		</dependency>
+        
 
         <!-- Log4j -->
         <dependency>
@@ -238,6 +233,85 @@
                     </execution>
                 </executions>
             </plugin>
+
+            <plugin>
+                <groupId>com.soebes.maven.plugins</groupId>
+                <artifactId>doxygen-maven-plugin</artifactId>
+                <version>1.1.0</version>
+                <executions>
+                    <execution>
+                        <id>generate-doxygen-site</id>
+                        <phase>site</phase>
+                        <goals>
+                            <goal>report</goal>
+                        </goals>
+                    </execution>
+                </executions>
+                <configuration>
+                    <configurationFile>${doxygen.config.file}</configurationFile>
+                </configuration>
+            </plugin>
+
+            <plugin>
+                <artifactId>maven-resources-plugin</artifactId>
+                <version>3.3.1</version>
+                <executions>
+                    <!-- Copia el reporte de performance -->
+                    <execution>
+                        <id>copy-perf-report</id>
+                        <phase>prepare-package</phase>
+                        <goals>
+                            <goal>copy-resources</goal>
+                        </goals>
+                        <configuration>
+                            <outputDirectory>${project.build.directory}/site/reports</outputDirectory>
+                            <resources>
+                                <resource>
+                                    <directory>${project.build.directory}/reports</directory>
+                                    <includes>
+                                        <include>perf-report.html</include>
+                                    </includes>
+                                </resource>
+                            </resources>
+                        </configuration>
+                    </execution>
+                    <!-- Copia el contenido del site de Maven -->
+                    <execution>
+                        <id>copy-maven-site-to-docs</id>
+                        <phase>post-site</phase>
+                        <goals>
+                            <goal>copy-resources</goal>
+                        </goals>
+                        <configuration>
+                            <outputDirectory>${basedir}/docs/site</outputDirectory>
+                            <resources>
+                                <resource>
+                                    <directory>${project.build.directory}/site</directory>
+                                    <filtering>false</filtering>
+                                </resource>
+                            </resources>
+                        </configuration>
+                    </execution>
+                    <!-- Copia el contenido de Doxygen -->
+                    <execution>
+                        <id>copy-doxygen-site-to-docs</id>
+                        <phase>post-site</phase>
+                        <goals>
+                            <goal>copy-resources</goal>
+                        </goals>
+                        <configuration>
+                            <outputDirectory>${basedir}/docs/doxygen</outputDirectory>
+                            <resources>
+                                <resource>
+                                    <directory>${project.build.directory}/doxygen/html</directory>
+                                    <filtering>false</filtering>
+                                </resource>
+                            </resources>
+                        </configuration>
+                    </execution>
+                </executions>
+            </plugin>
+
         </plugins>
     </build>
 
@@ -254,12 +328,6 @@
                                 </includes>
                             </configuration>
                         </plugin>
-                        <!-- Copy the report into the site directory
-                        Use the maven-resources-plugin or maven-antrun-plugin to copy your generated report
-                        (perf-report.html) 
-                        from target/reports to the site output directory before site generation. 
-                        mvn -Pperformance resources:copy-resources@copy-perf-report
-                        -->
                         <plugin>
                             <artifactId>maven-resources-plugin</artifactId>
                             <version>3.3.1</version>
@@ -287,5 +355,6 @@
                     </plugins>
                 </build>
             </profile>
-	</profiles>
+    </profiles>
+
 </project>
