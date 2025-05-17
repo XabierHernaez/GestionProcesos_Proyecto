@@ -25,7 +25,7 @@ public class VentanaAdmin extends JFrame {
     protected DefaultTableModel modeloTabla;
     protected JTextField txtNombre, txtLugar, txtPrecioGeneral, txtPrecioVIP, txtPrecioPremium, txtBuscar;
     protected JSpinner spinnerFecha, spinnerCapacidadGeneral, spinnerCapacidadVIP, spinnerCapacidadPremium;
-    protected JButton btnAgregar, btnEditar, btnEliminar, btnBuscar, btnVerUsuarios;
+    protected JButton btnAgregar, btnEditar, btnEliminar, btnBuscar, btnVerUsuarios, btnVolverVentanaPrincipal, btnVerCompras;
     private Usuario usuario;
 
     public VentanaAdmin(Usuario usuario) {
@@ -57,7 +57,7 @@ public class VentanaAdmin extends JFrame {
         tablaEventos.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
         add(new JScrollPane(tablaEventos), BorderLayout.CENTER);
 
-        JPanel panelEntrada = new JPanel(new GridLayout(12, 2, 5, 5));
+        JPanel panelEntrada = new JPanel(new GridLayout(13, 2, 5, 5));
         panelEntrada.setBorder(new EmptyBorder(10, 10, 10, 10));
 
         panelEntrada.add(new JLabel("Nombre:"));
@@ -112,13 +112,16 @@ public class VentanaAdmin extends JFrame {
         botonesGestion.add(btnAgregar);
         botonesGestion.add(btnEditar);
         botonesGestion.add(btnEliminar);
-
         panelEntrada.add(botonesGestion);
 
         // Panel para botones de vista
         JPanel botonesVista = new JPanel(new FlowLayout());
         btnVerUsuarios = new JButton("Ver Usuarios");
+        btnVerCompras = new JButton("Ver Compras");
+        btnVolverVentanaPrincipal = new JButton("Volver");
         botonesVista.add(btnVerUsuarios);
+        botonesVista.add(btnVerCompras);
+        botonesVista.add(btnVolverVentanaPrincipal);
         panelEntrada.add(botonesVista);
 
         add(panelEntrada, BorderLayout.SOUTH);
@@ -128,6 +131,11 @@ public class VentanaAdmin extends JFrame {
         btnEliminar.addActionListener(e -> eliminarConcierto());
         btnEditar.addActionListener(e -> editarConcierto());
         btnVerUsuarios.addActionListener(e -> new VentanaUsuarios());
+        btnVerCompras.addActionListener(e -> verCompras());
+        btnVolverVentanaPrincipal.addActionListener(e -> {
+            dispose();
+            new MenuPrincipal();
+        });
 
         // Selección en la tabla de eventos
         tablaEventos.getSelectionModel().addListSelectionListener(new ListSelectionListener() {
@@ -145,6 +153,20 @@ public class VentanaAdmin extends JFrame {
         setVisible(true);
     }
 
+    private void verCompras() {
+        int filaSeleccionada = tablaEventos.getSelectedRow();
+        if (filaSeleccionada == -1) {
+            JOptionPane.showMessageDialog(this, "Selecciona un concierto para ver las compras.", "Advertencia", JOptionPane.WARNING_MESSAGE);
+            return;
+        }
+
+        int idConcierto = (int) modeloTabla.getValueAt(filaSeleccionada, 0);
+        Concierto concierto = new Concierto();
+        concierto.setId(idConcierto);
+        concierto.setNombre(modeloTabla.getValueAt(filaSeleccionada, 1).toString());
+        new VentanaComprasConcierto(concierto, usuario);
+    }
+
     private void cargarDatosEnFormulario(int fila) {
         try {
             txtNombre.setText(modeloTabla.getValueAt(fila, 1).toString());
@@ -154,7 +176,6 @@ public class VentanaAdmin extends JFrame {
             if (modeloTabla.getValueAt(fila, 3) instanceof Date) {
                 spinnerFecha.setValue(modeloTabla.getValueAt(fila, 3));
             } else if (modeloTabla.getValueAt(fila, 3) instanceof java.sql.Date) {
-                // Convertir SQL Date a util.Date
                 spinnerFecha.setValue(new Date(((java.sql.Date)modeloTabla.getValueAt(fila, 3)).getTime()));
             }
             
@@ -174,23 +195,16 @@ public class VentanaAdmin extends JFrame {
 
     protected void cargarConciertos() {
         try {
-            // Crear cliente REST
             Client client = ClientBuilder.newClient();
-            String apiUrl = "http://localhost:8080/api/conciertos"; // La URL de tu endpoint GET
+            String apiUrl = "http://localhost:8080/api/conciertos";
             
-            // Realizar la solicitud GET al servidor para obtener los conciertos
             Response response = client.target(apiUrl)
                     .request(MediaType.APPLICATION_JSON)
                     .get();
             
             if (response.getStatus() == Response.Status.OK.getStatusCode()) {
-                // Leer la lista de conciertos desde la respuesta
                 List<Concierto> conciertos = response.readEntity(new GenericType<List<Concierto>>() {});
-    
-                // Limpiar la tabla antes de añadir los nuevos datos
                 modeloTabla.setRowCount(0);
-    
-                // Añadir los conciertos al modelo de la tabla
                 for (Concierto concierto : conciertos) {
                     modeloTabla.addRow(new Object[]{
                             concierto.getId(),
@@ -234,7 +248,6 @@ public class VentanaAdmin extends JFrame {
                 return;
             }
     
-            // Crear el concierto
             Concierto concierto = new Concierto();
             concierto.setNombre(nombre);
             concierto.setLugar(lugar);
@@ -246,7 +259,6 @@ public class VentanaAdmin extends JFrame {
             concierto.setPrecioVIP(precioVIP);
             concierto.setPrecioPremium(precioPremium);
     
-            // Enviar al backend
             Client client = ClientBuilder.newClient();
             String apiUrl = "http://localhost:8080/api/conciertos";
     
@@ -267,8 +279,6 @@ public class VentanaAdmin extends JFrame {
                 });
     
                 JOptionPane.showMessageDialog(this, "Concierto agregado correctamente.", "Éxito", JOptionPane.INFORMATION_MESSAGE);
-                
-                // Limpiar campos del formulario después de añadir
                 limpiarFormulario();
             } else {
                 JOptionPane.showMessageDialog(this, "Error al agregar el concierto. Código: " + response.getStatus(), "Error", JOptionPane.ERROR_MESSAGE);
@@ -371,7 +381,6 @@ public class VentanaAdmin extends JFrame {
                     .put(Entity.entity(conciertoEditado, MediaType.APPLICATION_JSON));
     
             if (response.getStatus() == Response.Status.OK.getStatusCode()) {
-                // Actualizar datos en la tabla
                 modeloTabla.setValueAt(conciertoEditado.getNombre(), filaSeleccionada, 1);
                 modeloTabla.setValueAt(conciertoEditado.getLugar(), filaSeleccionada, 2);
                 modeloTabla.setValueAt(conciertoEditado.getFecha(), filaSeleccionada, 3);
@@ -409,8 +418,6 @@ public class VentanaAdmin extends JFrame {
         txtPrecioGeneral.setText("0.0");
         txtPrecioVIP.setText("0.0");
         txtPrecioPremium.setText("0.0");
-        
-        // Quitar selección de la tabla
         tablaEventos.clearSelection();
     }
 }

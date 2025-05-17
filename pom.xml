@@ -1,27 +1,25 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project xmlns="http://maven.apache.org/POM/4.0.0"
-         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 https://maven.apache.org/xsd/maven-4.0.0.xsd">
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 https://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
-
     <parent>
         <groupId>org.springframework.boot</groupId>
         <artifactId>spring-boot-starter-parent</artifactId>
-        <version>3.1.3</version> <!-- Cambié la versión a una válida -->
+        <version>3.4.2</version>
         <relativePath /> <!-- lookup parent from repository -->
     </parent>
-
     <groupId>com.example</groupId>
     <artifactId>conciertos</artifactId>
     <version>0.0.1-SNAPSHOT</version>
     <name>conciertos</name>
     <description>Demo project for Conciertos</description>
-
     <properties>
         <java.version>17</java.version>
         <jersey.version>2.35</jersey.version>
+        <sonar.organization>xabierhernaez</sonar.organization>
+        <sonar.host.url>https://sonarcloud.io</sonar.host.url>
     </properties>
-
     <dependencyManagement>
         <dependencies>
             <dependency>
@@ -33,15 +31,13 @@
             </dependency>
         </dependencies>
     </dependencyManagement>
-
     <dependencies>
         <!-- Spring Boot Starter Web -->
         <dependency>
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-web</artifactId>
         </dependency>
-
-        <!-- Spring Boot Starter Data JPA -->
+        <!-- Spring Boot Starter Data JPA (includes Hibernate) -->
         <dependency>
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-data-jpa</artifactId>
@@ -72,6 +68,12 @@
         <dependency>
             <groupId>org.glassfish.jersey.core</groupId>
             <artifactId>jersey-client</artifactId>
+            <version>${jersey.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.glassfish.jersey.inject</groupId>
+            <artifactId>jersey-hk2</artifactId>
+            <version>${jersey.version}</version>
         </dependency>
         <dependency>
             <groupId>org.glassfish.jersey.containers</groupId>
@@ -82,12 +84,20 @@
             <artifactId>jersey-container-grizzly2-http</artifactId>
         </dependency>
         <dependency>
-            <groupId>org.glassfish.jersey.inject</groupId>
-            <artifactId>jersey-hk2</artifactId>
-        </dependency>
-        <dependency>
             <groupId>org.glassfish.jersey.media</groupId>
             <artifactId>jersey-media-json-jackson</artifactId>
+        </dependency>
+        <dependency>
+        <groupId>com.fasterxml.jackson.core</groupId>
+        <artifactId>jackson-databind</artifactId>
+        <version>2.15.2</version>
+        </dependency>
+
+        <!-- API de Jakarta JAX-RS -->
+        <dependency>
+            <groupId>jakarta.ws.rs</groupId>
+            <artifactId>jakarta.ws.rs-api</artifactId>
+            <version>3.1.0</version>
         </dependency>
 
         <!-- javax.annotation-api -->
@@ -110,7 +120,7 @@
             <artifactId>hibernate-validator</artifactId>
             <version>6.2.5.Final</version>
         </dependency>
-
+        
         <!-- javax.activation -->
         <dependency>
             <groupId>javax.activation</groupId>
@@ -152,20 +162,20 @@
             <scope>test</scope>
         </dependency>
 
-        <!-- Spring Boot Starter Test -->
         <dependency>
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-test</artifactId>
             <scope>test</scope>
         </dependency>
+      
 
-        <!-- JUnitPerf -->
         <dependency>
-            <groupId>com.github.noconnor</groupId>
-            <artifactId>junitperf-junit5</artifactId>
-            <version>1.37.0</version>
-            <scope>test</scope>
-        </dependency>
+			<groupId>com.github.noconnor</groupId>
+			<artifactId>junitperf-junit5</artifactId>
+			<version>1.37.0</version>
+			<scope>test</scope>
+		</dependency>
+
     </dependencies>
 
     <build>
@@ -174,14 +184,6 @@
             <plugin>
                 <groupId>org.springframework.boot</groupId>
                 <artifactId>spring-boot-maven-plugin</artifactId>
-                <configuration>
-                    <jvmArguments>
-                        -Dcom.sun.management.jmxremote
-                        -Dcom.sun.management.jmxremote.port=9010
-                        -Dcom.sun.management.jmxremote.authenticate=false
-                        -Dcom.sun.management.jmxremote.ssl=false
-                    </jvmArguments>
-                </configuration>
             </plugin>
 
             <!-- Exec Maven Plugin -->
@@ -193,6 +195,19 @@
                     <mainClass>com.example.restapi.client.window.WindowLaucher</mainClass>
                 </configuration>
             </plugin>
+
+            	<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-surefire-plugin</artifactId>
+				<configuration>
+					<excludes>
+						<exclude>**/RestApiApplicationTests.java</exclude>
+						<exclude>**/integration/**</exclude>
+						<exclude>**/performance/**</exclude>
+					</excludes>
+				</configuration>
+			</plugin>
+
 
             <!-- JaCoCo Maven Plugin -->
             <plugin>
@@ -214,18 +229,56 @@
                     </execution>
                 </executions>
             </plugin>
-
-            <!-- Maven Surefire Plugin -->
-            <plugin>
-                <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-surefire-plugin</artifactId>
-                <version>3.0.0</version>
-                <configuration>
-                    <includes>
-                        <include>**/*Test.java</include>
-                    </includes>
-                </configuration>
-            </plugin>
         </plugins>
     </build>
+
+
+	<profiles>
+        <profile>
+                <id>performance</id>
+                <build>
+                    <plugins>
+                        <plugin>
+                            <artifactId>maven-failsafe-plugin</artifactId>
+                            <configuration>
+                                <includes>
+                                    <include>**/performance/**</include>
+                                </includes>
+                            </configuration>
+                        </plugin>
+                        <!-- Copy the report into the site directory
+                        Use the maven-resources-plugin or maven-antrun-plugin to copy your generated report
+                        (perf-report.html) 
+                        from target/reports to the site output directory before site generation. 
+                        mvn -Pperformance resources:copy-resources@copy-perf-report
+                        -->
+                        <plugin>
+                            <artifactId>maven-resources-plugin</artifactId>
+                            <version>3.3.1</version>
+                            <executions>
+                                <execution>
+                                    <id>copy-perf-report</id>
+                                    <phase>prepare-package</phase>
+                                    <goals>
+                                        <goal>copy-resources</goal>
+                                    </goals>
+                                    <configuration>
+                                        <outputDirectory>${project.build.directory}/site/reports</outputDirectory>
+                                        <resources>
+                                            <resource>
+                                                <directory>${project.build.directory}/reports</directory>
+                                                <includes>
+                                                    <include>perf-report.html</include>
+                                                </includes>
+                                            </resource>
+                                        </resources>
+                                    </configuration>
+                                </execution>
+                            </executions>
+                        </plugin>
+                    </plugins>
+                </build>
+            </profile>
+	</profiles>
+
 </project>

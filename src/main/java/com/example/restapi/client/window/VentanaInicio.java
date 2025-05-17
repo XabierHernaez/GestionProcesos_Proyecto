@@ -23,10 +23,6 @@ public class VentanaInicio extends JFrame {
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         setLocationRelativeTo(null);
 
-        // Cambiar icono de la ventana
-        ImageIcon imagen = new ImageIcon("resources/images/bravo.png");
-        setIconImage(imagen.getImage());
-
         // Panel principal con bordes
         JPanel panel = new JPanel();
         panel.setLayout(new GridBagLayout());
@@ -135,7 +131,7 @@ public class VentanaInicio extends JFrame {
                     new VentanaAdmin(usuarioLogueado);
                 } else {
                     dispose();
-                    /*new VentanaUsuario(usuarioLogueado);*/
+                    new VentanaConciertos(usuarioLogueado);
                 }
             } else if (response.getStatus() == Response.Status.UNAUTHORIZED.getStatusCode()) {
                 JOptionPane.showMessageDialog(this, "Contraseña incorrecta.", "Error", JOptionPane.ERROR_MESSAGE);
