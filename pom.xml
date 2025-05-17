@@ -19,6 +19,9 @@
         <jersey.version>2.35</jersey.version>
         <sonar.organization>xabierhernaez</sonar.organization>
         <sonar.host.url>https://sonarcloud.io</sonar.host.url>
+        <jacoco.version>0.8.12</jacoco.version>
+        <doxygen.config.file>${basedir}/src/main/resources/Doxyfile</doxygen.config.file>
+        <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
     </properties>
     <dependencyManagement>
         <dependencies>
@@ -88,9 +91,9 @@
             <artifactId>jersey-media-json-jackson</artifactId>
         </dependency>
         <dependency>
-        <groupId>com.fasterxml.jackson.core</groupId>
-        <artifactId>jackson-databind</artifactId>
-        <version>2.15.2</version>
+            <groupId>com.fasterxml.jackson.core</groupId>
+            <artifactId>jackson-databind</artifactId>
+            <version>2.15.2</version>
         </dependency>
 
         <!-- API de Jakarta JAX-RS -->
@@ -168,14 +171,13 @@
             <scope>test</scope>
         </dependency>
       
-
+        <!-- JUnitPerf -->
         <dependency>
-			<groupId>com.github.noconnor</groupId>
-			<artifactId>junitperf-junit5</artifactId>
-			<version>1.37.0</version>
-			<scope>test</scope>
-		</dependency>
-
+            <groupId>com.github.noconnor</groupId>
+            <artifactId>junitperf-junit5</artifactId>
+            <version>1.37.0</version>
+            <scope>test</scope>
+        </dependency>
     </dependencies>
 
     <build>
@@ -196,24 +198,24 @@
                 </configuration>
             </plugin>
 
-            	<plugin>
-				<groupId>org.apache.maven.plugins</groupId>
-				<artifactId>maven-surefire-plugin</artifactId>
-				<configuration>
-					<excludes>
-						<exclude>**/RestApiApplicationTests.java</exclude>
-						<exclude>**/integration/**</exclude>
-						<exclude>**/performance/**</exclude>
-					</excludes>
-				</configuration>
-			</plugin>
-
+            <!-- Maven Surefire Plugin -->
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-surefire-plugin</artifactId>
+                <configuration>
+                    <excludes>
+                        <exclude>**/RestApiApplicationTests.java</exclude>
+                        <exclude>**/integration/**</exclude>
+                        <exclude>**/performance/**</exclude>
+                    </excludes>
+                </configuration>
+            </plugin>
 
             <!-- JaCoCo Maven Plugin -->
             <plugin>
                 <groupId>org.jacoco</groupId>
                 <artifactId>jacoco-maven-plugin</artifactId>
-                <version>0.8.10</version>
+                <version>${jacoco.version}</version>
                 <executions>
                     <execution>
                         <goals>
@@ -229,56 +231,69 @@
                     </execution>
                 </executions>
             </plugin>
+
+            <!-- Doxygen Maven Plugin -->
+            <plugin>
+                <groupId>com.soebes.maven.plugins</groupId>
+                <artifactId>doxygen-maven-plugin</artifactId>
+                <version>1.1.0</version>
+                <executions>
+                    <execution>
+                        <id>generate-doxygen-site</id>
+                        <phase>site</phase>
+                        <goals>
+                            <goal>report</goal>
+                        </goals>
+                    </execution>
+                </executions>
+                <configuration>
+                    <configurationFile>${doxygen.config.file}</configurationFile>
+                </configuration>
+            </plugin>
+
+            <!-- Maven Resources Plugin -->
+            <plugin>
+                <artifactId>maven-resources-plugin</artifactId>
+                <version>3.3.1</version>
+                <executions>
+                    <execution>
+                        <id>copy-perf-report</id>
+                        <phase>prepare-package</phase>
+                        <goals>
+                            <goal>copy-resources</goal>
+                        </goals>
+                        <configuration>
+                            <outputDirectory>${project.build.directory}/site/reports</outputDirectory>
+                            <resources>
+                                <resource>
+                                    <directory>${project.build.directory}/reports</directory>
+                                    <includes>
+                                        <include>perf-report.html</include>
+                                    </includes>
+                                </resource>
+                            </resources>
+                        </configuration>
+                    </execution>
+                </executions>
+            </plugin>
         </plugins>
     </build>
 
-
-	<profiles>
+    <profiles>
         <profile>
-                <id>performance</id>
-                <build>
-                    <plugins>
-                        <plugin>
-                            <artifactId>maven-failsafe-plugin</artifactId>
-                            <configuration>
-                                <includes>
-                                    <include>**/performance/**</include>
-                                </includes>
-                            </configuration>
-                        </plugin>
-                        <!-- Copy the report into the site directory
-                        Use the maven-resources-plugin or maven-antrun-plugin to copy your generated report
-                        (perf-report.html) 
-                        from target/reports to the site output directory before site generation. 
-                        mvn -Pperformance resources:copy-resources@copy-perf-report
-                        -->
-                        <plugin>
-                            <artifactId>maven-resources-plugin</artifactId>
-                            <version>3.3.1</version>
-                            <executions>
-                                <execution>
-                                    <id>copy-perf-report</id>
-                                    <phase>prepare-package</phase>
-                                    <goals>
-                                        <goal>copy-resources</goal>
-                                    </goals>
-                                    <configuration>
-                                        <outputDirectory>${project.build.directory}/site/reports</outputDirectory>
-                                        <resources>
-                                            <resource>
-                                                <directory>${project.build.directory}/reports</directory>
-                                                <includes>
-                                                    <include>perf-report.html</include>
-                                                </includes>
-                                            </resource>
-                                        </resources>
-                                    </configuration>
-                                </execution>
-                            </executions>
-                        </plugin>
-                    </plugins>
-                </build>
-            </profile>
-	</profiles>
-
+            <id>performance</id>
+            <build>
+                <plugins>
+                    <plugin>
+                        <artifactId>maven-failsafe-plugin</artifactId>
+                        <configuration>
+                            <includes>
+                                <include>**/performance/**</include>
+                            </includes>
+                        </configuration>
+                    </plugin>
+                </plugins>
+            </build>
+        </profile>
+    </profiles>
 </project>

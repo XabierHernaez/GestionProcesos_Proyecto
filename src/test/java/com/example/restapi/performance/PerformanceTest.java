@@ -20,6 +20,8 @@ import org.mockito.MockitoAnnotations;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 
+import java.io.IOException;
+import java.io.PrintWriter;
 import java.time.LocalDate;
 import java.util.Arrays;
 import java.util.Date;
@@ -180,12 +182,36 @@ public class PerformanceTest {
 
     private void updateHtmlReport(List<Double> filteredLatencies, String caseName) {
         // Configurar el reporte HTML con las latencias filtradas
-        JUnitPerfReportingConfig filteredConfig = JUnitPerfReportingConfig.builder()
-                .reportGenerator(new HtmlReportGenerator(System.getProperty("user.dir") + "/target/reports/perf-report-" + caseName + ".html"))
-                .build();
+        String reportPath = System.getProperty("user.dir") + "/target/reports/perf-report-" + caseName + ".html";
 
-        // Aquí puedes integrar las latencias filtradas en el reporte
-        System.out.println("Reporte HTML generado para [" + caseName + "] con latencias filtradas.");
+        try (PrintWriter writer = new PrintWriter(reportPath)) {
+            writer.println("<html>");
+            writer.println("<head><title>Reporte de Rendimiento - " + caseName + "</title></head>");
+            writer.println("<body>");
+            writer.println("<h1>Reporte de Rendimiento - " + caseName + "</h1>");
+            writer.println("<h2>Métricas de Rendimiento (Sin Outliers)</h2>");
+
+            // Calcular métricas
+            double averageLatency = filteredLatencies.stream().mapToDouble(Double::doubleValue).average().orElse(0.0);
+            double maxLatency = filteredLatencies.stream().mapToDouble(Double::doubleValue).max().orElse(0.0);
+
+            // Escribir métricas en el HTML
+            writer.println("<p><strong>Latencias Filtradas:</strong> " + filteredLatencies.size() + "</p>");
+            writer.println("<p><strong>Latencia Promedio:</strong> " + averageLatency + " ms</p>");
+            writer.println("<p><strong>Latencia Máxima:</strong> " + maxLatency + " ms</p>");
+            writer.println("<h3>Latencias Filtradas:</h3>");
+            writer.println("<ul>");
+            for (Double latency : filteredLatencies) {
+                writer.println("<li>" + latency + " ms</li>");
+            }
+            writer.println("</ul>");
+            writer.println("</body>");
+            writer.println("</html>");
+        } catch (IOException e) {
+            System.err.println("Error al generar el reporte HTML para [" + caseName + "]: " + e.getMessage());
+        }
+
+        System.out.println("Reporte HTML generado para [" + caseName + "] en: " + reportPath);
     }
 
 }
