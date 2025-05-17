@@ -75,17 +75,23 @@ public class VentanaMisCompras extends JFrame {
                 List<Map<String, Object>> compras = response.readEntity(new GenericType<List<Map<String, Object>>>() {});
 
                 for (Map<String, Object> compra : compras) {
-                    Map<String, Object> concierto = (Map<String, Object>) compra.get("concierto");
-
+                    Integer conciertoId = (Integer) compra.get("conciertoId");
+                
+                    // Llamada para obtener el concierto por ID
+                    String conciertoUrl = "http://localhost:8080/api/conciertos/" + conciertoId;
+                    Map<String, Object> concierto = client
+                            .target(conciertoUrl)
+                            .request(MediaType.APPLICATION_JSON)
+                            .get(new GenericType<Map<String, Object>>() {});
+                
                     String nombre = String.valueOf(concierto.get("nombre"));
                     String lugar = String.valueOf(concierto.get("lugar"));
                     String fechaStr = String.valueOf(concierto.get("fecha"));
                     String tipoEntrada = String.valueOf(compra.get("tipoEntrada"));
                     int cantidad = Integer.parseInt(compra.get("cantidad").toString());
-
-                    // Parsear fecha
+                
                     Date fecha = formatoFecha.parse(fechaStr);
-
+                
                     modelo.addRow(new Object[]{nombre, lugar, formatoFecha.format(fecha), tipoEntrada, cantidad});
                 }
             } else {
