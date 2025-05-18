@@ -13,6 +13,8 @@ import javax.swing.SwingConstants;
 
 import com.example.restapi.model.Usuario;
 import com.example.restapi.model.Concierto;
+import com.example.restapi.model.TipoPago;
+
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
@@ -29,6 +31,7 @@ public class VentanaCompra extends JFrame {
     private Concierto concierto;
     private Usuario usuario;
     private JComboBox<String> comboTipoEntrada;
+    private JComboBox<TipoPago> comboTipoPago;
     private JTextField campoCantidad;
     private JLabel lblPrecioTotal, lblDispGeneral, lblDispVIP, lblDispPremium;
     private boolean compraEnProgreso = false; // Evitar clics múltiples
@@ -50,7 +53,7 @@ public class VentanaCompra extends JFrame {
         add(lblTitulo, BorderLayout.NORTH);
 
         // Panel central con información y selección
-        JPanel panelCentral = new JPanel(new GridLayout(7, 2, 10, 10));
+        JPanel panelCentral = new JPanel(new GridLayout(8, 2, 10, 10));
         panelCentral.setBorder(BorderFactory.createEmptyBorder(10, 10, 10, 10));
 
         panelCentral.add(new JLabel("Lugar:"));
@@ -79,6 +82,10 @@ public class VentanaCompra extends JFrame {
         panelCentral.add(new JLabel("Tipo de Entrada:"));
         comboTipoEntrada = new JComboBox<>(new String[]{"General", "VIP", "Premium"});
         panelCentral.add(comboTipoEntrada);
+
+        panelCentral.add(new JLabel("Método de Pago:"));
+        comboTipoPago = new JComboBox<TipoPago>(TipoPago.values());
+        panelCentral.add(comboTipoPago);
 
         panelCentral.add(new JLabel("Cantidad:"));
         campoCantidad = new JTextField("1");
@@ -148,6 +155,7 @@ public class VentanaCompra extends JFrame {
         try {
             int cantidad = Integer.parseInt(campoCantidad.getText());
             String tipoEntrada = (String) comboTipoEntrada.getSelectedItem();
+            TipoPago tipoPago = (TipoPago) comboTipoPago.getSelectedItem();
 
             // Validar disponibilidad
             int dispGeneral = concierto.getCapacidadGeneral();

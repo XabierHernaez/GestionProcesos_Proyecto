@@ -14,7 +14,7 @@ import org.springframework.boot.autoconfigure.SpringBootApplication;
 public class RestApiApplication {
 
     /**
-     * @brief Método principal para iniciar la aplicación.
+     * @brief Método principal para iniciar la aplicación.gi
      * @param args Argumentos de línea de comandos (no utilizados).
      */
     public static void main(String[] args) {
