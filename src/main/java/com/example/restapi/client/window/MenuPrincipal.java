@@ -5,9 +5,26 @@ import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 
+/**
+ * @class MenuPrincipal
+ * @brief Ventana principal de la aplicación de gestión de conciertos.
+ * 
+ * Esta clase representa la interfaz gráfica del menú principal, que permite al usuario
+ * acceder a las funcionalidades de registro, inicio de sesión y visualización del catálogo
+ * de eventos. Utiliza componentes de Swing para crear una interfaz amigable con botones
+ * estilizados y un diseño centrado.
+ */
 public class MenuPrincipal extends JFrame {
+    /**< Identificador de serialización para la clase */
     private static final long serialVersionUID = 1L;
 
+    /**
+     * @brief Constructor de la ventana principal.
+     * 
+     * Configura la ventana con un título, tamaño, diseño y componentes gráficos como una
+     * etiqueta de bienvenida y botones para registro, inicio de sesión y catálogo de eventos.
+     * Los botones tienen acciones asociadas que abren otras ventanas o muestran mensajes.
+     */
     public MenuPrincipal() {
         // Configurar la ventana
         setTitle("Menú Principal");
@@ -59,6 +76,12 @@ public class MenuPrincipal extends JFrame {
 
         // Acciones de los botones
         registerButton.addActionListener(new ActionListener() {
+            /**
+             * @brief Maneja el evento de clic en el botón de registro.
+             * 
+             * Muestra un mensaje y abre la ventana de registro.
+             * @param e [in] Evento de acción generado por el botón.
+             */
             @Override
             public void actionPerformed(ActionEvent e) {
                 JOptionPane.showMessageDialog(null, "Registro seleccionado");
@@ -68,6 +91,12 @@ public class MenuPrincipal extends JFrame {
         });
 
         loginButton.addActionListener(new ActionListener() {
+            /**
+             * @brief Maneja el evento de clic en el botón de inicio de sesión.
+             * 
+             * Muestra un mensaje y abre la ventana de inicio de sesión.
+             * @param e [in] Evento de acción generado por el botón.
+             */
             @Override
             public void actionPerformed(ActionEvent e) {
                 JOptionPane.showMessageDialog(null, "Inicio de Sesión seleccionado");
@@ -76,6 +105,12 @@ public class MenuPrincipal extends JFrame {
         });
 
         catalogButton.addActionListener(new ActionListener() {
+            /**
+             * @brief Maneja el evento de clic en el botón de catálogo de eventos.
+             * 
+             * Abre la ventana de catálogo de eventos y muestra un mensaje.
+             * @param e [in] Evento de acción generado por el botón.
+             */
             @Override
             public void actionPerformed(ActionEvent e) {
                 new VentanaConciertos(null);
