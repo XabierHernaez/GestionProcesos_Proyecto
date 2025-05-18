@@ -13,13 +13,34 @@ import javax.ws.rs.core.Response;
 import java.awt.*;
 import java.util.List;
 
+/**
+ * @class VentanaComprasConcierto
+ * @brief Ventana de interfaz gráfica que muestra las compras realizadas para un concierto específico.
+ *
+ * Permite a un administrador visualizar una tabla con las compras de entradas asociadas a un concierto,
+ * mostrando detalles como email del comprador, tipo de entrada, cantidad y precio total.
+ */
 public class VentanaComprasConcierto extends JFrame {
     private static final long serialVersionUID = 1L;
+
+    /**< Tabla donde se listan las compras */
     private JTable tablaCompras;
+
+    /**< Modelo de datos para la tabla de compras */
     private DefaultTableModel modeloTabla;
+
+    /**< Concierto del cual se quieren consultar las compras */
     private Concierto concierto;
+
+    /**< Administrador autenticado que consulta las compras */
     private Usuario admin;
 
+    /**
+     * Constructor que inicializa la ventana y carga las compras del concierto especificado.
+     * 
+     * @param concierto [in] Concierto del cual se mostrarán las compras.
+     * @param admin [in] Usuario administrador que realiza la consulta.
+     */
     public VentanaComprasConcierto(Concierto concierto, Usuario admin) {
         this.concierto = concierto;
         this.admin = admin;
@@ -46,6 +67,7 @@ public class VentanaComprasConcierto extends JFrame {
             }
         };
 
+        // Configuración de la tabla
         tablaCompras = new JTable(modeloTabla);
         tablaCompras.setRowHeight(25);
         tablaCompras.setFont(new Font("Segoe UI", Font.PLAIN, 14));
@@ -68,12 +90,16 @@ public class VentanaComprasConcierto extends JFrame {
         panelBotones.add(btnCerrar);
         add(panelBotones, BorderLayout.SOUTH);
 
-        // Cargar compras
+        // Cargar compras desde la API
         cargarCompras();
 
         setVisible(true);
     }
 
+    /**
+     * Método que realiza la solicitud a la API REST para obtener las compras asociadas al concierto.
+     * Los resultados se cargan en la tabla.
+     */
     private void cargarCompras() {
         try {
             Client client = ClientBuilder.newClient();
@@ -89,14 +115,19 @@ public class VentanaComprasConcierto extends JFrame {
             if (response.getStatus() == Response.Status.OK.getStatusCode()) {
                 String jsonResponse = response.readEntity(String.class);
                 System.out.println("Respuesta JSON: " + jsonResponse);
-                response = client.target(apiUrl).request(MediaType.APPLICATION_JSON).get(); // Reenviar solicitud
+
+                // Reenviar la solicitud para obtener el objeto deserializado
+                response = client.target(apiUrl).request(MediaType.APPLICATION_JSON).get();
                 List<Compra> compras = response.readEntity(new GenericType<List<Compra>>() {});
-                modeloTabla.setRowCount(0);
+                
+                modeloTabla.setRowCount(0); // Limpiar tabla
+
                 for (Compra compra : compras) {
                     System.out.println("Procesando compra: email=" + compra.getEmail() +
                             ", tipoEntrada=" + compra.getTipoEntrada() +
                             ", cantidad=" + compra.getCantidad() +
                             ", precioTotal=" + compra.getPrecioTotal());
+
                     modeloTabla.addRow(new Object[]{
                             compra.getEmail(),
                             compra.getTipoEntrada(),
@@ -104,6 +135,7 @@ public class VentanaComprasConcierto extends JFrame {
                             compra.getPrecioTotal()
                     });
                 }
+
                 if (compras.isEmpty()) {
                     JOptionPane.showMessageDialog(this, "No hay compras para este concierto.", "Información", JOptionPane.INFORMATION_MESSAGE);
                 }
