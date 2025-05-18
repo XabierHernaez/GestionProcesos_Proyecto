@@ -1,9 +1,12 @@
 package com.example.restapi.performance;
 
+import com.example.restapi.controller.CompraController;
 import com.example.restapi.controller.ConciertoController;
 import com.example.restapi.controller.UsuarioController;
+import com.example.restapi.server.jpa.CompraJPA;
 import com.example.restapi.server.jpa.ConciertoJPA;
 import com.example.restapi.server.jpa.UsuarioJPA;
+import com.example.restapi.server.repository.CompraRepository;
 import com.example.restapi.server.repository.ConciertoRepository;
 import com.example.restapi.server.repository.UsuarioRepository;
 import com.github.noconnor.junitperf.JUnitPerfTest;
@@ -48,6 +51,12 @@ public class PerformanceTest {
 
     @InjectMocks
     private UsuarioController usuarioController;
+
+       @Mock
+    private CompraRepository compraRepository;
+
+    @InjectMocks
+    private CompraController compraController;
 
     // Configuración estática para el reporte de rendimiento
     @JUnitPerfTestActiveConfig
@@ -234,5 +243,80 @@ public void testLoginUsuarioPerformance() {
         var usuarios = usuarioRepository.findByTipoPago(com.example.restapi.model.TipoPago.Visa);
         assertNotNull(usuarios);
         assertEquals(2, usuarios.size());
+    }
+
+        @Test
+    @JUnitPerfTest(threads = 1, durationMs = 6000, warmUpMs = 4000)
+    @JUnitPerfTestRequirement(
+        executionsPerSec = 1,
+        percentiles = "99:4000ms",
+        allowedErrorPercentage = 0.5f
+    )
+    public void testObtenerComprasPorUsuarioPerformance() {
+        String email = "user@example.com";
+        CompraJPA compra = new CompraJPA();
+        UsuarioJPA usuario = new UsuarioJPA();
+        usuario.setEmail(email);
+        compra.setUsuario(usuario);
+        ConciertoJPA concierto = new ConciertoJPA();
+        concierto.setId(1);
+        concierto.setPrecioGeneral(10.0);
+        compra.setConcierto(concierto);
+        compra.setTipoEntrada("GENERAL");
+        compra.setCantidad(2);
+
+        when(compraRepository.findByUsuarioEmail(email)).thenReturn(Arrays.asList(compra));
+
+        var compras = compraController.obtenerComprasPorUsuario(email);
+        assertNotNull(compras);
+        assertEquals(1, compras.size());
+        assertEquals(email, compras.get(0).getEmail());
+    }
+
+    @Test
+    @JUnitPerfTest(threads = 1, durationMs = 6000, warmUpMs = 4000)
+    @JUnitPerfTestRequirement(
+        executionsPerSec = 1,
+        percentiles = "99:4000ms",
+        allowedErrorPercentage = 0.5f
+    )
+    public void testGetEntradasVendidasPerformance() {
+        int conciertoId = 1;
+        String tipoEntrada = "GENERAL";
+        when(compraRepository.sumCantidadByConciertoIdAndTipoEntrada(conciertoId, tipoEntrada)).thenReturn(10);
+
+        ResponseEntity<Integer> response = compraController.getEntradasVendidas(conciertoId, tipoEntrada);
+        assertEquals(200, response.getStatusCodeValue());
+        assertEquals(10, response.getBody());
+    }
+
+    @Test
+    @JUnitPerfTest(threads = 1, durationMs = 6000, warmUpMs = 4000)
+    @JUnitPerfTestRequirement(
+        executionsPerSec = 1,
+        percentiles = "99:4000ms",
+        allowedErrorPercentage = 0.5f
+    )
+    public void testObtenerComprasPorConciertoPerformance() {
+        int conciertoId = 1;
+        String adminEmail = "admin@example.com";
+        CompraJPA compra = new CompraJPA();
+        UsuarioJPA usuario = new UsuarioJPA();
+        usuario.setEmail("user@example.com");
+        compra.setUsuario(usuario);
+        ConciertoJPA concierto = new ConciertoJPA();
+        concierto.setId(conciertoId);
+        concierto.setPrecioGeneral(10.0);
+        compra.setConcierto(concierto);
+        compra.setTipoEntrada("GENERAL");
+        compra.setCantidad(2);
+
+        when(compraRepository.findByConciertoId(conciertoId)).thenReturn(Arrays.asList(compra));
+
+        ResponseEntity<List<CompraController.CompraDTO>> response = compraController.obtenerComprasPorConcierto(conciertoId, adminEmail);
+        assertEquals(200, response.getStatusCodeValue());
+        assertNotNull(response.getBody());
+        assertEquals(1, response.getBody().size());
+        assertEquals("user@example.com", response.getBody().get(0).getEmail());
     }
 }
