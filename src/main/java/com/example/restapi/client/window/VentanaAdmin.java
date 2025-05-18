@@ -1,6 +1,6 @@
 package com.example.restapi.client.window;
-import java.awt.*;
 
+import java.awt.*;
 import javax.swing.*;
 import javax.swing.border.EmptyBorder;
 import javax.swing.event.ListSelectionEvent;
@@ -18,16 +18,86 @@ import java.util.List;
 import com.example.restapi.model.TipoUsuario;
 import com.example.restapi.model.Concierto;
 
+/**
+ * @class VentanaAdmin
+ * @brief Ventana de administración para gestionar eventos de la plataforma de conciertos.
+ * 
+ * Esta clase proporciona una interfaz gráfica para administradores, permitiendo agregar, editar, eliminar y visualizar conciertos, 
+ * así como acceder a listas de usuarios y compras. Solo usuarios con tipo ADMIN pueden acceder a esta ventana. 
+ * Utiliza componentes Swing para la interfaz y se conecta a una API REST para la gestión de datos.
+ */
 public class VentanaAdmin extends JFrame {
+    /**< Identificador de serialización para la clase */
     private static final long serialVersionUID = 1L;
 
+    /**< Tabla que muestra la lista de conciertos */
     protected JTable tablaEventos;
+
+    /**< Modelo de datos para la tabla de conciertos */
     protected DefaultTableModel modeloTabla;
-    protected JTextField txtNombre, txtLugar, txtPrecioGeneral, txtPrecioVIP, txtPrecioPremium, txtBuscar;
-    protected JSpinner spinnerFecha, spinnerCapacidadGeneral, spinnerCapacidadVIP, spinnerCapacidadPremium;
-    protected JButton btnAgregar, btnEditar, btnEliminar, btnBuscar, btnVerUsuarios, btnVolverVentanaPrincipal, btnVerCompras;
+
+    /**< Campo de texto para el nombre del concierto */
+    protected JTextField txtNombre;
+
+    /**< Campo de texto para el lugar del concierto */
+    protected JTextField txtLugar;
+
+    /**< Campo de texto para el precio de entradas generales */
+    protected JTextField txtPrecioGeneral;
+
+    /**< Campo de texto para el precio de entradas VIP */
+    protected JTextField txtPrecioVIP;
+
+    /**< Campo de texto para el precio de entradas Premium */
+    protected JTextField txtPrecioPremium;
+
+    /**< Campo de texto para buscar conciertos por nombre */
+    protected JTextField txtBuscar;
+
+    /**< Selector de fecha para el concierto */
+    protected JSpinner spinnerFecha;
+
+    /**< Selector de capacidad para entradas generales */
+    protected JSpinner spinnerCapacidadGeneral;
+
+    /**< Selector de capacidad para entradas VIP */
+    protected JSpinner spinnerCapacidadVIP;
+
+    /**< Selector de capacidad para entradas Premium */
+    protected JSpinner spinnerCapacidadPremium;
+
+    /**< Botón para agregar un nuevo concierto */
+    protected JButton btnAgregar;
+
+    /**< Botón para editar un concierto existente */
+    protected JButton btnEditar;
+
+    /**< Botón para eliminar un concierto seleccionado */
+    protected JButton btnEliminar;
+
+    /**< Botón para buscar conciertos por nombre */
+    protected JButton btnBuscar;
+
+    /**< Botón para ver la lista de usuarios */
+    protected JButton btnVerUsuarios;
+
+    /**< Botón para volver al menú principal */
+    protected JButton btnVolverVentanaPrincipal;
+
+    /**< Botón para ver las compras de un concierto */
+    protected JButton btnVerCompras;
+
+    /**< Usuario autenticado que accede a la ventana */
     private Usuario usuario;
 
+    /**
+     * @brief Constructor de la ventana de administración.
+     * 
+     * Inicializa la interfaz gráfica con una tabla de conciertos, campos de entrada para detalles del concierto,
+     * y botones para gestionar eventos, usuarios y compras. Verifica que el usuario sea administrador.
+     * Carga los conciertos desde la API al iniciar.
+     * @param usuario [in] Usuario autenticado que intenta acceder a la ventana.
+     */
     public VentanaAdmin(Usuario usuario) {
         this.usuario = usuario;
         if (!usuario.getTipoUsuario().equals(TipoUsuario.ADMIN)) {
@@ -139,6 +209,12 @@ public class VentanaAdmin extends JFrame {
 
         // Selección en la tabla de eventos
         tablaEventos.getSelectionModel().addListSelectionListener(new ListSelectionListener() {
+            /**
+             * @brief Maneja la selección de una fila en la tabla de eventos.
+             * 
+             * Carga los datos del concierto seleccionado en el formulario para su edición.
+             * @param e [in] Evento de selección de la tabla.
+             */
             @Override
             public void valueChanged(ListSelectionEvent e) {
                 if (!e.getValueIsAdjusting() && tablaEventos.getSelectedRow() != -1) {
@@ -153,6 +229,12 @@ public class VentanaAdmin extends JFrame {
         setVisible(true);
     }
 
+    /**
+     * @brief Muestra las compras asociadas a un concierto seleccionado.
+     * 
+     * Abre una ventana con las compras del concierto seleccionado en la tabla. 
+     * Requiere que haya un concierto seleccionado.
+     */
     private void verCompras() {
         int filaSeleccionada = tablaEventos.getSelectedRow();
         if (filaSeleccionada == -1) {
@@ -167,6 +249,12 @@ public class VentanaAdmin extends JFrame {
         new VentanaComprasConcierto(concierto, usuario);
     }
 
+    /**
+     * @brief Carga los datos de un concierto en el formulario.
+     * 
+     * Rellena los campos del formulario con los datos del concierto seleccionado en la tabla.
+     * @param fila [in] Índice de la fila seleccionada en la tabla.
+     */
     private void cargarDatosEnFormulario(int fila) {
         try {
             txtNombre.setText(modeloTabla.getValueAt(fila, 1).toString());
@@ -193,6 +281,11 @@ public class VentanaAdmin extends JFrame {
         }
     }
 
+    /**
+     * @brief Carga la lista de conciertos desde la API.
+     * 
+     * Realiza una solicitud GET a la API para obtener la lista de conciertos y actualiza la tabla.
+     */
     protected void cargarConciertos() {
         try {
             Client client = ClientBuilder.newClient();
@@ -228,7 +321,13 @@ public class VentanaAdmin extends JFrame {
             JOptionPane.showMessageDialog(this, "Error al conectar con el servidor: " + ex.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
         }
     }
-   
+
+    /**
+     * @brief Agrega un nuevo concierto a la base de datos.
+     * 
+     * Valida los datos del formulario, crea un objeto Concierto y envía una solicitud POST a la API.
+     * Actualiza la tabla si la operación es exitosa.
+     */
     protected void agregarConcierto() {
         try {
             String nombre = txtNombre.getText().trim();
@@ -293,6 +392,12 @@ public class VentanaAdmin extends JFrame {
         }
     }
 
+    /**
+     * @brief Elimina un concierto seleccionado de la base de datos.
+     * 
+     * Envía una solicitud DELETE a la API para eliminar el concierto seleccionado en la tabla, 
+     * tras confirmar la acción con el usuario.
+     */
     protected void eliminarConcierto() {
         int filaSeleccionada = tablaEventos.getSelectedRow();
     
@@ -333,6 +438,12 @@ public class VentanaAdmin extends JFrame {
         }
     }
 
+    /**
+     * @brief Edita un concierto seleccionado en la base de datos.
+     * 
+     * Valida los datos del formulario, crea un objeto Concierto actualizado y envía una solicitud PUT a la API.
+     * Actualiza la tabla si la operación es exitosa.
+     */
     protected void editarConcierto() {
         int filaSeleccionada = tablaEventos.getSelectedRow();
     
@@ -407,7 +518,12 @@ public class VentanaAdmin extends JFrame {
             ex.printStackTrace();
         }
     }
-    
+
+    /**
+     * @brief Limpia los campos del formulario.
+     * 
+     * Restablece los valores del formulario a sus valores predeterminados y deselecciona cualquier fila en la tabla.
+     */
     private void limpiarFormulario() {
         txtNombre.setText("");
         txtLugar.setText("");
@@ -421,4 +537,5 @@ public class VentanaAdmin extends JFrame {
         tablaEventos.clearSelection();
     }
 }
+
 

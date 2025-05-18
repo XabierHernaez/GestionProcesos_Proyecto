@@ -7,10 +7,8 @@ import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
-
 import javax.swing.JTextField;
 import javax.swing.SwingConstants;
-
 import com.example.restapi.model.Usuario;
 import com.example.restapi.model.Concierto;
 import com.example.restapi.model.TipoPago;
@@ -18,7 +16,6 @@ import com.example.restapi.model.TipoPago;
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-
 import javax.ws.rs.client.Client;
 import javax.ws.rs.client.ClientBuilder;
 import javax.ws.rs.client.Entity;
@@ -26,16 +23,56 @@ import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import com.example.restapi.model.Compra;
 
+/**
+ * @class VentanaCompra
+ * @brief Ventana para realizar la compra de entradas para un concierto.
+ * 
+ * Esta clase proporciona una interfaz gráfica que permite a un usuario seleccionar el tipo y la cantidad de entradas
+ * para un concierto, visualizar el precio total y enviar la compra a la API REST. Incluye validaciones de disponibilidad
+ * y manejo de errores para garantizar una experiencia de usuario fluida.
+ */
 public class VentanaCompra extends JFrame {
+    /**< Identificador de serialización para la clase */
     private static final long serialVersionUID = 1L;
-    private Concierto concierto;
-    private Usuario usuario;
-    private JComboBox<String> comboTipoEntrada;
-    private JComboBox<TipoPago> comboTipoPago;
-    private JTextField campoCantidad;
-    private JLabel lblPrecioTotal, lblDispGeneral, lblDispVIP, lblDispPremium;
-    private boolean compraEnProgreso = false; // Evitar clics múltiples
 
+    /**< Concierto para el cual se realiza la compra */
+    private Concierto concierto;
+
+    /**< Usuario que realiza la compra */
+    private Usuario usuario;
+
+    /**< Selector para el tipo de entrada (General, VIP, Premium) */
+    private JComboBox<String> comboTipoEntrada;
+
+    /**< Selector para el tipo de pago (Visa, Paypal, Mastercard, transferencia, criptomonedas) */
+    private JComboBox<TipoPago> comboTipoPago;
+
+    /**< Campo de texto para la cantidad de entradas */
+    private JTextField campoCantidad;
+
+    /**< Etiqueta que muestra el precio total de la compra */
+    private JLabel lblPrecioTotal;
+
+    /**< Etiqueta que muestra la disponibilidad de entradas generales */
+    private JLabel lblDispGeneral;
+
+    /**< Etiqueta que muestra la disponibilidad de entradas VIP */
+    private JLabel lblDispVIP;
+
+    /**< Etiqueta que muestra la disponibilidad de entradas Premium */
+    private JLabel lblDispPremium;
+
+    /**< Bandera para evitar múltiples clics durante una compra */
+    private boolean compraEnProgreso = false;
+
+    /**
+     * @brief Constructor de la ventana de compra.
+     * 
+     * Inicializa la interfaz gráfica con información del concierto, campos para seleccionar el tipo y cantidad de entradas,
+     * y un botón para realizar la compra. Actualiza dinámicamente el precio total según las selecciones del usuario.
+     * @param concierto [in] Concierto para el cual se compran las entradas.
+     * @param usuario [in] Usuario autenticado que realiza la compra.
+     */
     public VentanaCompra(Concierto concierto, Usuario usuario) {
         this.concierto = concierto;
         this.usuario = usuario;
@@ -110,13 +147,41 @@ public class VentanaCompra extends JFrame {
         add(panelInferior, BorderLayout.SOUTH);
 
         // Actualizar precio total cuando se cambia el tipo de entrada o la cantidad
-        comboTipoEntrada.addActionListener(e -> actualizarPrecioTotal());
-        campoCantidad.addActionListener(e -> actualizarPrecioTotal());
+        comboTipoEntrada.addActionListener(new ActionListener() {
+            /**
+             * @brief Maneja el cambio en la selección del tipo de entrada.
+             * 
+             * Actualiza el precio total mostrado en la interfaz según el tipo de entrada seleccionado.
+             * @param e [in] Evento de acción generado por el cambio en el combo.
+             */
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                actualizarPrecioTotal();
+            }
+        });
+        campoCantidad.addActionListener(new ActionListener() {
+            /**
+             * @brief Maneja el cambio en la cantidad de entradas.
+             * 
+             * Actualiza el precio total mostrado en la interfaz según la cantidad ingresada.
+             * @param e [in] Evento de acción generado por el cambio en el campo de texto.
+             */
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                actualizarPrecioTotal();
+            }
+        });
         actualizarPrecioTotal();
 
         setVisible(true);
     }
 
+    /**
+     * @brief Calcula y actualiza el precio total de la compra.
+     * 
+     * Actualiza la etiqueta de precio total según el tipo de entrada seleccionado y la cantidad ingresada.
+     * @return Precio total calculado.
+     */
     private double actualizarPrecioTotal() {
         double total = 0.0;
         try {
@@ -143,6 +208,12 @@ public class VentanaCompra extends JFrame {
         return total;
     }
 
+    /**
+     * @brief Realiza la compra de entradas enviando la solicitud a la API.
+     * 
+     * Valida la cantidad y disponibilidad de entradas, crea un objeto Compra y lo envía a la API REST.
+     * Muestra mensajes de éxito o error según la respuesta del servidor.
+     */
     private void realizarCompra() {
         if (compraEnProgreso) {
             return; // Evitar múltiples clics
