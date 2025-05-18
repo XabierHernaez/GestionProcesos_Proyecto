@@ -48,7 +48,7 @@ Para lanzar las unicamente las pruebas de rendimiento hemos utilizado el comando
 
 Y para ejecutar las de integracion se utiliza el comando:
 
-    mvn -Pintegration integration-tes
+    mvn -Pintegration integration-test
 
 Documentacion
 --------
