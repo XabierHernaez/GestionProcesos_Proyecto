@@ -15,27 +15,49 @@ import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 
+/**
+ * @class CompraController
+ * @brief Controlador REST para gestionar las compras de entradas para conciertos.
+ *
+ * Permite registrar compras, obtener compras por usuario o concierto, y consultar entradas vendidas por tipo.
+ */
 @RestController
 @RequestMapping("/compras")
 public class CompraController {
 
+    /**< Repositorio para gestionar las compras */
     @Autowired
     private CompraRepository compraRepository;
 
+    /**< Repositorio para gestionar los usuarios */
     @Autowired
     private UsuarioRepository usuarioRepository;
 
+    /**< Repositorio para gestionar los conciertos */
     @Autowired
     private ConciertoRepository conciertoRepository;
 
-    // DTO para mapear CompraJPA a Compra del cliente
+    /**
+     * @class CompraDTO
+     * @brief Clase DTO interna para representar una compra simplificada.
+     */
     public static class CompraDTO {
+        /**< Email del usuario */
         private String email;
+
+        /**< ID del concierto */
         private int conciertoId;
+
+        /**< Tipo de entrada (GENERAL, VIP, PREMIUM) */
         private String tipoEntrada;
+
+        /**< Cantidad de entradas compradas */
         private int cantidad;
+
+        /**< Precio total de la compra */
         private double precioTotal;
 
+        /** Constructor */
         public CompraDTO(String email, int conciertoId, String tipoEntrada, int cantidad, double precioTotal) {
             this.email = email;
             this.conciertoId = conciertoId;
@@ -44,48 +66,28 @@ public class CompraController {
             this.precioTotal = precioTotal;
         }
 
-        // Getters y setters
-        public String getEmail() {
-            return email;
-        }
+        public String getEmail() { return email; }
+        public void setEmail(String email) { this.email = email; }
 
-        public void setEmail(String email) {
-            this.email = email;
-        }
+        public int getConciertoId() { return conciertoId; }
+        public void setConciertoId(int conciertoId) { this.conciertoId = conciertoId; }
 
-        public int getConciertoId() {
-            return conciertoId;
-        }
+        public String getTipoEntrada() { return tipoEntrada; }
+        public void setTipoEntrada(String tipoEntrada) { this.tipoEntrada = tipoEntrada; }
 
-        public void setConciertoId(int conciertoId) {
-            this.conciertoId = conciertoId;
-        }
+        public int getCantidad() { return cantidad; }
+        public void setCantidad(int cantidad) { this.cantidad = cantidad; }
 
-        public String getTipoEntrada() {
-            return tipoEntrada;
-        }
-
-        public void setTipoEntrada(String tipoEntrada) {
-            this.tipoEntrada = tipoEntrada;
-        }
-
-        public int getCantidad() {
-            return cantidad;
-        }
-
-        public void setCantidad(int cantidad) {
-            this.cantidad = cantidad;
-        }
-
-        public double getPrecioTotal() {
-            return precioTotal;
-        }
-
-        public void setPrecioTotal(double precioTotal) {
-            this.precioTotal = precioTotal;
-        }
+        public double getPrecioTotal() { return precioTotal; }
+        public void setPrecioTotal(double precioTotal) { this.precioTotal = precioTotal; }
     }
 
+    /**
+     * @brief Registra una compra de entradas para un concierto.
+     *
+     * @param datosCompra Mapa con los datos de la compra (email, conciertoId, tipoEntrada, cantidad).
+     * @return Mensaje indicando el resultado de la operación.
+     */
     @PostMapping
     @Transactional
     public String realizarCompra(@RequestBody Map<String, Object> datosCompra) {
@@ -148,6 +150,12 @@ public class CompraController {
         return "Compra realizada con éxito";
     }
 
+    /**
+     * @brief Obtiene las compras realizadas por un usuario.
+     *
+     * @param email Email del usuario.
+     * @return Lista de objetos CompraDTO.
+     */
     @GetMapping("/usuario")
     public List<CompraDTO> obtenerComprasPorUsuario(@RequestParam String email) {
         List<CompraJPA> compras = compraRepository.findByUsuarioEmail(email);
@@ -163,6 +171,13 @@ public class CompraController {
         }).collect(Collectors.toList());
     }
 
+    /**
+     * @brief Obtiene la cantidad de entradas vendidas para un concierto y tipo de entrada.
+     *
+     * @param conciertoId ID del concierto.
+     * @param tipoEntrada Tipo de entrada (GENERAL, VIP, PREMIUM).
+     * @return Cantidad de entradas vendidas.
+     */
     @GetMapping("/concierto/{id}/vendidas/{tipo}")
     public ResponseEntity<Integer> getEntradasVendidas(@PathVariable("id") int conciertoId,
                                                       @PathVariable("tipo") String tipoEntrada) {
@@ -180,6 +195,13 @@ public class CompraController {
         }
     }
 
+    /**
+     * @brief Obtiene las compras de un concierto específico para el administrador.
+     *
+     * @param conciertoId ID del concierto.
+     * @param adminEmail Email del administrador solicitante.
+     * @return Lista de objetos CompraDTO correspondientes al concierto.
+     */
     @GetMapping("/concierto/{id}")
     public ResponseEntity<List<CompraDTO>> obtenerComprasPorConcierto(@PathVariable("id") int conciertoId,
                                                                      @RequestParam String adminEmail) {
@@ -204,6 +226,13 @@ public class CompraController {
         }
     }
 
+    /**
+     * @brief Calcula el precio unitario según el tipo de entrada del concierto.
+     *
+     * @param concierto Objeto ConciertoJPA.
+     * @param tipoEntrada Tipo de entrada (GENERAL, VIP, PREMIUM).
+     * @return Precio unitario de la entrada.
+     */
     private double getPrecioUnitario(ConciertoJPA concierto, String tipoEntrada) {
         switch (tipoEntrada.toUpperCase()) {
             case "GENERAL":
