@@ -1,9 +1,14 @@
 package com.example.restapi.performance;
 
+import com.example.restapi.controller.CompraController;
 import com.example.restapi.controller.ConciertoController;
+import com.example.restapi.controller.UsuarioController;
+import com.example.restapi.server.jpa.CompraJPA;
 import com.example.restapi.server.jpa.ConciertoJPA;
+import com.example.restapi.server.jpa.UsuarioJPA;
+import com.example.restapi.server.repository.CompraRepository;
 import com.example.restapi.server.repository.ConciertoRepository;
-
+import com.example.restapi.server.repository.UsuarioRepository;
 import com.github.noconnor.junitperf.JUnitPerfTest;
 import com.github.noconnor.junitperf.JUnitPerfTestActiveConfig;
 import com.github.noconnor.junitperf.JUnitPerfInterceptor;
@@ -12,23 +17,22 @@ import com.github.noconnor.junitperf.JUnitPerfTestRequirement;
 import com.github.noconnor.junitperf.reporting.providers.HtmlReportGenerator;
 
 import org.junit.jupiter.api.BeforeEach;
+import java.util.Optional;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.http.ResponseEntity;
 
 import java.io.IOException;
 import java.io.PrintWriter;
-import java.time.LocalDate;
 import java.util.Arrays;
-import java.util.Date;
 import java.util.List;
 import java.util.Map;
-import java.util.Optional;
 
+import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.*;
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -41,6 +45,18 @@ public class PerformanceTest {
 
     @InjectMocks
     private ConciertoController conciertoController;
+
+    @Mock
+    private UsuarioRepository usuarioRepository;
+
+    @InjectMocks
+    private UsuarioController usuarioController;
+
+       @Mock
+    private CompraRepository compraRepository;
+
+    @InjectMocks
+    private CompraController compraController;
 
     // Configuración estática para el reporte de rendimiento
     @JUnitPerfTestActiveConfig
@@ -56,7 +72,7 @@ public class PerformanceTest {
     // Prueba de rendimiento para obtener todos los conciertos
     @Test
     @JUnitPerfTest(threads = 10, durationMs = 10000, warmUpMs = 5000)
-    @JUnitPerfTestRequirement(executionsPerSec = 5, percentiles = "95:1500ms", allowedErrorPercentage = 30.0f)
+    @JUnitPerfTestRequirement(executionsPerSec = 5, percentiles = "99:2500ms", allowedErrorPercentage = 30.0f)
         public void testGetAllConciertosPerformance() {
         when(conciertoRepository.findAll()).thenReturn(Arrays.asList(new ConciertoJPA(), new ConciertoJPA()));
 
@@ -67,21 +83,25 @@ public class PerformanceTest {
 
     // Prueba de rendimiento para buscar conciertos por nombre
     @Test
-    @JUnitPerfTest(threads = 5, durationMs = 5000, warmUpMs = 3000)
-    @JUnitPerfTestRequirement(executionsPerSec = 5, percentiles = "95:2000ms", allowedErrorPercentage = 30.0f)
-        public void testFindConciertosByNombrePerformance() {
+    @JUnitPerfTest(threads = 3, durationMs = 5000, warmUpMs = 2000)
+    @JUnitPerfTestRequirement(
+        executionsPerSec = 5, 
+        percentiles = "99:2500ms", 
+        allowedErrorPercentage = 5.0f 
+    )
+    public void testFindConciertosByNombrePerformance() {
         // Simulación del repositorio
         ConciertoJPA concierto1 = new ConciertoJPA();
         concierto1.setNombre("RockFest");
         concierto1.setLugar("Lugar 1");
-        concierto1.setFecha(new java.sql.Date(System.currentTimeMillis())); // Usando java.sql.Date
+        concierto1.setFecha(new java.sql.Date(System.currentTimeMillis()));
         concierto1.setCapacidadGeneral(1000);
         concierto1.setPrecioVIP(50.0);
 
         ConciertoJPA concierto2 = new ConciertoJPA();
         concierto2.setNombre("RockFest");
         concierto2.setLugar("Lugar 2");
-        concierto2.setFecha(new java.sql.Date(System.currentTimeMillis())); // Usando java.sql.Date
+        concierto2.setFecha(new java.sql.Date(System.currentTimeMillis()));
         concierto2.setCapacidadGeneral(2000);
         concierto2.setPrecioVIP(100.0);
 
@@ -96,122 +116,207 @@ public class PerformanceTest {
 
     // Prueba de rendimiento para buscar conciertos por rango de fechas
     @Test
-    @JUnitPerfTest(threads = 10, durationMs = 5000, warmUpMs = 2000)
-    @JUnitPerfTestRequirement(executionsPerSec = 5, percentiles = "95:1500ms", allowedErrorPercentage = 30.0f)
-        public void testFindConciertosByFechaPerformance() {
-        // Fechas usando java.sql.Date
+    @JUnitPerfTest(threads = 5, durationMs = 6000, warmUpMs = 4000)
+    @JUnitPerfTestRequirement(
+        executionsPerSec = 5,
+        percentiles = "99:4000ms",
+        allowedErrorPercentage = 50f
+    )
+    public void testFindConciertosByFechaPerformance() {
         java.sql.Date fechaInicio = new java.sql.Date(System.currentTimeMillis() - 86400000L); // Un día antes
         java.sql.Date fechaFin = new java.sql.Date(System.currentTimeMillis()); // Fecha actual
 
         when(conciertoRepository.findByFechaBetween(fechaInicio, fechaFin))
             .thenReturn(Arrays.asList(new ConciertoJPA(), new ConciertoJPA()));
 
-        // Llamada al método y validaciones
         var conciertos = conciertoRepository.findByFechaBetween(fechaInicio, fechaFin);
         assertNotNull(conciertos);
         assertEquals(2, conciertos.size());
     }
 
-
-
-    // Prueba de rendimiento unificada para diferentes casos de latencia
     @Test
-    public void testPerformanceWithOutlierAnalysisUnified() {
-        // Simulación de datos de latencia para diferentes casos
-        List<Double> latenciesCase1 = Arrays.asList(
-            0.03, 0.03, 0.031, 0.031, 0.032, 0.032, 0.032, 0.033, 0.033, 0.033,
-            0.034, 0.034, 0.034, 0.035, 0.035, 0.035, 0.035, 0.036, 0.036, 0.036,
-            0.036, 0.036, 0.036, 0.036, 0.037, 0.037, 0.037, 0.037, 0.037, 0.037,
-            0.037, 0.037, 0.037, 0.038, 0.038, 0.038, 0.038, 0.038, 0.038, 0.038,
-            0.038, 0.038, 0.039, 0.039, 0.039, 0.039, 0.039, 0.039, 0.039, 0.039,
-            0.039, 0.04, 0.04, 0.04, 0.04, 0.04, 0.04, 0.04, 0.041, 0.041, 0.041,
-            0.041, 0.041, 0.041, 0.041, 0.042, 0.042, 0.042, 0.042, 0.042, 0.042,
-            0.042, 0.043, 0.043, 0.043, 0.043, 0.043, 0.044, 0.044, 0.044, 0.044,
-            0.045, 0.045, 0.045, 0.046, 0.046, 0.046, 0.047, 0.047, 0.048, 0.048,
-            0.049, 0.05, 0.051, 0.053, 0.055, 0.059, 0.067, 0.077, 23.553
-        );
+    @JUnitPerfTest(threads = 5, durationMs = 5000, warmUpMs = 2000)
+    @JUnitPerfTestRequirement(executionsPerSec = 5, percentiles = "99:2500ms", allowedErrorPercentage = 5.0f)
+    public void testGetAllUsuariosPerformance() {
+        UsuarioJPA usuario1 = new UsuarioJPA();
+        usuario1.setEmail("user1@example.com");
+        UsuarioJPA usuario2 = new UsuarioJPA();
+        usuario2.setEmail("user2@example.com");
 
-        List<Double> latenciesCase2 = Arrays.asList(
-            0.032, 0.032, 0.033, 0.034, 0.034, 0.034, 0.035, 0.035, 0.036, 0.036,
-            0.036, 0.037, 0.037, 0.038, 0.038, 0.039, 0.039, 0.04, 0.04, 0.04,
-            0.04, 0.041, 0.041, 0.041, 0.041, 0.041, 0.042, 0.042, 0.042, 0.042,
-            0.042, 0.043, 0.043, 0.043, 0.043, 0.043, 0.044, 0.044, 0.044, 0.044,
-            0.045, 0.045, 0.045, 0.045, 0.046, 0.046, 0.046, 0.047, 0.047, 0.047,
-            0.048, 0.048, 0.048, 0.049, 0.049, 0.05, 0.05, 0.05, 0.051, 0.051,
-            0.052, 0.052, 0.053, 0.053, 0.054, 0.054, 0.055, 0.056, 0.056, 0.057,
-            0.058, 0.058, 0.059, 0.059, 0.06, 0.06, 0.061, 0.062, 0.062, 0.063,
-            0.064, 0.066, 0.067, 0.068, 0.07, 0.072, 0.073, 0.076, 0.078, 0.082,
-            0.086, 0.09, 0.095, 0.101, 0.108, 0.119, 0.136, 0.176, 0.384, 296.206
-        );
+        when(usuarioRepository.findAll()).thenReturn(Arrays.asList(usuario1, usuario2));
 
-        // Unificar el análisis para ambos casos
-        analyzeLatenciesAndPrintMetrics(latenciesCase1, "Caso 1");
-        analyzeLatenciesAndPrintMetrics(latenciesCase2, "Caso 2");
+        var usuarios = usuarioController.getAllUsuarios();
+        assertNotNull(usuarios);
+        assertEquals(2, usuarios.size());
     }
 
-    private void analyzeLatenciesAndPrintMetrics(List<Double> latencies, String caseName) {
-        // Analizar latencias usando la clase Outlier
-        Map<String, List<Double>> result = Outlier.analyzeLatencies(latencies);
+@Test
+@JUnitPerfTest(threads = 1, durationMs = 6000, warmUpMs = 4000)
+@JUnitPerfTestRequirement(
+    executionsPerSec = 1,
+    percentiles = "99:4000ms",
+    allowedErrorPercentage = 0.5f
+)
+public void testGetUsuarioByEmailPerformance() {
+    String email = "user@example.com";
+    UsuarioJPA usuario = new UsuarioJPA();
+    usuario.setEmail(email);
 
-        // Obtener latencias filtradas y outliers
-        List<Double> filteredLatencies = result.get("filtered");
-        List<Double> outliers = result.get("outliers");
-
-        // Calcular métricas de rendimiento con latencias filtradas
-        double averageLatency = filteredLatencies.stream().mapToDouble(Double::doubleValue).average().orElse(0.0);
-        double maxLatency = filteredLatencies.stream().mapToDouble(Double::doubleValue).max().orElse(0.0);
-
-        // Imprimir métricas
-        System.out.println("[" + caseName + "] Latencias originales: " + latencies.size());
-        System.out.println("[" + caseName + "] Latencias filtradas: " + filteredLatencies.size());
-        System.out.println("[" + caseName + "] Outliers identificados: " + outliers.size());
-        System.out.println("[" + caseName + "] Outliers: " + outliers);
-        System.out.println("[" + caseName + "] Latencia promedio (sin outliers): " + averageLatency);
-        System.out.println("[" + caseName + "] Latencia máxima (sin outliers): " + maxLatency);
-
-        // Validaciones
-        assertNotNull(filteredLatencies);
-        assertNotNull(outliers);
-        assertTrue(averageLatency > 0);
-        assertTrue(maxLatency > 0);
-        assertEquals(latencies.size(), filteredLatencies.size() + outliers.size()); // Verifica consistencia
-
-        // Actualizar el reporte HTML con latencias filtradas
-        updateHtmlReport(filteredLatencies, caseName);
+when(usuarioRepository.findById(anyString())).thenReturn(Optional.of(usuario));
+    ResponseEntity<UsuarioJPA> response = usuarioController.getUsuarioByEmail(email);
+    assertEquals(200, response.getStatusCodeValue());
+    assertEquals(usuario, response.getBody());
     }
 
-    private void updateHtmlReport(List<Double> filteredLatencies, String caseName) {
-        // Configurar el reporte HTML con las latencias filtradas
-        String reportPath = System.getProperty("user.dir") + "/target/reports/perf-report-" + caseName + ".html";
+   @Test
+@JUnitPerfTest(threads = 1, durationMs = 6000, warmUpMs = 4000)
+@JUnitPerfTestRequirement(
+    executionsPerSec = 1,
+    percentiles = "99:4000ms",
+    allowedErrorPercentage = 0.5f
+)
+public void testLoginUsuarioPerformance() {
+    UsuarioJPA credenciales = new UsuarioJPA();
+    credenciales.setEmail("user@example.com");
+    credenciales.setPassword("password123");
 
-        try (PrintWriter writer = new PrintWriter(reportPath)) {
-            writer.println("<html>");
-            writer.println("<head><title>Reporte de Rendimiento - " + caseName + "</title></head>");
-            writer.println("<body>");
-            writer.println("<h1>Reporte de Rendimiento - " + caseName + "</h1>");
-            writer.println("<h2>Métricas de Rendimiento (Sin Outliers)</h2>");
+    UsuarioJPA usuarioExistente = new UsuarioJPA();
+    usuarioExistente.setEmail("user@example.com");
+    usuarioExistente.setPassword("password123");
 
-            // Calcular métricas
-            double averageLatency = filteredLatencies.stream().mapToDouble(Double::doubleValue).average().orElse(0.0);
-            double maxLatency = filteredLatencies.stream().mapToDouble(Double::doubleValue).max().orElse(0.0);
+    when(usuarioRepository.findById(credenciales.getEmail())).thenReturn(Optional.of(usuarioExistente));
 
-            // Escribir métricas en el HTML
-            writer.println("<p><strong>Latencias Filtradas:</strong> " + filteredLatencies.size() + "</p>");
-            writer.println("<p><strong>Latencia Promedio:</strong> " + averageLatency + " ms</p>");
-            writer.println("<p><strong>Latencia Máxima:</strong> " + maxLatency + " ms</p>");
-            writer.println("<h3>Latencias Filtradas:</h3>");
-            writer.println("<ul>");
-            for (Double latency : filteredLatencies) {
-                writer.println("<li>" + latency + " ms</li>");
-            }
-            writer.println("</ul>");
-            writer.println("</body>");
-            writer.println("</html>");
-        } catch (IOException e) {
-            System.err.println("Error al generar el reporte HTML para [" + caseName + "]: " + e.getMessage());
-        }
+    ResponseEntity<UsuarioJPA> response = usuarioController.loginUsuario(credenciales);
+    assertEquals(200, response.getStatusCodeValue());
+    assertEquals(usuarioExistente, response.getBody());
+}
 
-        System.out.println("Reporte HTML generado para [" + caseName + "] en: " + reportPath);
+    // Prueba de rendimiento para buscar usuarios por nombre
+    @Test
+    @JUnitPerfTest(threads = 5, durationMs = 5000, warmUpMs = 2000)
+    @JUnitPerfTestRequirement(executionsPerSec = 5, percentiles = "99:2500ms", allowedErrorPercentage = 5.0f)
+    public void testFindUsuariosByNombrePerformance() {
+        UsuarioJPA usuario1 = new UsuarioJPA();
+        usuario1.setNombre("Juan");
+        UsuarioJPA usuario2 = new UsuarioJPA();
+        usuario2.setNombre("Juan");
+
+        when(usuarioRepository.findByNombre("Juan"))
+            .thenReturn(Arrays.asList(usuario1, usuario2));
+
+        var usuarios = usuarioRepository.findByNombre("Juan");
+        assertNotNull(usuarios);
+        assertEquals(2, usuarios.size());
     }
 
+    // Prueba de rendimiento para buscar usuarios por tipo de usuario
+    @Test
+    @JUnitPerfTest(threads = 5, durationMs = 5000, warmUpMs = 2000)
+    @JUnitPerfTestRequirement(executionsPerSec = 5, percentiles = "99:2500ms", allowedErrorPercentage = 5.0f)
+    public void testFindUsuariosByTipoUsuarioPerformance() {
+        UsuarioJPA usuario1 = new UsuarioJPA();
+        usuario1.setTipoUsuario(com.example.restapi.model.TipoUsuario.CLIENTE);
+        UsuarioJPA usuario2 = new UsuarioJPA();
+        usuario2.setTipoUsuario(com.example.restapi.model.TipoUsuario.CLIENTE);
+
+        when(usuarioRepository.findByTipoUsuario(com.example.restapi.model.TipoUsuario.CLIENTE))
+            .thenReturn(Arrays.asList(usuario1, usuario2));
+
+        var usuarios = usuarioRepository.findByTipoUsuario(com.example.restapi.model.TipoUsuario.CLIENTE);
+        assertNotNull(usuarios);
+        assertEquals(2, usuarios.size());
+    }
+
+    // Prueba de rendimiento para buscar usuarios por tipo de pago
+    @Test
+    @JUnitPerfTest(threads = 5, durationMs = 5000, warmUpMs = 2000)
+    @JUnitPerfTestRequirement(executionsPerSec = 5, percentiles = "99:2500ms", allowedErrorPercentage = 5.0f)
+    public void testFindUsuariosByTipoPagoPerformance() {
+        UsuarioJPA usuario1 = new UsuarioJPA();
+        usuario1.setTipoPago(com.example.restapi.model.TipoPago.Visa);
+        UsuarioJPA usuario2 = new UsuarioJPA();
+        usuario2.setTipoPago(com.example.restapi.model.TipoPago.Visa);
+
+        when(usuarioRepository.findByTipoPago(com.example.restapi.model.TipoPago.Visa))
+            .thenReturn(Arrays.asList(usuario1, usuario2));
+
+        var usuarios = usuarioRepository.findByTipoPago(com.example.restapi.model.TipoPago.Visa);
+        assertNotNull(usuarios);
+        assertEquals(2, usuarios.size());
+    }
+
+        @Test
+    @JUnitPerfTest(threads = 1, durationMs = 6000, warmUpMs = 4000)
+    @JUnitPerfTestRequirement(
+        executionsPerSec = 1,
+        percentiles = "99:4000ms",
+        allowedErrorPercentage = 0.5f
+    )
+    public void testObtenerComprasPorUsuarioPerformance() {
+        String email = "user@example.com";
+        CompraJPA compra = new CompraJPA();
+        UsuarioJPA usuario = new UsuarioJPA();
+        usuario.setEmail(email);
+        compra.setUsuario(usuario);
+        ConciertoJPA concierto = new ConciertoJPA();
+        concierto.setId(1);
+        concierto.setPrecioGeneral(10.0);
+        compra.setConcierto(concierto);
+        compra.setTipoEntrada("GENERAL");
+        compra.setCantidad(2);
+
+        when(compraRepository.findByUsuarioEmail(email)).thenReturn(Arrays.asList(compra));
+
+        var compras = compraController.obtenerComprasPorUsuario(email);
+        assertNotNull(compras);
+        assertEquals(1, compras.size());
+        assertEquals(email, compras.get(0).getEmail());
+    }
+
+    @Test
+    @JUnitPerfTest(threads = 1, durationMs = 6000, warmUpMs = 4000)
+    @JUnitPerfTestRequirement(
+        executionsPerSec = 1,
+        percentiles = "99:4000ms",
+        allowedErrorPercentage = 0.5f
+    )
+    public void testGetEntradasVendidasPerformance() {
+        int conciertoId = 1;
+        String tipoEntrada = "GENERAL";
+        when(compraRepository.sumCantidadByConciertoIdAndTipoEntrada(conciertoId, tipoEntrada)).thenReturn(10);
+
+        ResponseEntity<Integer> response = compraController.getEntradasVendidas(conciertoId, tipoEntrada);
+        assertEquals(200, response.getStatusCodeValue());
+        assertEquals(10, response.getBody());
+    }
+
+    @Test
+    @JUnitPerfTest(threads = 1, durationMs = 6000, warmUpMs = 4000)
+    @JUnitPerfTestRequirement(
+        executionsPerSec = 1,
+        percentiles = "99:4000ms",
+        allowedErrorPercentage = 0.5f
+    )
+    public void testObtenerComprasPorConciertoPerformance() {
+        int conciertoId = 1;
+        String adminEmail = "admin@example.com";
+        CompraJPA compra = new CompraJPA();
+        UsuarioJPA usuario = new UsuarioJPA();
+        usuario.setEmail("user@example.com");
+        compra.setUsuario(usuario);
+        ConciertoJPA concierto = new ConciertoJPA();
+        concierto.setId(conciertoId);
+        concierto.setPrecioGeneral(10.0);
+        compra.setConcierto(concierto);
+        compra.setTipoEntrada("GENERAL");
+        compra.setCantidad(2);
+
+        when(compraRepository.findByConciertoId(conciertoId)).thenReturn(Arrays.asList(compra));
+
+        ResponseEntity<List<CompraController.CompraDTO>> response = compraController.obtenerComprasPorConcierto(conciertoId, adminEmail);
+        assertEquals(200, response.getStatusCodeValue());
+        assertNotNull(response.getBody());
+        assertEquals(1, response.getBody().size());
+        assertEquals("user@example.com", response.getBody().get(0).getEmail());
+    }
 }

@@ -355,6 +355,23 @@
                     </plugins>
                 </build>
             </profile>
+
+		<profile>
+			<id>integration</id>
+			<build>
+				<plugins>
+					<plugin>
+						<artifactId>maven-failsafe-plugin</artifactId>
+						<configuration>
+							<includes>
+								<include>**/integration/**</include>
+							</includes>
+						</configuration>
+					</plugin>
+				</plugins>
+			</build>
+		</profile>
+
     </profiles>
 
 </project>
