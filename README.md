@@ -42,6 +42,14 @@ Para comprobar el correcto funcionamiento de las pruebas unitarias, usa el sigui
 
     mvn verify
 
+Para lanzar las unicamente las pruebas de rendimiento hemos utilizado el comando:
+
+    mvn -Pperformance integration-test 
+
+Y para ejecutar las de integracion se utiliza el comando:
+
+    mvn -Pintegration integration-test
+
 Documentacion
 --------
 
