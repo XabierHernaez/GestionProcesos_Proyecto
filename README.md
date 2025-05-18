@@ -42,6 +42,13 @@ Para comprobar el correcto funcionamiento de las pruebas unitarias, usa el sigui
 
     mvn verify
 
+Documentacion
+--------
+
+Para generar la documentacion hay que tener instalado doxygen y configurar el path para su uso
+con la ejecucion del siguiente comando se generara la documentacion en target/site/Doxygen
+
+    mvn doxygen:report
 
 Empaquetado de la aplicación
 -------------------
