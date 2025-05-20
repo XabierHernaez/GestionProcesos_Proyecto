@@ -1,4 +1,4 @@
-name: Maven Site &n Peformance & Integration Tests
+name: Maven Site & Performance & Integration Tests
 
 on:
   push:
@@ -7,9 +7,7 @@ on:
   schedule:
     - cron: '0 18-23/2 * * *'  # 20:00–01:00 CET
     - cron: '0 0-6/2 * * *'    # 02:00–08:00 CET
-  # POST https://api.github.com/repos/dipina/SpringBootLibrary/actions/workflows/maven-site-integration.yml/dispatches  
   workflow_dispatch:
-    
 
 jobs:
   build-and-test:
@@ -72,20 +70,15 @@ jobs:
 
       - name: Generate Maven Site
         run: mvn site
-      
-      - name: Copy site doxygen output to docs folder
+
+      - name: Copy Doxygen output to docs folder
         run: |
-          mkdir -p docs
-          rm -rf docs/site
-          mkdir -p docs/site
-          cp -r target/site/* docs/site/
-          rm -rf docs/doxygen
           mkdir -p docs/doxygen
           cp -r target/site/doxygen/html/* docs/doxygen/
 
-      - name: Deploy  
+      - name: Deploy
         uses: JamesIves/github-pages-deploy-action@v4
         with:
-          folder: target/site/doxygen
+          folder: docs/doxygen
           branch: gh-pages
           token: ${{ secrets.GITHUB_TOKEN }}
