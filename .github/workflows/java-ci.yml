@@ -82,6 +82,6 @@ jobs:
       - name: Deploy  
         uses: JamesIves/github-pages-deploy-action@v4
         with:
-          folder: docs
+          folder: target/site/doxygen
           branch: gh-pages
           token: ${{ secrets.GITHUB_TOKEN }}
