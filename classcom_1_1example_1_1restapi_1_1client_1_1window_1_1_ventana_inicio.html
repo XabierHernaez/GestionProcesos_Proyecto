@@ -98,6 +98,9 @@ $(document).ready(function(){initNavTree('classcom_1_1example_1_1restapi_1_1clie
   <div class="headertitle"><div class="title">com.example.restapi.client.window.VentanaInicio Class Reference</div></div>
 </div><!--header-->
 <div class="contents">
+
+<p>Ventana de inicio de sesión para los usuarios del sistema.  
+ <a href="classcom_1_1example_1_1restapi_1_1client_1_1window_1_1_ventana_inicio.html#details">More...</a></p>
 <div class="dynheader">
 Inheritance diagram for com.example.restapi.client.window.VentanaInicio:</div>
 <div class="dyncontent">
@@ -108,13 +111,16 @@ Inheritance diagram for com.example.restapi.client.window.VentanaInicio:</div>
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a id="pub-methods" name="pub-methods"></a>
 Public Member Functions</h2></td></tr>
 <tr class="memitem:a9223e27eb8e17ce35f059dc8ec442512" id="r_a9223e27eb8e17ce35f059dc8ec442512"><td class="memItemLeft" align="right" valign="top">&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classcom_1_1example_1_1restapi_1_1client_1_1window_1_1_ventana_inicio.html#a9223e27eb8e17ce35f059dc8ec442512">VentanaInicio</a> ()</td></tr>
+<tr class="memdesc:a9223e27eb8e17ce35f059dc8ec442512"><td class="mdescLeft">&#160;</td><td class="mdescRight">Constructor de la ventana de inicio de sesión.  <br /></td></tr>
 <tr class="separator:a9223e27eb8e17ce35f059dc8ec442512"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table><table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a id="pri-methods" name="pri-methods"></a>
 Private Member Functions</h2></td></tr>
 <tr class="memitem:a4fff178b89bd8dcf3bef9946c1bcf3b6" id="r_a4fff178b89bd8dcf3bef9946c1bcf3b6"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classcom_1_1example_1_1restapi_1_1client_1_1window_1_1_ventana_inicio.html#a4fff178b89bd8dcf3bef9946c1bcf3b6">login</a> ()</td></tr>
+<tr class="memdesc:a4fff178b89bd8dcf3bef9946c1bcf3b6"><td class="mdescLeft">&#160;</td><td class="mdescRight">Realiza la autenticación del usuario al presionar "Iniciar Sesión".  <br /></td></tr>
 <tr class="separator:a4fff178b89bd8dcf3bef9946c1bcf3b6"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a45c478c3ea557a8ea2a3490f7daa55fb" id="r_a45c478c3ea557a8ea2a3490f7daa55fb"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classcom_1_1example_1_1restapi_1_1client_1_1window_1_1_ventana_inicio.html#a45c478c3ea557a8ea2a3490f7daa55fb">abrirRegistro</a> ()</td></tr>
+<tr class="memdesc:a45c478c3ea557a8ea2a3490f7daa55fb"><td class="mdescLeft">&#160;</td><td class="mdescRight">Abre la ventana de registro de usuario al hacer clic en "Registrarse".  <br /></td></tr>
 <tr class="separator:a45c478c3ea557a8ea2a3490f7daa55fb"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table><table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a id="pri-attribs" name="pri-attribs"></a>
@@ -134,9 +140,10 @@ Static Private Attributes</h2></td></tr>
 <tr class="separator:a840be99e5c9c58feb080fc46434a6fdd"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table>
 <a name="details" id="details"></a><h2 class="groupheader">Detailed Description</h2>
-<div class="textblock"><p>Clase que representa la ventana de inicio de sesión para los usuarios. Permite ingresar correo electrónico y contraseña, y autentica al usuario contra el servidor REST. </p>
+<div class="textblock"><p>Ventana de inicio de sesión para los usuarios del sistema. </p>
+<p>Permite a los usuarios ingresar su correo electrónico y contraseña para autenticarse a través de una API REST. Si la autenticación es exitosa, redirige a la ventana correspondiente según el tipo de usuario (ADMIN o CLIENTE). </p>
 
-<p class="definition">Definition at line <a class="el" href="_ventana_inicio_8java_source.html#l00034">34</a> of file <a class="el" href="_ventana_inicio_8java_source.html">VentanaInicio.java</a>.</p>
+<p class="definition">Definition at line <a class="el" href="_ventana_inicio_8java_source.html#l00037">37</a> of file <a class="el" href="_ventana_inicio_8java_source.html">VentanaInicio.java</a>.</p>
 </div><h2 class="groupheader">Constructor &amp; Destructor Documentation</h2>
 <a id="a9223e27eb8e17ce35f059dc8ec442512" name="a9223e27eb8e17ce35f059dc8ec442512"></a>
 <h2 class="memtitle"><span class="permalink"><a href="#a9223e27eb8e17ce35f059dc8ec442512">&#9670;&#160;</a></span>VentanaInicio()</h2>
@@ -152,9 +159,11 @@ Static Private Attributes</h2></td></tr>
         </tr>
       </table>
 </div><div class="memdoc">
-<p>Constructor que inicializa y muestra la ventana de inicio de sesión. </p>
 
-<p class="definition">Definition at line <a class="el" href="_ventana_inicio_8java_source.html#l00047">47</a> of file <a class="el" href="_ventana_inicio_8java_source.html">VentanaInicio.java</a>.</p>
+<p>Constructor de la ventana de inicio de sesión. </p>
+<p>Configura los componentes visuales y define el comportamiento de los botones. </p>
+
+<p class="definition">Definition at line <a class="el" href="_ventana_inicio_8java_source.html#l00057">57</a> of file <a class="el" href="_ventana_inicio_8java_source.html">VentanaInicio.java</a>.</p>
 
 </div>
 </div>
@@ -181,9 +190,10 @@ Static Private Attributes</h2></td></tr>
   </tr>
 </table>
 </div><div class="memdoc">
-<p>Método que se ejecuta al hacer clic en "Registrarse". Abre la ventana de registro de usuario. </p>
 
-<p class="definition">Definition at line <a class="el" href="_ventana_inicio_8java_source.html#l00195">195</a> of file <a class="el" href="_ventana_inicio_8java_source.html">VentanaInicio.java</a>.</p>
+<p>Abre la ventana de registro de usuario al hacer clic en "Registrarse". </p>
+
+<p class="definition">Definition at line <a class="el" href="_ventana_inicio_8java_source.html#l00187">187</a> of file <a class="el" href="_ventana_inicio_8java_source.html">VentanaInicio.java</a>.</p>
 
 </div>
 </div>
@@ -209,9 +219,11 @@ Static Private Attributes</h2></td></tr>
   </tr>
 </table>
 </div><div class="memdoc">
-<p>Método que se ejecuta al hacer clic en "Iniciar Sesión". Realiza una petición al servidor REST para autenticar al usuario. </p>
 
-<p class="definition">Definition at line <a class="el" href="_ventana_inicio_8java_source.html#l00132">132</a> of file <a class="el" href="_ventana_inicio_8java_source.html">VentanaInicio.java</a>.</p>
+<p>Realiza la autenticación del usuario al presionar "Iniciar Sesión". </p>
+<p>Envía una solicitud POST a la API REST con el email y la contraseña proporcionados. Según la respuesta del servidor, notifica si la autenticación fue exitosa o si hubo errores. </p>
+
+<p class="definition">Definition at line <a class="el" href="_ventana_inicio_8java_source.html#l00137">137</a> of file <a class="el" href="_ventana_inicio_8java_source.html">VentanaInicio.java</a>.</p>
 
 </div>
 </div>
@@ -235,8 +247,9 @@ Static Private Attributes</h2></td></tr>
   </tr>
 </table>
 </div><div class="memdoc">
+<p>Botón para acceder al formulario de registro </p>
 
-<p class="definition">Definition at line <a class="el" href="_ventana_inicio_8java_source.html#l00042">42</a> of file <a class="el" href="_ventana_inicio_8java_source.html">VentanaInicio.java</a>.</p>
+<p class="definition">Definition at line <a class="el" href="_ventana_inicio_8java_source.html#l00047">47</a> of file <a class="el" href="_ventana_inicio_8java_source.html">VentanaInicio.java</a>.</p>
 
 </div>
 </div>
@@ -260,7 +273,7 @@ Static Private Attributes</h2></td></tr>
 </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="_ventana_inicio_8java_source.html#l00042">42</a> of file <a class="el" href="_ventana_inicio_8java_source.html">VentanaInicio.java</a>.</p>
+<p class="definition">Definition at line <a class="el" href="_ventana_inicio_8java_source.html#l00050">50</a> of file <a class="el" href="_ventana_inicio_8java_source.html">VentanaInicio.java</a>.</p>
 
 </div>
 </div>
@@ -283,8 +296,9 @@ Static Private Attributes</h2></td></tr>
   </tr>
 </table>
 </div><div class="memdoc">
+<p>Campo de texto para introducir el correo electrónico </p>
 
-<p class="definition">Definition at line <a class="el" href="_ventana_inicio_8java_source.html#l00035">35</a> of file <a class="el" href="_ventana_inicio_8java_source.html">VentanaInicio.java</a>.</p>
+<p class="definition">Definition at line <a class="el" href="_ventana_inicio_8java_source.html#l00038">38</a> of file <a class="el" href="_ventana_inicio_8java_source.html">VentanaInicio.java</a>.</p>
 
 </div>
 </div>
@@ -307,8 +321,9 @@ Static Private Attributes</h2></td></tr>
   </tr>
 </table>
 </div><div class="memdoc">
+<p>Campo de texto para introducir la contraseña </p>
 
-<p class="definition">Definition at line <a class="el" href="_ventana_inicio_8java_source.html#l00038">38</a> of file <a class="el" href="_ventana_inicio_8java_source.html">VentanaInicio.java</a>.</p>
+<p class="definition">Definition at line <a class="el" href="_ventana_inicio_8java_source.html#l00041">41</a> of file <a class="el" href="_ventana_inicio_8java_source.html">VentanaInicio.java</a>.</p>
 
 </div>
 </div>
@@ -331,8 +346,9 @@ Static Private Attributes</h2></td></tr>
   </tr>
 </table>
 </div><div class="memdoc">
+<p>Botón para iniciar sesión </p>
 
-<p class="definition">Definition at line <a class="el" href="_ventana_inicio_8java_source.html#l00039">39</a> of file <a class="el" href="_ventana_inicio_8java_source.html">VentanaInicio.java</a>.</p>
+<p class="definition">Definition at line <a class="el" href="_ventana_inicio_8java_source.html#l00044">44</a> of file <a class="el" href="_ventana_inicio_8java_source.html">VentanaInicio.java</a>.</p>
 
 </div>
 </div>
@@ -345,7 +361,7 @@ Static Private Attributes</h2></td></tr>
 <div id="nav-path" class="navpath"><!-- id is needed for treeview function! -->
   <ul>
     <li class="navelem"><b>com</b></li><li class="navelem"><b>example</b></li><li class="navelem"><a class="el" href="namespacecom_1_1example_1_1restapi.html">restapi</a></li><li class="navelem"><b>client</b></li><li class="navelem"><a class="el" href="namespacecom_1_1example_1_1restapi_1_1client_1_1window.html">window</a></li><li class="navelem"><a class="el" href="classcom_1_1example_1_1restapi_1_1client_1_1window_1_1_ventana_inicio.html">VentanaInicio</a></li>
-    <li class="footer">Generated on Tue May 20 2025 16:45:34 for SpringBootLibrary by <a href="https://www.doxygen.org/index.html"><img class="footer" src="doxygen.svg" width="104" height="31" alt="doxygen"/></a> 1.9.8 </li>
+    <li class="footer">Generated on Tue May 20 2025 17:29:48 for SpringBootLibrary by <a href="https://www.doxygen.org/index.html"><img class="footer" src="doxygen.svg" width="104" height="31" alt="doxygen"/></a> 1.9.8 </li>
   </ul>
 </div>
 </body>

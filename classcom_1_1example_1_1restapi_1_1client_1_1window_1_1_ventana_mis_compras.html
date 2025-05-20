@@ -96,6 +96,9 @@ $(document).ready(function(){initNavTree('classcom_1_1example_1_1restapi_1_1clie
   <div class="headertitle"><div class="title">com.example.restapi.client.window.VentanaMisCompras Class Reference</div></div>
 </div><!--header-->
 <div class="contents">
+
+<p>Ventana gráfica que muestra las compras realizadas por un usuario autenticado.  
+ <a href="classcom_1_1example_1_1restapi_1_1client_1_1window_1_1_ventana_mis_compras.html#details">More...</a></p>
 <div class="dynheader">
 Inheritance diagram for com.example.restapi.client.window.VentanaMisCompras:</div>
 <div class="dyncontent">
@@ -106,6 +109,7 @@ Inheritance diagram for com.example.restapi.client.window.VentanaMisCompras:</di
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a id="pub-methods" name="pub-methods"></a>
 Public Member Functions</h2></td></tr>
 <tr class="memitem:ab1da7c04b17a339535533553f81cb4e0" id="r_ab1da7c04b17a339535533553f81cb4e0"><td class="memItemLeft" align="right" valign="top">&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classcom_1_1example_1_1restapi_1_1client_1_1window_1_1_ventana_mis_compras.html#ab1da7c04b17a339535533553f81cb4e0">VentanaMisCompras</a> (Usuario <a class="el" href="classcom_1_1example_1_1restapi_1_1client_1_1window_1_1_ventana_mis_compras.html#acd8a2761a1785ea35ff47b9101f4aae9">usuario</a>)</td></tr>
+<tr class="memdesc:ab1da7c04b17a339535533553f81cb4e0"><td class="mdescLeft">&#160;</td><td class="mdescRight">Constructor que inicializa la ventana y carga las compras del usuario.  <br /></td></tr>
 <tr class="separator:ab1da7c04b17a339535533553f81cb4e0"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table><table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a id="pri-attribs" name="pri-attribs"></a>
@@ -114,9 +118,10 @@ Private Attributes</h2></td></tr>
 <tr class="separator:acd8a2761a1785ea35ff47b9101f4aae9"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table>
 <a name="details" id="details"></a><h2 class="groupheader">Detailed Description</h2>
-<div class="textblock"><p>Ventana que muestra las compras realizadas por un usuario. Recupera los datos desde una API REST y los presenta en una tabla. </p>
+<div class="textblock"><p>Ventana gráfica que muestra las compras realizadas por un usuario autenticado. </p>
+<p>Esta clase construye una interfaz con Swing que se conecta a una API REST para obtener las compras realizadas por un usuario y las muestra en una tabla. Realiza múltiples solicitudes GET para recuperar tanto los datos de las compras como los detalles de los conciertos. </p>
 
-<p class="definition">Definition at line <a class="el" href="_ventana_mis_compras_8java_source.html#l00023">23</a> of file <a class="el" href="_ventana_mis_compras_8java_source.html">VentanaMisCompras.java</a>.</p>
+<p class="definition">Definition at line <a class="el" href="_ventana_mis_compras_8java_source.html#l00027">27</a> of file <a class="el" href="_ventana_mis_compras_8java_source.html">VentanaMisCompras.java</a>.</p>
 </div><h2 class="groupheader">Constructor &amp; Destructor Documentation</h2>
 <a id="ab1da7c04b17a339535533553f81cb4e0" name="ab1da7c04b17a339535533553f81cb4e0"></a>
 <h2 class="memtitle"><span class="permalink"><a href="#ab1da7c04b17a339535533553f81cb4e0">&#9670;&#160;</a></span>VentanaMisCompras()</h2>
@@ -133,14 +138,17 @@ Private Attributes</h2></td></tr>
         </tr>
       </table>
 </div><div class="memdoc">
-<p>Constructor que inicializa la ventana y carga las compras del usuario. </p><dl class="params"><dt>Parameters</dt><dd>
+
+<p>Constructor que inicializa la ventana y carga las compras del usuario. </p>
+<p>Configura la apariencia de la ventana, realiza llamadas REST para obtener las compras y muestra los datos en una tabla.</p>
+<dl class="params"><dt>Parameters</dt><dd>
   <table class="params">
     <tr><td class="paramname">usuario</td><td>El usuario que ha iniciado sesión y cuyas compras se mostrarán. </td></tr>
   </table>
   </dd>
 </dl>
 
-<p class="definition">Definition at line <a class="el" href="_ventana_mis_compras_8java_source.html#l00030">30</a> of file <a class="el" href="_ventana_mis_compras_8java_source.html">VentanaMisCompras.java</a>.</p>
+<p class="definition">Definition at line <a class="el" href="_ventana_mis_compras_8java_source.html#l00040">40</a> of file <a class="el" href="_ventana_mis_compras_8java_source.html">VentanaMisCompras.java</a>.</p>
 
 </div>
 </div>
@@ -164,8 +172,9 @@ Private Attributes</h2></td></tr>
   </tr>
 </table>
 </div><div class="memdoc">
+<p>&lt; Usuario autenticado cuyas compras se mostrarán </p>
 
-<p class="definition">Definition at line <a class="el" href="_ventana_mis_compras_8java_source.html#l00024">24</a> of file <a class="el" href="_ventana_mis_compras_8java_source.html">VentanaMisCompras.java</a>.</p>
+<p class="definition">Definition at line <a class="el" href="_ventana_mis_compras_8java_source.html#l00030">30</a> of file <a class="el" href="_ventana_mis_compras_8java_source.html">VentanaMisCompras.java</a>.</p>
 
 </div>
 </div>
@@ -178,7 +187,7 @@ Private Attributes</h2></td></tr>
 <div id="nav-path" class="navpath"><!-- id is needed for treeview function! -->
   <ul>
     <li class="navelem"><b>com</b></li><li class="navelem"><b>example</b></li><li class="navelem"><a class="el" href="namespacecom_1_1example_1_1restapi.html">restapi</a></li><li class="navelem"><b>client</b></li><li class="navelem"><a class="el" href="namespacecom_1_1example_1_1restapi_1_1client_1_1window.html">window</a></li><li class="navelem"><a class="el" href="classcom_1_1example_1_1restapi_1_1client_1_1window_1_1_ventana_mis_compras.html">VentanaMisCompras</a></li>
-    <li class="footer">Generated on Tue May 20 2025 16:45:34 for SpringBootLibrary by <a href="https://www.doxygen.org/index.html"><img class="footer" src="doxygen.svg" width="104" height="31" alt="doxygen"/></a> 1.9.8 </li>
+    <li class="footer">Generated on Tue May 20 2025 17:29:48 for SpringBootLibrary by <a href="https://www.doxygen.org/index.html"><img class="footer" src="doxygen.svg" width="104" height="31" alt="doxygen"/></a> 1.9.8 </li>
   </ul>
 </div>
 </body>
