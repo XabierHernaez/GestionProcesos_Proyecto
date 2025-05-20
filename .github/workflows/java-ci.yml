@@ -75,21 +75,12 @@ jobs:
       
       - name: Copy site doxygen output to docs folder
         run: |
-          mkdir -p docs
-          rm -rf docs/site
-          mkdir -p docs/site
-          cp -r target/site/* docs/site/
-          mkdir -p docs/site/reports
-          if [ -d target/reports ]; then
-            cp -r target/reports/* docs/site/reports/
-          fi
-          rm -rf docs/doxygen
           mkdir -p docs/doxygen
-          cp -r target/site/doxygen/html/* docs/doxygen/
+          cp -r target/site/doxygen/* docs/doxygen/
 
       - name: Deploy  
         uses: JamesIves/github-pages-deploy-action@v4
         with:
-          folder: docs/site/doxygen/html
+          folder: docs/doxygen
           branch: gh-pages
           token: ${{ secrets.GITHUB_TOKEN }}
