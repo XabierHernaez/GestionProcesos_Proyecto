@@ -27,40 +27,49 @@ import com.example.restapi.model.TipoUsuario;
 import com.example.restapi.model.Usuario;
 
 /**
- * Clase que representa la ventana de inicio de sesión para los usuarios.
- * Permite ingresar correo electrónico y contraseña, y autentica al usuario
- * contra el servidor REST.
+ * @class VentanaInicio
+ * @brief Ventana de inicio de sesión para los usuarios del sistema.
+ *
+ * Permite a los usuarios ingresar su correo electrónico y contraseña
+ * para autenticarse a través de una API REST. Si la autenticación es exitosa,
+ * redirige a la ventana correspondiente según el tipo de usuario (ADMIN o CLIENTE).
  */
 public class VentanaInicio extends JFrame {
     private static final long serialVersionUID = 1L;
 
-    // Campos de entrada de texto
+    /**< Campo de texto para introducir el correo electrónico */
     private JTextField txtEmail;
+
+    /**< Campo de texto para introducir la contraseña */
     private JPasswordField txtPassword;
 
-    // Botones de acciones
-    private JButton btnLogin, btnRegistro;
+    /**< Botón para iniciar sesión */
+    private JButton btnLogin;
+
+    /**< Botón para acceder al formulario de registro */
+    private JButton btnRegistro;
 
     /**
-     * Constructor que inicializa y muestra la ventana de inicio de sesión.
+     * @brief Constructor de la ventana de inicio de sesión.
+     *
+     * Configura los componentes visuales y define el comportamiento de los botones.
      */
     public VentanaInicio() {
-        // Configurar la ventana principal
         setTitle("Inicio de Sesión");
         setSize(500, 350);
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         setLocationRelativeTo(null);
 
-        // Crear el panel principal con layout y bordes
         JPanel panel = new JPanel();
         panel.setLayout(new GridBagLayout());
         panel.setBackground(new Color(240, 248, 255));
         panel.setBorder(BorderFactory.createEmptyBorder(30, 30, 30, 30));
+
         GridBagConstraints gbc = new GridBagConstraints();
         gbc.fill = GridBagConstraints.HORIZONTAL;
         gbc.insets = new Insets(10, 10, 10, 10);
 
-        // Etiqueta y campo de texto para el email
+        // Campo email
         gbc.gridx = 0;
         gbc.gridy = 0;
         panel.add(new JLabel("Email:"), gbc);
@@ -71,7 +80,7 @@ public class VentanaInicio extends JFrame {
         gbc.gridx = 1;
         panel.add(txtEmail, gbc);
 
-        // Etiqueta y campo de texto para la contraseña
+        // Campo contraseña
         gbc.gridx = 0;
         gbc.gridy = 1;
         panel.add(new JLabel("Contraseña:"), gbc);
@@ -82,11 +91,10 @@ public class VentanaInicio extends JFrame {
         gbc.gridx = 1;
         panel.add(txtPassword, gbc);
 
-        // Panel para contener los botones
+        // Panel con botones
         JPanel panelBotones = new JPanel(new FlowLayout(FlowLayout.CENTER, 20, 10));
         panelBotones.setBackground(new Color(240, 248, 255));
 
-        // Botón para iniciar sesión
         btnLogin = new JButton("Iniciar Sesión");
         btnLogin.setPreferredSize(new Dimension(160, 40));
         btnLogin.setFont(new Font("Arial", Font.BOLD, 14));
@@ -95,7 +103,6 @@ public class VentanaInicio extends JFrame {
         btnLogin.setBorder(BorderFactory.createLineBorder(new Color(70, 130, 180), 2));
         btnLogin.setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
 
-        // Botón para registrarse
         btnRegistro = new JButton("Registrarse");
         btnRegistro.setPreferredSize(new Dimension(160, 40));
         btnRegistro.setFont(new Font("Arial", Font.BOLD, 14));
@@ -104,93 +111,78 @@ public class VentanaInicio extends JFrame {
         btnRegistro.setBorder(BorderFactory.createLineBorder(new Color(70, 130, 180), 2));
         btnRegistro.setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
 
-        // Añadir botones al panel
         panelBotones.add(btnLogin);
         panelBotones.add(btnRegistro);
 
-        // Añadir panel de botones al panel principal
         gbc.gridx = 0;
         gbc.gridy = 2;
         gbc.gridwidth = 2;
         panel.add(panelBotones, gbc);
 
-        // Añadir el panel principal a la ventana
         add(panel);
 
-        // Asignar acciones a los botones
+        // Asignar eventos
         btnLogin.addActionListener(e -> login());
         btnRegistro.addActionListener(e -> abrirRegistro());
 
-        // Hacer visible la ventana
         setVisible(true);
     }
 
     /**
-     * Método que se ejecuta al hacer clic en "Iniciar Sesión".
-     * Realiza una petición al servidor REST para autenticar al usuario.
+     * @brief Realiza la autenticación del usuario al presionar "Iniciar Sesión".
+     *
+     * Envía una solicitud POST a la API REST con el email y la contraseña proporcionados.
+     * Según la respuesta del servidor, notifica si la autenticación fue exitosa o si hubo errores.
      */
     private void login() {
-        // Obtener los datos introducidos por el usuario
         String email = txtEmail.getText().trim();
         String password = new String(txtPassword.getPassword());
 
-        // Validar que los campos no estén vacíos
         if (email.isEmpty() || password.isEmpty()) {
             JOptionPane.showMessageDialog(this, "Por favor, completa todos los campos.", "Error", JOptionPane.ERROR_MESSAGE);
             return;
         }
 
         try {
-            // Crear cliente REST para enviar la solicitud
             Client client = ClientBuilder.newClient();
-            String apiUrl = "http://localhost:8080/api/usuarios/login"; // URL del endpoint de login
+            String apiUrl = "http://localhost:8080/api/usuarios/login";
 
-            // Crear objeto Usuario con los datos introducidos
             Usuario usuario = new Usuario();
             usuario.setEmail(email);
             usuario.setPassword(password);
 
-            // Enviar solicitud POST con el usuario como JSON
             Response response = client.target(apiUrl)
                     .request(MediaType.APPLICATION_JSON)
                     .post(Entity.entity(usuario, MediaType.APPLICATION_JSON));
 
-            // Evaluar la respuesta del servidor
             if (response.getStatus() == Response.Status.OK.getStatusCode()) {
-                // Autenticación exitosa: leer el objeto Usuario de la respuesta
                 Usuario usuarioLogueado = response.readEntity(Usuario.class);
 
                 JOptionPane.showMessageDialog(this, "Inicio de sesión exitoso.", "Éxito", JOptionPane.INFORMATION_MESSAGE);
 
-                // Redirigir al usuario según su tipo
                 if (usuarioLogueado.getTipoUsuario() == TipoUsuario.ADMIN) {
-                    dispose(); // Cerrar ventana actual
-                    new VentanaAdmin(usuarioLogueado); // Abrir ventana de admin
+                    dispose();
+                    new VentanaAdmin(usuarioLogueado);
                 } else {
-                    dispose(); // Cerrar ventana actual
-                    new VentanaConciertos(usuarioLogueado); // Abrir ventana de conciertos
+                    dispose();
+                    new VentanaConciertos(usuarioLogueado);
                 }
             } else if (response.getStatus() == Response.Status.UNAUTHORIZED.getStatusCode()) {
-                // Contraseña incorrecta
                 JOptionPane.showMessageDialog(this, "Contraseña incorrecta.", "Error", JOptionPane.ERROR_MESSAGE);
             } else if (response.getStatus() == Response.Status.NOT_FOUND.getStatusCode()) {
-                // Usuario no encontrado
                 JOptionPane.showMessageDialog(this, "Usuario no encontrado.", "Error", JOptionPane.ERROR_MESSAGE);
             } else {
-                // Otro error
                 JOptionPane.showMessageDialog(this, "Error al iniciar sesión. Código: " + response.getStatus(), "Error", JOptionPane.ERROR_MESSAGE);
             }
 
-            client.close(); // Cerrar cliente REST
+            client.close();
         } catch (Exception ex) {
-            // Error de conexión con el servidor
             JOptionPane.showMessageDialog(this, "Error al conectar con el servidor: " + ex.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
         }
     }
 
     /**
-     * Método que se ejecuta al hacer clic en "Registrarse".
-     * Abre la ventana de registro de usuario.
+     * @brief Abre la ventana de registro de usuario al hacer clic en "Registrarse".
      */
     private void abrirRegistro() {
         new VentanaRegistro(this);
