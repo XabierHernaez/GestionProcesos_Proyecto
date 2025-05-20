@@ -17,33 +17,41 @@ import javax.ws.rs.core.Response;
 import java.awt.*;
 
 /**
- * Ventana que muestra las compras realizadas por un usuario.
- * Recupera los datos desde una API REST y los presenta en una tabla.
+ * @class VentanaMisCompras
+ * @brief Ventana gráfica que muestra las compras realizadas por un usuario autenticado.
+ *
+ * Esta clase construye una interfaz con Swing que se conecta a una API REST para obtener
+ * las compras realizadas por un usuario y las muestra en una tabla. Realiza múltiples
+ * solicitudes GET para recuperar tanto los datos de las compras como los detalles de los conciertos.
  */
 public class VentanaMisCompras extends JFrame {
+
+    /**< Usuario autenticado cuyas compras se mostrarán */
     private Usuario usuario;
 
     /**
-     * Constructor que inicializa la ventana y carga las compras del usuario.
+     * @brief Constructor que inicializa la ventana y carga las compras del usuario.
+     * 
+     * Configura la apariencia de la ventana, realiza llamadas REST para obtener las
+     * compras y muestra los datos en una tabla.
+     *
      * @param usuario El usuario que ha iniciado sesión y cuyas compras se mostrarán.
      */
     public VentanaMisCompras(Usuario usuario) {
         this.usuario = usuario;
 
-        // Establecer un look and feel del sistema operativo
+        // Establecer el look and feel del sistema operativo
         try {
             UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
         } catch (Exception e) {
             e.printStackTrace();
         }
 
-        // Configuración básica de la ventana
+        // Configuración de la ventana
         setTitle("Mis Compras");
-        setSize(800, 500); // Tamaño de la ventana
+        setSize(800, 500);
         setLocationRelativeTo(null);
         setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
-        
-        // Establecer el color de fondo
         getContentPane().setBackground(new Color(230, 230, 255));
 
         // Etiqueta de título
@@ -52,86 +60,77 @@ public class VentanaMisCompras extends JFrame {
         titleLabel.setForeground(new Color(70, 70, 150));
         titleLabel.setPreferredSize(new Dimension(800, 40));
 
-        // Definición de columnas de la tabla
+        // Columnas de la tabla
         String[] columnas = {"Concierto", "Lugar", "Fecha", "Tipo Entrada", "Cantidad"};
         DefaultTableModel modelo = new DefaultTableModel(columnas, 0);
         JTable tabla = new JTable(modelo);
         tabla.setFont(new Font("Arial", Font.PLAIN, 14));
         tabla.setRowHeight(25);
-        tabla.setSelectionBackground(new Color(100, 149, 237)); // Color al seleccionar una fila
+        tabla.setSelectionBackground(new Color(100, 149, 237));
         tabla.setSelectionForeground(Color.WHITE);
-
-        // Añadir borde a la tabla
         tabla.setBorder(BorderFactory.createLineBorder(new Color(200, 200, 200)));
 
-        // Scroll para la tabla
         JScrollPane scrollPane = new JScrollPane(tabla);
         scrollPane.setPreferredSize(new Dimension(750, 350));
 
-        // Formato esperado de las fechas
+        // Formato para las fechas
         SimpleDateFormat formatoFecha = new SimpleDateFormat("yyyy-MM-dd");
 
-        // Crear cliente REST
+        // Cliente REST para llamadas HTTP
         Client client = ClientBuilder.newClient();
         String apiUrl = "http://localhost:8080/compras/usuario?email=" + usuario.getEmail();
 
         try {
-            // Solicitud GET para obtener las compras del usuario
+            // Obtener compras del usuario
             Response response = client
                     .target(apiUrl)
                     .request(MediaType.APPLICATION_JSON)
                     .get();
 
-            // Si la respuesta es exitosa, procesar la lista de compras
             if (response.getStatus() == 200) {
                 List<Map<String, Object>> compras = response.readEntity(new GenericType<List<Map<String, Object>>>() {});
 
-                // Para cada compra, obtener la información del concierto y mostrarla en la tabla
+                // Para cada compra, obtener los detalles del concierto asociado
                 for (Map<String, Object> compra : compras) {
                     Integer conciertoId = (Integer) compra.get("conciertoId");
 
-                    // Nueva solicitud GET para obtener detalles del concierto
+                    // Solicitud para obtener detalles del concierto
                     String conciertoUrl = "http://localhost:8080/api/conciertos/" + conciertoId;
                     Map<String, Object> concierto = client
                             .target(conciertoUrl)
                             .request(MediaType.APPLICATION_JSON)
                             .get(new GenericType<Map<String, Object>>() {});
 
-                    // Extraer y formatear los datos del concierto y la compra
+                    // Extraer los datos necesarios
                     String nombre = String.valueOf(concierto.get("nombre"));
                     String lugar = String.valueOf(concierto.get("lugar"));
                     String fechaStr = String.valueOf(concierto.get("fecha"));
                     String tipoEntrada = String.valueOf(compra.get("tipoEntrada"));
                     int cantidad = Integer.parseInt(compra.get("cantidad").toString());
 
-                    // Parsear la fecha
+                    // Parseo de fecha y añadido de fila a la tabla
                     Date fecha = formatoFecha.parse(fechaStr);
-
-                    // Añadir la fila a la tabla
                     modelo.addRow(new Object[]{nombre, lugar, formatoFecha.format(fecha), tipoEntrada, cantidad});
                 }
             } else {
-                // Mostrar error si la API devuelve un estado distinto a 200
+                // Mostrar mensaje de error si falla la solicitud
                 JOptionPane.showMessageDialog(this, "Error al obtener compras: " + response.getStatus(), "Error", JOptionPane.ERROR_MESSAGE);
             }
         } catch (Exception e) {
-            // Mostrar error en caso de excepción
+            // Captura de errores durante el proceso de solicitud y parseo
             JOptionPane.showMessageDialog(this, "Error al obtener compras: " + e.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
         } finally {
-            // Cerrar el cliente REST
+            // Cierre del cliente REST
             client.close();
         }
 
-        // Crear panel y establecer layout
+        // Construcción del panel principal
         JPanel panel = new JPanel();
         panel.setLayout(new BorderLayout());
         panel.add(titleLabel, BorderLayout.NORTH);
         panel.add(scrollPane, BorderLayout.CENTER);
 
-        // Añadir el panel a la ventana
         add(panel);
-
-        // Hacer visible la ventana
         setVisible(true);
     }
 }
