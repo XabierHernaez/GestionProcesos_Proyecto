@@ -17,21 +17,28 @@ import javax.ws.rs.core.Response;
 import java.text.SimpleDateFormat;
 
 /**
- * Clase que representa la ventana principal donde se listan los conciertos disponibles.
+ * @class VentanaConciertos
+ * @brief Ventana principal donde se listan los conciertos disponibles.
+ *
  * Permite al usuario filtrar conciertos, ver detalles, comprar entradas y acceder a sus compras.
  */
 public class VentanaConciertos extends JFrame {
     private static final long serialVersionUID = 1L;
     
-    // Componentes de la interfaz
+    /**< Tabla para mostrar la lista de conciertos */
     private JTable tablaConciertos;
+    /**< Modelo de datos para la tabla */
     private DefaultTableModel modeloTabla;
+    /**< Botones para las diferentes acciones de la interfaz */
     private JButton btnComprar, btnActualizar, btnDetalle, btnVolverVentanaPrincipal, btnFiltrarFecha, btnFiltrarAmbos, btnMisCopras;
+    /**< Usuario autenticado en la aplicación */
     private Usuario usuario;
+    /**< Campos de texto para los filtros de búsqueda */
     private JTextField campoFiltroLugar, campoFiltroFecha;
 
     /**
-     * Constructor de la clase. Recibe el usuario autenticado (si lo hay).
+     * @brief Constructor de la clase. Recibe el usuario autenticado (si lo hay).
+     *
      * @param usuario Usuario autenticado o null.
      */
     public VentanaConciertos(Usuario usuario) {
@@ -158,7 +165,8 @@ public class VentanaConciertos extends JFrame {
     }
 
     /**
-     * Configura la apariencia de los botones.
+     * @brief Configura la apariencia de los botones.
+     *
      * @param boton Botón a configurar.
      */
     private void configurarBoton(JButton boton) {
@@ -171,7 +179,7 @@ public class VentanaConciertos extends JFrame {
     }
 
     /**
-     * Muestra la ventana con las compras del usuario autenticado.
+     * @brief Muestra la ventana con las compras del usuario autenticado.
      */
     private void verMisCompras() {
         if (usuario == null) {
@@ -188,7 +196,7 @@ public class VentanaConciertos extends JFrame {
     }
 
     /**
-     * Abre la ventana de compra si hay una fila seleccionada.
+     * @brief Abre la ventana de compra si hay una fila seleccionada.
      */
     private void comprarEntrada() {
         int filaSeleccionada = tablaConciertos.getSelectedRow();
@@ -214,7 +222,7 @@ public class VentanaConciertos extends JFrame {
     }
 
     /**
-     * Muestra la ventana de detalle del concierto seleccionado.
+     * @brief Muestra la ventana de detalle del concierto seleccionado.
      */
     private void verDetalle() {
         int filaSeleccionada = tablaConciertos.getSelectedRow();
@@ -230,7 +238,8 @@ public class VentanaConciertos extends JFrame {
     }
 
     /**
-     * Muestra un mensaje de error mediante un cuadro de diálogo.
+     * @brief Muestra un mensaje de error mediante un cuadro de diálogo.
+     *
      * @param mensaje Texto del mensaje.
      */
     private void mostrarMensajeError(String mensaje) {
@@ -238,7 +247,7 @@ public class VentanaConciertos extends JFrame {
     }
 
     /**
-     * Carga los conciertos desde la API y actualiza la tabla.
+     * @brief Carga los conciertos desde la API y actualiza la tabla.
      */
     private void actualizarTabla() {
         modeloTabla.setRowCount(0);  // Limpiar la tabla
@@ -277,7 +286,8 @@ public class VentanaConciertos extends JFrame {
     }
 
     /**
-     * Consulta los detalles de un concierto por su ID.
+     * @brief Consulta los detalles de un concierto por su ID.
+     *
      * @param id ID del concierto.
      * @return Objeto Concierto o null si falla.
      */
@@ -303,7 +313,7 @@ public class VentanaConciertos extends JFrame {
     }
 
     /**
-     * Filtra los conciertos por lugar usando el valor del campo de texto.
+     * @brief Filtra los conciertos por lugar usando el valor del campo de texto.
      */
     private void filtrarPorLugar() {
         String lugar = campoFiltroLugar.getText().trim().toLowerCase();
@@ -350,7 +360,7 @@ public class VentanaConciertos extends JFrame {
     }
 
     /**
-     * Filtra los conciertos por fecha.
+     * @brief Filtra los conciertos por fecha.
      */
     private void filtrarPorFecha() {
         String fechaStr = campoFiltroFecha.getText().trim();
@@ -400,7 +410,7 @@ public class VentanaConciertos extends JFrame {
     }
 
     /**
-     * Filtra los conciertos por lugar y fecha simultáneamente.
+     * @brief Filtra los conciertos por lugar y fecha simultáneamente.
      */
     private void filtrarPorLugarYFecha() {
         String lugar = campoFiltroLugar.getText().trim().toLowerCase();
