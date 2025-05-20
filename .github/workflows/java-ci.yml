@@ -79,6 +79,9 @@ jobs:
           rm -rf docs/*
           cp -r target/site/doxygen/html/* docs/
 
+      - name: Disable Jekyll
+        run: touch target/site/doxygen/.nojekyll 
+
       - name: Deploy  
         uses: JamesIves/github-pages-deploy-action@v4
         with:
