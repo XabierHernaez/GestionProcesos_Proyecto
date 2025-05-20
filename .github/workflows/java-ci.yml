@@ -75,12 +75,13 @@ jobs:
       
       - name: Copy site doxygen output to docs folder
         run: |
-          mkdir -p docs/doxygen
-          cp -r target/site/doxygen/* docs/doxygen/
+          mkdir -p docs
+          rm -rf docs/*
+          cp -r target/site/doxygen/html/* docs/
 
       - name: Deploy  
         uses: JamesIves/github-pages-deploy-action@v4
         with:
-          folder: docs/doxygen
+          folder: docs
           branch: gh-pages
           token: ${{ secrets.GITHUB_TOKEN }}
