@@ -85,7 +85,7 @@ jobs:
           fi
           rm -rf docs/doxygen
           mkdir -p docs/doxygen
-          cp -r target/doxygen/html/* docs/doxygen/
+          cp -r target/site/doxygen/html/* docs/doxygen/
 
       - name: Deploy 🚀
         uses: JamesIves/github-pages-deploy-action@v4
