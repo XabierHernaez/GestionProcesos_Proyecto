@@ -87,9 +87,8 @@ jobs:
           mkdir -p docs/doxygen
           cp -r target/site/doxygen/html/* docs/doxygen/
 
-      - name: Deploy 🚀
-        uses: JamesIves/github-pages-deploy-action@v4
+      - name: Deploy to GitHub Pages
+        uses: peaceiris/actions-gh-pages@v4
         with:
-          folder: docs
-          branch: gh-pages
-          token: ${{ secrets.GITHUB_TOKEN }}
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          publish_dir: ./docs/html
