@@ -87,7 +87,7 @@ jobs:
           mkdir -p docs/doxygen
           cp -r target/site/doxygen/html/* docs/doxygen/
 
-      - name: Deploy 🚀
+      - name: Deploy  
         uses: JamesIves/github-pages-deploy-action@v4
         with:
           folder: docs
