@@ -79,7 +79,10 @@ jobs:
           rm -rf docs/site
           mkdir -p docs/site
           cp -r target/site/* docs/site/
-          cp -r target/reports/* docs/site/reports/
+          mkdir -p docs/site/reports
+          if [ -d target/reports ]; then
+            cp -r target/reports/* docs/site/reports/
+          fi
           rm -rf docs/doxygen
           mkdir -p docs/doxygen
           cp -r target/doxygen/html/* docs/doxygen/
