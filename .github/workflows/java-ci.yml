@@ -76,11 +76,12 @@ jobs:
       - name: Copy site doxygen output to docs folder
         run: |
           mkdir -p docs
-          rm -rf docs/*
-          cp -r target/site/doxygen/html/* docs/
-
-      - name: Disable Jekyll
-        run: touch target/site/doxygen/.nojekyll 
+          rm -rf docs/site
+          mkdir -p docs/site
+          cp -r target/site/* docs/site/
+          rm -rf docs/doxygen
+          mkdir -p docs/doxygen
+          cp -r target/site/doxygen/html/* docs/doxygen/
 
       - name: Deploy  
         uses: JamesIves/github-pages-deploy-action@v4
