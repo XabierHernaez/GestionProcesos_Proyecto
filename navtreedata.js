@@ -26,7 +26,7 @@ var NAVTREE =
 [
   [ "SpringBootLibrary", "index.html", [
     [ "Packages", "namespaces.html", [
-      [ "Package List", "namespaces.html", null ]
+      [ "Package List", "namespaces.html", "namespaces_dup" ]
     ] ],
     [ "Classes", "annotated.html", [
       [ "Class List", "annotated.html", "annotated_dup" ],
@@ -47,9 +47,11 @@ var NAVTREE =
 var NAVTREEINDEX =
 [
 "_compra_8java.html",
-"classcom_1_1example_1_1restapi_1_1model_1_1_compra.html#a8def5cf01551eefe02c07890e0968682",
-"interfacecom_1_1example_1_1restapi_1_1server_1_1repository_1_1_usuario_repository.html#a50368880d1431a457c483c311b42cc2e"
+"classcom_1_1example_1_1restapi_1_1client_1_1window_1_1_ventana_inicio.html#ae5b81ccc4c529c6ca91223e43acd09f4",
+"classcom_1_1example_1_1restapi_1_1model_1_1_concierto.html#aa321ee72bcdf147df1e1eba6f9aac6a1",
+"classcom_1_1example_1_1restapi_1_1server_1_1jpa_1_1_usuario_j_p_a.html#ab0a9ec0a0282e83a6866bee1e88e2982"
 ];
 
-var SYNCONMSG = 'click to disable panel synchronisation';
-var SYNCOFFMSG = 'click to enable panel synchronisation';
+var SYNCONMSG = 'click to disable panel synchronization';
+var SYNCOFFMSG = 'click to enable panel synchronization';
+var LISTOFALLMEMBERS = 'List of all members';
